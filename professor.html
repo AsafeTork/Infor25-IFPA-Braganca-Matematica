@@ -28,11 +28,11 @@
 .prof-label{font-family:var(--font-mono);font-size:.75rem;background:color-mix(in srgb,var(--bg) 75%,transparent);padding:.15rem .45rem;border-radius:4px;}
 
 /* Círculo unitário sobre o gráfico */
-.uc-overlay{position:absolute;inset:0;display:none;pointer-events:none;align-items:center;justify-content:center;}
-.uc-overlay.active{display:flex;pointer-events:auto;}
-.uc-canvas-wrap{position:relative;width:min(100%,100%,calc(100vh - 104px));max-width:calc(100vh - 104px);aspect-ratio:1;}
-.uc-canvas-wrap canvas{width:100%;height:100%;cursor:grab;display:block;}
-.uc-canvas-wrap canvas:active{cursor:grabbing;}
+.uc-overlay{position:absolute;inset:0;display:none;pointer-events:none;}
+.uc-overlay.active{display:block;pointer-events:auto;}
+
+
+
 .uc-vals{position:absolute;top:.4rem;right:.4rem;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:8px;padding:.4rem .6rem;font-family:var(--font-mono);font-size:.72rem;min-width:120px;}
 .uc-row{display:flex;justify-content:space-between;gap:.5rem;padding:.1rem 0;line-height:1.3;}
 .uc-k{font-weight:700;}
@@ -91,10 +91,8 @@
 
     <!-- Círculo unitário sobreposto ao gráfico -->
     <div class="uc-overlay" id="uc-overlay">
-      <div class="uc-canvas-wrap">
-        <canvas id="uc-canvas"></canvas>
-        <div class="uc-vals" id="uc-vals"></div>
-      </div>
+      <canvas id="uc-canvas" style="width:100%;height:100%;display:block;cursor:grab;position:absolute;top:0;left:0;"></canvas>
+      <div class="uc-vals" id="uc-vals"></div>
     </div>
   </div>
 
@@ -195,7 +193,7 @@ function addFormula(expr = "") {
   row.className = "frow";
   row.innerHTML = `
     <span class="frow-dot" style="background:${color}"></span>
-    <input class="frow-inp" placeholder="y = ..." value="${expr}" spellcheck="false">
+    <input class="frow-inp" name="formula" autocomplete="off" placeholder="y = ..." value="${expr}" spellcheck="false">
     <button class="frow-del">×</button>`;
   const inp = row.querySelector("input");
   inp.addEventListener("input", updatePlot);
