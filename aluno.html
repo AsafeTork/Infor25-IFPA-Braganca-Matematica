@@ -133,43 +133,64 @@ const sidebarInner = document.getElementById("sidebar-inner");
 // Track which chapters are open (default: first one open)
 const openState = MODULES.map((_, i) => i === 0);
 
+let sidebarBuilt = false;
+
 function buildSidebar(currentId) {
-  sidebarInner.innerHTML = MODULES.map((m, mi) => {
-    const isOpen = openState[mi];
-    return `
-    <div class="al-chapter" data-mi="${mi}">
-      <button class="al-ch-btn ${isOpen ? 'open' : ''}" data-mi="${mi}">
-        <span class="al-ch-num">${m.meta.num}</span>
-        <span class="al-ch-title">${m.meta.title}</span>
-        <svg class="al-ch-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
-      </button>
-      <div class="al-ch-lessons ${isOpen ? 'open' : ''}" id="ch-lessons-${mi}">
-        ${m.lessons.map(l => `
-          <button class="al-lesson-btn ${l.id === currentId ? 'active' : ''}" data-id="${l.id}">
-            ${l.title}
-          </button>`).join("")}
-      </div>
-    </div>`;
-  }).join("");
+  // Build once — depois só atualiza o item ativo
+  if (!sidebarBuilt) {
+    sidebarInner.innerHTML = MODULES.map((m, mi) => {
+      const isOpen = openState[mi];
+      return `
+      <div class="al-chapter" data-mi="${mi}">
+        <button class="al-ch-btn ${isOpen ? 'open' : ''}" data-mi="${mi}">
+          <span class="al-ch-num">${m.meta.num}</span>
+          <span class="al-ch-title">${m.meta.title}</span>
+          <svg class="al-ch-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="al-ch-lessons ${isOpen ? 'open' : ''}" id="ch-lessons-${mi}">
+          ${m.lessons.map(l => `
+            <button class="al-lesson-btn" data-id="${l.id}">
+              ${l.title}
+            </button>`).join("")}
+        </div>
+      </div>`;
+    }).join("");
 
-  // Chapter toggle
-  sidebarInner.querySelectorAll(".al-ch-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const mi = +btn.dataset.mi;
-      openState[mi] = !openState[mi];
-      btn.classList.toggle("open", openState[mi]);
-      const lessons = document.getElementById(`ch-lessons-${mi}`);
-      lessons.classList.toggle("open", openState[mi]);
+    // Chapter toggle — bind uma vez
+    sidebarInner.querySelectorAll(".al-ch-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const mi = +btn.dataset.mi;
+        openState[mi] = !openState[mi];
+        btn.classList.toggle("open", openState[mi]);
+        document.getElementById(`ch-lessons-${mi}`).classList.toggle("open", openState[mi]);
+      });
     });
-  });
 
-  // Lesson click
+    // Lesson click — bind uma vez com delegação
+    sidebarInner.addEventListener("click", e => {
+      const btn = e.target.closest(".al-lesson-btn");
+      if (btn) { go(btn.dataset.id); closeSidebar(); }
+    });
+
+    sidebarBuilt = true;
+  }
+
+  // Só atualiza classe active — sem recriar DOM
   sidebarInner.querySelectorAll(".al-lesson-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      go(btn.dataset.id);
-      closeSidebar();
-    });
+    btn.classList.toggle("active", btn.dataset.id === currentId);
   });
+
+  // Abrir capítulo do item ativo se estiver fechado
+  if (currentId) {
+    const mi = MODULES.findIndex(m => m.lessons.some(l => l.id === currentId));
+    if (mi >= 0 && !openState[mi]) {
+      openState[mi] = true;
+      const chBtn = sidebarInner.querySelector(`.al-ch-btn[data-mi="${mi}"]`);
+      const chList = document.getElementById(`ch-lessons-${mi}`);
+      if (chBtn) chBtn.classList.add("open");
+      if (chList) chList.classList.add("open");
+    }
+  }
 }
 
 /* ── Mobile sidebar ── */
@@ -380,43 +401,64 @@ const sidebarInner = document.getElementById("sidebar-inner");
 // Track which chapters are open (default: first one open)
 const openState = MODULES.map((_, i) => i === 0);
 
+let sidebarBuilt = false;
+
 function buildSidebar(currentId) {
-  sidebarInner.innerHTML = MODULES.map((m, mi) => {
-    const isOpen = openState[mi];
-    return `
-    <div class="al-chapter" data-mi="${mi}">
-      <button class="al-ch-btn ${isOpen ? 'open' : ''}" data-mi="${mi}">
-        <span class="al-ch-num">${m.meta.num}</span>
-        <span class="al-ch-title">${m.meta.title}</span>
-        <svg class="al-ch-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
-      </button>
-      <div class="al-ch-lessons ${isOpen ? 'open' : ''}" id="ch-lessons-${mi}">
-        ${m.lessons.map(l => `
-          <button class="al-lesson-btn ${l.id === currentId ? 'active' : ''}" data-id="${l.id}">
-            ${l.title}
-          </button>`).join("")}
-      </div>
-    </div>`;
-  }).join("");
+  // Build once — depois só atualiza o item ativo
+  if (!sidebarBuilt) {
+    sidebarInner.innerHTML = MODULES.map((m, mi) => {
+      const isOpen = openState[mi];
+      return `
+      <div class="al-chapter" data-mi="${mi}">
+        <button class="al-ch-btn ${isOpen ? 'open' : ''}" data-mi="${mi}">
+          <span class="al-ch-num">${m.meta.num}</span>
+          <span class="al-ch-title">${m.meta.title}</span>
+          <svg class="al-ch-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="al-ch-lessons ${isOpen ? 'open' : ''}" id="ch-lessons-${mi}">
+          ${m.lessons.map(l => `
+            <button class="al-lesson-btn" data-id="${l.id}">
+              ${l.title}
+            </button>`).join("")}
+        </div>
+      </div>`;
+    }).join("");
 
-  // Chapter toggle
-  sidebarInner.querySelectorAll(".al-ch-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const mi = +btn.dataset.mi;
-      openState[mi] = !openState[mi];
-      btn.classList.toggle("open", openState[mi]);
-      const lessons = document.getElementById(`ch-lessons-${mi}`);
-      lessons.classList.toggle("open", openState[mi]);
+    // Chapter toggle — bind uma vez
+    sidebarInner.querySelectorAll(".al-ch-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const mi = +btn.dataset.mi;
+        openState[mi] = !openState[mi];
+        btn.classList.toggle("open", openState[mi]);
+        document.getElementById(`ch-lessons-${mi}`).classList.toggle("open", openState[mi]);
+      });
     });
-  });
 
-  // Lesson click
+    // Lesson click — bind uma vez com delegação
+    sidebarInner.addEventListener("click", e => {
+      const btn = e.target.closest(".al-lesson-btn");
+      if (btn) { go(btn.dataset.id); closeSidebar(); }
+    });
+
+    sidebarBuilt = true;
+  }
+
+  // Só atualiza classe active — sem recriar DOM
   sidebarInner.querySelectorAll(".al-lesson-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      go(btn.dataset.id);
-      closeSidebar();
-    });
+    btn.classList.toggle("active", btn.dataset.id === currentId);
   });
+
+  // Abrir capítulo do item ativo se estiver fechado
+  if (currentId) {
+    const mi = MODULES.findIndex(m => m.lessons.some(l => l.id === currentId));
+    if (mi >= 0 && !openState[mi]) {
+      openState[mi] = true;
+      const chBtn = sidebarInner.querySelector(`.al-ch-btn[data-mi="${mi}"]`);
+      const chList = document.getElementById(`ch-lessons-${mi}`);
+      if (chBtn) chBtn.classList.add("open");
+      if (chList) chList.classList.add("open");
+    }
+  }
 }
 
 /* ── Mobile sidebar ── */
