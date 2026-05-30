@@ -171,33 +171,50 @@ const ucVals    = document.getElementById("uc-vals");
 let uc = null;
 
 function getPlotLayout() {
-  // Sync UC canvas size with plot canvas
-  ucCanvas.style.width  = canvas.style.width  || canvas.clientWidth  + "px";
-  ucCanvas.style.height = canvas.style.height || canvas.clientHeight + "px";
+  // Sync UC canvas to same physical size as plot canvas
   const dpr = window.devicePixelRatio || 1;
   const W = canvas.clientWidth, H = canvas.clientHeight;
-  ucCanvas.width  = Math.round(W * dpr);
-  ucCanvas.height = Math.round(H * dpr);
-  // Pass plot's coordinate system so circle aligns with cartesian plane
+  if (ucCanvas.width !== Math.round(W*dpr) || ucCanvas.height !== Math.round(H*dpr)) {
+    ucCanvas.width  = Math.round(W * dpr);
+    ucCanvas.height = Math.round(H * dpr);
+    ucCanvas.style.width  = W + "px";
+    ucCanvas.style.height = H + "px";
+  }
+  // Pixel position of origin and 1 unit — using plot coordinate functions
   return {
-    cx: plot.X(0),   // pixel x of mathematical origin
-    cy: plot.Y(0),   // pixel y of mathematical origin
-    r:  plot.X(1) - plot.X(0),  // 1 unit in pixels
+    cx: plot.X(0),
+    cy: plot.Y(0),
+    r:  plot.X(1) - plot.X(0),   // 1 unit in X pixels
   };
+}
+
+function autoZoomForCircle() {
+  // Set view so X and Y have equal px/unit, circle fills nicely
+  const W = canvas.clientWidth, H = canvas.clientHeight;
+  const ratio = W / H;
+  const yRange = 3.2;              // -1.6 to 1.6 — mostra o círculo com margem
+  const xRange = yRange * ratio;   // escala igual em X e Y
+  plot.setView({
+    xmin: -xRange/2, xmax: xRange/2,
+    ymin: -yRange/2, ymax: yRange/2
+  });
 }
 
 function redrawCircle() {
   if (!uc || !circleActive) return;
-  const layout = getPlotLayout();
-  uc.draw(layout);
+  uc.draw(getPlotLayout());
 }
 
 function showCircle(active) {
   ucOverlay.classList.toggle("active", active);
   if (active) {
+    autoZoomForCircle();   // zoom automático com escala igual
     if (!uc) uc = new UnitCircle(ucCanvas, ucVals);
-    redrawCircle();
-    uc._updateInfo();
+    // Pequeno delay para o plot terminar de redesenhar
+    requestAnimationFrame(() => {
+      redrawCircle();
+      uc._updateInfo();
+    });
   }
 }
 
