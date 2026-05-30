@@ -66,6 +66,15 @@ export class UnitCircle {
     let prev = null;
 
     cv.addEventListener("pointerdown", e => {
+      // Só captura se o toque estiver perto do ponto no círculo (±40px)
+      const rect = cv.getBoundingClientRect();
+      const pt   = e.touches ? e.touches[0] : e;
+      const mx   = pt.clientX - rect.left;
+      const my   = pt.clientY - rect.top;
+      const px   = this._cx + this._r * Math.cos(this.theta);
+      const py   = this._cy - this._r * Math.sin(this.theta);
+      const dist = Math.hypot(mx - px, my - py);
+      if (dist > 48) return; // Longe do ponto → deixa evento chegar ao plot
       e.preventDefault();
       cv.setPointerCapture(e.pointerId);
       prev = this._evAngle(e);
@@ -105,6 +114,8 @@ export class UnitCircle {
   }
 
   draw(layout) {
+    if (this._drawing) return; // evita loop reentrante
+    this._drawing = true;
     const ctx = this.ctx;
     const dpr = window.devicePixelRatio || 1;
     const W   = this.cv.width  / dpr;
@@ -240,6 +251,7 @@ export class UnitCircle {
     ctx.fillText(lbl, cx + lr*Math.cos(la)+4, cy - lr*Math.sin(la));
 
     ctx.restore();
+    this._drawing = false;
   }
 
   _updateInfo() {

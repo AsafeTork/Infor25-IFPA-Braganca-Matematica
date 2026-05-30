@@ -29,7 +29,8 @@
 
 /* Círculo unitário sobre o gráfico */
 .uc-overlay{position:absolute;inset:0;display:none;pointer-events:none;}
-.uc-overlay.active{display:block;pointer-events:auto;}
+.uc-overlay.active{display:block;pointer-events:none;}
+.uc-overlay.active canvas{pointer-events:auto;}
 
 
 
@@ -200,9 +201,14 @@ function autoZoomForCircle() {
   });
 }
 
+let _redrawPending = false;
 function redrawCircle() {
-  if (!uc || !circleActive) return;
-  uc.draw(getPlotLayout());
+  if (!uc || !circleActive || _redrawPending) return;
+  _redrawPending = true;
+  requestAnimationFrame(() => {
+    _redrawPending = false;
+    if (uc && circleActive) uc.draw(getPlotLayout());
+  });
 }
 
 function showCircle(active) {
