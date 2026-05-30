@@ -216,8 +216,8 @@ function go(id) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-prevBtn.addEventListener("click", () => go(ALL[cur - 1].id));
-nextBtn.addEventListener("click", () => go(ALL[cur + 1].id));
+prevBtn.addEventListener("click", () => { if (cur > 0) go(ALL[cur - 1].id); });
+nextBtn.addEventListener("click", () => { if (cur < ALL.length - 1) go(ALL[cur + 1].id); });
 
 const hash = location.hash.slice(1);
 buildSidebar(null);

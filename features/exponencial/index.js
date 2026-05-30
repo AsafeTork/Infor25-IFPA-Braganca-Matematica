@@ -34,7 +34,7 @@ const conceito = {
     mountLab(c.querySelector("#lab-conceito"), {
       base: "f(x) = a^{x}",
       params: [{ k: "a", name: "base ($a>0,\\ a\\ne1$)", default: 2 }],
-      start: "y = a^x",
+      start: "y = 2^x",
       view: { xmin: -4, xmax: 4, ymin: -1, ymax: 9 },
       examples: ["y = 2^x", "y = 3^x", "y = π^x", "y = (1/2)^x", "y = (1/3)^x"],
     });
@@ -124,7 +124,7 @@ const aplicacoes = {
     mountLab(c.querySelector("#lab-app"), {
       base: "N(x) = N_{0}\\cdot a^{x}",
       params: [{ k: "N", name: "valor inicial $N_0$", default: 1 }, { k: "a", name: "fator por passo", default: 2 }],
-      start: "y = N·a^x",
+      start: "y = 3·2^x",
       view: { xmin: 0, xmax: 10, ymin: -2, ymax: 60 },
       examples: ["y = N·a^x", "y = 1800·(1.03)^x", "y = 100·(1/2)^x", "y = 2^x"],
     });

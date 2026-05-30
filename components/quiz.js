@@ -1,52 +1,69 @@
-/* components/quiz.js — questões guiadas que ensinam o raciocínio */
+/* components/quiz.js */
 import { autoRender } from "./katex.js";
 
 /**
- * mountQuiz(container, question)
- * question = {
- *   stem (HTML/LaTeX), source, options:[...], answer:index,
- *   explain (HTML/LaTeX explicando o caminho — não só a resposta)
- * }
+ * Aceita dois formatos de questão:
+ *   Formato A: { stem, options, answer, explain, source }
+ *   Formato B: { q,    opts,   ans,    expl,    source }
  */
-export function mountQuiz(container, q) {
+export function mountQuiz(container, raw) {
+  if (!raw) return;
+  const q = {
+    stem:    raw.stem    ?? raw.q    ?? "",
+    options: raw.options ?? raw.opts ?? [],
+    answer:  raw.answer  ?? raw.ans  ?? 0,
+    explain: raw.explain ?? raw.expl ?? "",
+    source:  raw.source  ?? "",
+  };
+
+  if (!Array.isArray(q.options) || q.options.length === 0) return;
+
+  const letters = ["a","b","c","d","e"];
   const el = document.createElement("div");
   el.className = "quiz";
-  const letters = ["a", "b", "c", "d", "e"];
   el.innerHTML = `
     ${q.source ? `<div class="q-src">${q.source}</div>` : ""}
     <div class="q-stem">${q.stem}</div>
     <div class="q-options">
-      ${q.options.map((o, i) => `<button class="q-opt" data-i="${i}">
-        <span class="mk">${letters[i]}</span><span>${o}</span></button>`).join("")}
+      ${q.options.map((o, i) => `
+        <button class="q-opt" data-i="${i}">
+          <span class="mk">${letters[i]}</span><span>${o}</span>
+        </button>`).join("")}
     </div>
-    <div class="q-feedback">
+    <div class="q-feedback" style="display:none">
       <h5></h5>
-      <div class="q-exp">${q.explain || ""}</div>
+      <div class="q-exp">${q.explain}</div>
     </div>`;
+
   container.appendChild(el);
 
-  const fb = el.querySelector(".q-feedback");
+  const fb  = el.querySelector(".q-feedback");
   const fbh = fb.querySelector("h5");
   let answered = false;
-  el.querySelectorAll(".q-opt").forEach((btn) => {
+
+  el.querySelectorAll(".q-opt").forEach(btn => {
     btn.addEventListener("click", () => {
       if (answered) return;
       answered = true;
-      const i = +btn.dataset.i;
-      const correct = q.answer;
-      el.querySelectorAll(".q-opt").forEach((b, j) => {
-        if (j === correct) b.classList.add("correct");
-        if (j === i && i !== correct) b.classList.add("wrong");
+      const chosen = +btn.dataset.i;
+      const correct = chosen === q.answer;
+      btn.classList.add(correct ? "correct" : "wrong");
+      el.querySelectorAll(".q-opt").forEach((b, i) => {
+        b.disabled = true;
+        if (i === q.answer) b.classList.add("correct");
       });
-      fbh.textContent = i === correct ? "Correto — entenda o porquê:" : "Não foi dessa vez. Veja o caminho:";
-      fb.classList.add("show");
+      fb.style.display = "block";
+      fbh.textContent = correct ? "✓ Correto!" : "✗ Não desta vez";
+      fbh.style.color = correct ? "var(--accent)" : "#f87171";
       autoRender(fb);
     });
   });
+
   autoRender(el);
   return el;
 }
 
 export function mountQuizSet(container, list) {
-  list.forEach((q) => mountQuiz(container, q));
+  if (!container || !Array.isArray(list)) return;
+  list.forEach(q => mountQuiz(container, q));
 }
