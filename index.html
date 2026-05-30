@@ -61,6 +61,14 @@ body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
 .land-card h3 { font-size: 1rem; margin: 0; font-family: var(--font-display); }
 .land-card span { font-size: .78rem; color: var(--text-mut); }
 
+.land-tagline {
+  font-size: clamp(.8rem, 2vw, .9rem);
+  color: var(--text-mut);
+  max-width: 340px;
+  line-height: 1.6;
+  margin: 0 auto 2rem;
+}
+
 .land-foot {
   padding: 1.25rem; text-align: center;
   font-size: .75rem; color: var(--text-mut);
@@ -83,6 +91,11 @@ body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
   <h1 class="land-title">Informática <b>25</b></h1>
   <div class="land-sub">matemática</div>
 
+  <p class="land-tagline">
+    Conteúdo interativo de Matemática para o 3.º ano do Ensino Médio Técnico em Informática
+    — do IFPA Campus Bragança.
+  </p>
+
   <div class="land-cards">
     <a class="land-card" href="aluno.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -90,7 +103,7 @@ body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
         <path d="M6 12v5c0 1 2.7 3 6 3s6-2 6-3v-5"/>
       </svg>
       <h3>Aluno</h3>
-      <span>Estudar e praticar</span>
+      <span>Teoria, exemplos e quizes</span>
     </a>
     <a class="land-card" href="professor.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -98,13 +111,13 @@ body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
         <path d="M8 21h8M12 17v4"/>
       </svg>
       <h3>Professor</h3>
-      <span>Quadro de fórmulas</span>
+      <span>Gráficos e círculo unitário</span>
     </a>
   </div>
 </div>
 
 <footer class="land-foot">
-  IFPA — Campus Bragança · by <b>Asafe Tork</b> &amp; <b>Caludio</b> (IA)
+  IFPA — Campus Bragança · Turma Informática 25 · por <b>Asafe Tork</b> &amp; Claude (IA)
 </footer>
 
 <script type="module">

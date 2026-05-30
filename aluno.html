@@ -57,6 +57,257 @@
       <div class="al-crumb" id="crumb"></div>
       <h1 class="al-title" id="title">…</h1>
     </div>
+    <div class="al-context-strip" id="context-strip">
+      <span>📐 Matemática — Informática 25 · IFPA Bragança</span>
+      <button class="al-strip-close" onclick="document.getElementById('context-strip').remove()" aria-label="Fechar">×</button>
+    </div>
+    <div class="al-lesson-body" id="lesson"></div>
+    <div class="al-lesson-nav">
+      <button class="btn ghost" id="prev" disabled>← Anterior</button>
+      <button class="btn primary" id="next">Próximo →</button>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+import { initTheme, mountThemeToggle } from "./core/theme.js";
+import { mountFloatingKeypad } from "./components/keypad.js";
+import { potenciacaoLessons, potenciacaoMeta } from "./features/potenciacao/index.js";
+import { exponencialLessons, exponencialMeta } from "./features/exponencial/index.js";
+import { sequenciasLessons, sequenciasMeta } from "./features/sequencias/index.js";
+import { trigonometriaLessons, trigonometriaMeta } from "./features/trigonometria/index.js";
+
+initTheme();
+mountThemeToggle(document.getElementById("tg"));
+mountFloatingKeypad();
+
+// Zoom control (desktop only)
+let zoomLevel = 100;
+const zoomControl = document.getElementById("zoom-control");
+const zoomLabel = document.getElementById("zoom-label");
+
+if (window.innerWidth >= 900 && zoomControl) {
+  zoomControl.style.display = "flex";
+  
+  document.getElementById("zoom-in").addEventListener("click", () => {
+    if (zoomLevel < 200) {
+      zoomLevel += 10;
+      applyZoom();
+    }
+  });
+  
+  document.getElementById("zoom-out").addEventListener("click", () => {
+    if (zoomLevel > 80) {
+      zoomLevel -= 10;
+      applyZoom();
+    }
+  });
+  
+  function applyZoom() {
+    const scale = zoomLevel / 100;
+    document.documentElement.style.setProperty("--zoom-scale", scale);
+    zoomLabel.textContent = zoomLevel + "%";
+    localStorage.setItem("zoom-level", zoomLevel);
+  }
+  
+  const saved = localStorage.getItem("zoom-level");
+  if (saved) {
+    zoomLevel = parseInt(saved);
+    applyZoom();
+  } else {
+    document.documentElement.style.setProperty("--zoom-scale", 1);
+  }
+}
+
+const MODULES = [
+  { meta: potenciacaoMeta,   lessons: potenciacaoLessons },
+  { meta: exponencialMeta,   lessons: exponencialLessons },
+  { meta: sequenciasMeta,    lessons: sequenciasLessons },
+  { meta: trigonometriaMeta, lessons: trigonometriaLessons },
+];
+const ALL = MODULES.flatMap(m => m.lessons.map(l => ({ ...l, meta: m.meta })));
+
+/* ── Build collapsible sidebar ── */
+const sidebarInner = document.getElementById("sidebar-inner");
+
+// Track which chapters are open (default: first one open)
+const openState = MODULES.map((_, i) => i === 0);
+
+function buildSidebar(currentId) {
+  sidebarInner.innerHTML = MODULES.map((m, mi) => {
+    const isOpen = openState[mi];
+    return `
+    <div class="al-chapter" data-mi="${mi}">
+      <button class="al-ch-btn ${isOpen ? 'open' : ''}" data-mi="${mi}">
+        <span class="al-ch-num">${m.meta.num}</span>
+        <span class="al-ch-title">${m.meta.title}</span>
+        <svg class="al-ch-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="al-ch-lessons ${isOpen ? 'open' : ''}" id="ch-lessons-${mi}">
+        ${m.lessons.map(l => `
+          <button class="al-lesson-btn ${l.id === currentId ? 'active' : ''}" data-id="${l.id}">
+            ${l.title}
+          </button>`).join("")}
+      </div>
+    </div>`;
+  }).join("");
+
+  // Chapter toggle
+  sidebarInner.querySelectorAll(".al-ch-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const mi = +btn.dataset.mi;
+      openState[mi] = !openState[mi];
+      btn.classList.toggle("open", openState[mi]);
+      const lessons = document.getElementById(`ch-lessons-${mi}`);
+      lessons.classList.toggle("open", openState[mi]);
+    });
+  });
+
+  // Lesson click
+  sidebarInner.querySelectorAll(".al-lesson-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      go(btn.dataset.id);
+      closeSidebar();
+    });
+  });
+}
+
+/* ── Mobile sidebar ── */
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+const menuBtn = document.getElementById("menu-btn");
+
+function openSidebar() { sidebar.classList.add("open"); overlay.classList.add("active"); }
+function closeSidebar() { sidebar.classList.remove("open"); overlay.classList.remove("active"); }
+
+menuBtn.addEventListener("click", () =>
+  sidebar.classList.contains("open") ? closeSidebar() : openSidebar());
+overlay.addEventListener("click", closeSidebar);
+
+/* ── Navigation ── */
+let cur = 0;
+const prevBtn = document.getElementById("prev");
+const nextBtn = document.getElementById("next");
+const crumbEl = document.getElementById("crumb");
+const titleEl = document.getElementById("title");
+const lessonEl = document.getElementById("lesson");
+
+function go(id) {
+  const idx = ALL.findIndex(l => l.id === id);
+  if (idx < 0) return;
+  cur = idx;
+  const l = ALL[cur];
+
+  // Open that chapter if collapsed
+  const mi = MODULES.findIndex(m => m.lessons.some(le => le.id === id));
+  if (mi >= 0 && !openState[mi]) { openState[mi] = true; }
+
+  crumbEl.textContent = `${l.meta.chapter}`;
+  titleEl.textContent = l.title;
+  lessonEl.innerHTML = "";
+
+  const boot = () => { l.render(lessonEl); };
+  if (window.katex) boot();
+  else window.addEventListener("load", boot, { once: true });
+
+  prevBtn.disabled = cur === 0;
+  nextBtn.disabled = cur === ALL.length - 1;
+  history.replaceState(null, "", "#" + id);
+
+  buildSidebar(id);
+  // Scroll to top of content
+  document.getElementById("main").scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+prevBtn.addEventListener("click", () => { if (cur > 0) go(ALL[cur - 1].id); });
+nextBtn.addEventListener("click", () => { if (cur < ALL.length - 1) go(ALL[cur + 1].id); });
+
+const hash = location.hash.slice(1);
+buildSidebar(null);
+go(hash && ALL.find(l => l.id === hash) ? hash : ALL[0].id);
+</script>
+</body>
+</html>.al-context-strip {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .45rem .85rem;
+  background: color-mix(in srgb, var(--accent) 9%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: .78rem;
+  color: var(--text-mut);
+  letter-spacing: .03em;
+}
+.al-strip-close {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-mut); font-size: 1rem; padding: 0 .2rem;
+  line-height: 1; flex-shrink: 0;
+}
+.al-strip-close:hover { color: var(--text); }
+</style>PE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aluno · Informática 25</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="styles/tokens.css">
+<link rel="stylesheet" href="styles/base.css">
+<link rel="stylesheet" href="styles/boxes.css">
+<link rel="stylesheet" href="styles/explorer.css">
+<link rel="stylesheet" href="styles/aluno.css">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+</head>
+<body>
+
+<!-- Overlay (mobile) -->
+<div class="al-overlay" id="overlay"></div>
+
+<!-- Topbar -->
+<header class="al-top">
+  <button class="al-menu-btn" id="menu-btn" aria-label="Menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+      <path d="M3 7h18M3 12h18M3 17h18"/>
+    </svg>
+  </button>
+  <a class="al-brand" href="index.html">Informática <b>25</b></a>
+  <div class="al-topright">
+    <div class="al-zoom" id="zoom-control" style="display:none;align-items:center;gap:.3rem;">
+      <button class="al-zoom-btn" id="zoom-out" title="Diminuir">−</button>
+      <span class="al-zoom-label" id="zoom-label">100%</span>
+      <button class="al-zoom-btn" id="zoom-in" title="Aumentar">+</button>
+    </div>
+    <a href="professor.html" class="al-toplink">Professor</a>
+    <button class="theme-toggle" id="tg" aria-label="Tema"></button>
+  </div>
+</header>
+
+<!-- Layout -->
+<div class="al-layout">
+
+  <!-- Sidebar -->
+  <aside class="al-sidebar" id="sidebar">
+    <div class="al-sidebar-inner" id="sidebar-inner">
+      <!-- chapters injected here -->
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="al-main" id="main">
+    <div class="al-lesson-head" id="lesson-head">
+      <div class="al-crumb" id="crumb"></div>
+      <h1 class="al-title" id="title">…</h1>
+    </div>
+    <div class="al-context-strip" id="context-strip">
+      <span>📐 Matemática — Informática 25 · IFPA Bragança</span>
+      <button class="al-strip-close" onclick="document.getElementById('context-strip').remove()" aria-label="Fechar">×</button>
+    </div>
     <div class="al-lesson-body" id="lesson"></div>
     <div class="al-lesson-nav">
       <button class="btn ghost" id="prev" disabled>← Anterior</button>
