@@ -17,47 +17,26 @@
 .prof-brand b{color:var(--accent);}
 .prof-toplink{font-size:.8rem;color:var(--text-soft);padding:.25rem .6rem;border-radius:6px;text-decoration:none;transition:all .15s;}
 .prof-toplink:hover{background:var(--surface-2);color:var(--text);}
-
 .prof-wrap{display:grid;grid-template-columns:1fr 280px;height:calc(100dvh - 52px);overflow:hidden;}
 @media(max-width:700px){.prof-wrap{grid-template-columns:1fr;grid-template-rows:55vw 1fr;}}
-
-/* Stage — gráfico + círculo sobreposto */
 .prof-stage{position:relative;background:var(--bg);overflow:hidden;}
-.prof-stage canvas#plot-canvas{width:100%;height:100%;display:block;}
+.prof-stage canvas{width:100%;height:100%;display:block;}
 .prof-labels{position:absolute;top:.5rem;left:.5rem;display:flex;flex-direction:column;gap:.2rem;pointer-events:none;}
 .prof-label{font-family:var(--font-mono);font-size:.75rem;background:color-mix(in srgb,var(--bg) 75%,transparent);padding:.15rem .45rem;border-radius:4px;}
-
-/* Círculo unitário sobre o gráfico */
-.uc-overlay{position:absolute;inset:0;display:none;pointer-events:none;}
-.uc-overlay.active{display:block;pointer-events:none;}
-.uc-overlay.active canvas{pointer-events:auto;}
-
-
-
-.uc-vals{position:absolute;top:.4rem;right:.4rem;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:8px;padding:.4rem .6rem;font-family:var(--font-mono);font-size:.72rem;min-width:120px;}
-.uc-row{display:flex;justify-content:space-between;gap:.5rem;padding:.1rem 0;line-height:1.3;}
-.uc-k{font-weight:700;}
-.uc-exact{color:var(--text);}
-.uc-dec{color:var(--text-mut);font-size:.65rem;}
-.uc-snap{color:var(--accent);font-size:.65rem;text-align:right;margin-top:.2rem;}
-
-/* Painel lateral */
 .prof-panel{display:flex;flex-direction:column;border-left:1px solid var(--border);background:var(--surface);overflow:hidden;}
+.prof-context{padding:.5rem 1rem;font-size:.7rem;color:var(--text-mut);letter-spacing:.04em;border-bottom:1px solid var(--border);text-align:center;}
 .prof-section{padding:.75rem 1rem;border-bottom:1px solid var(--border);}
 .prof-section-title{font-family:var(--font-mono);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-mut);margin-bottom:.5rem;}
-
 .frow{display:flex;align-items:center;gap:.4rem;margin:.25rem 0;}
 .frow-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .frow-inp{flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:.3rem .5rem;border-radius:6px;font-family:var(--font-mono);font-size:.82rem;outline:none;transition:border-color .15s;}
 .frow-inp:focus{border-color:var(--accent);}
-.frow-del{width:22px;height:22px;border-radius:4px;border:none;background:transparent;color:var(--text-mut);cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.frow-del{width:22px;height:22px;border-radius:4px;border:none;background:transparent;color:var(--text-mut);cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;}
 .frow-del:hover{background:color-mix(in srgb,#f00 15%,var(--surface));color:#f66;}
-
 .prof-controls{display:flex;align-items:center;gap:.4rem;}
 .ctrl-btn{height:30px;padding:0 .6rem;border-radius:6px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-soft);cursor:pointer;font-size:.8rem;transition:all .15s;white-space:nowrap;}
 .ctrl-btn:hover{border-color:var(--accent);color:var(--accent);}
 .ctrl-btn.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
-
 .prof-presets{flex:1;overflow-y:auto;padding:.5rem;}
 .preset-group{margin-bottom:.6rem;}
 .preset-group-title{font-family:var(--font-mono);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-mut);padding:.2rem .25rem;margin-bottom:.25rem;}
@@ -65,16 +44,14 @@
 .preset-btn{text-align:left;padding:.35rem .6rem;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-soft);cursor:pointer;font-size:.8rem;transition:all .15s;}
 .preset-btn:hover{background:var(--surface-2);color:var(--text);}
 .preset-btn.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
-
 .prof-readout{font-family:var(--font-mono);font-size:.78rem;color:var(--text-soft);padding:.6rem 1rem;border-top:1px solid var(--border);}
-.prof-context {
-  padding: .5rem 1rem;
-  font-size: .7rem;
-  color: var(--text-mut);
-  letter-spacing: .04em;
-  border-bottom: 1px solid var(--border);
-  text-align: center;
-}
+/* Info do círculo no painel */
+.uc-info{padding:.5rem 1rem;border-bottom:1px solid var(--border);display:none;}
+.uc-info.show{display:block;}
+.uc-row{display:flex;justify-content:space-between;gap:.5rem;padding:.1rem 0;font-family:var(--font-mono);font-size:.75rem;}
+.uc-k{font-weight:700;color:var(--text-mut);}
+.uc-val{color:var(--text);}
+.uc-snap{font-size:.65rem;color:var(--accent);text-align:right;margin-top:.2rem;}
 </style>
 </head>
 <body>
@@ -89,18 +66,9 @@
   <div class="prof-stage" id="prof-stage">
     <canvas id="plot-canvas"></canvas>
     <div class="prof-labels" id="prof-labels"></div>
-
-    <!-- Círculo unitário sobreposto ao gráfico -->
-    <div class="uc-overlay" id="uc-overlay">
-      <canvas id="uc-canvas" style="width:100%;height:100%;display:block;cursor:grab;position:absolute;top:0;left:0;"></canvas>
-      <div class="uc-vals" id="uc-vals"></div>
-    </div>
   </div>
-
   <div class="prof-panel">
-    <div class="prof-context">
-      Gráficos interativos para aula · Informática 25
-    </div>
+    <div class="prof-context">Gráficos interativos · Informática 25</div>
     <div class="prof-section">
       <div class="prof-section-title">Fórmulas</div>
       <div id="formulas-rows"></div>
@@ -113,6 +81,14 @@
         <button class="ctrl-btn" id="btn-reset">⌖</button>
       </div>
     </div>
+    <!-- Info do círculo unitário -->
+    <div class="uc-info" id="uc-info">
+      <div class="uc-row"><span class="uc-k">cos θ</span><span class="uc-val" id="uc-cos">—</span></div>
+      <div class="uc-row"><span class="uc-k">sin θ</span><span class="uc-val" id="uc-sin">—</span></div>
+      <div class="uc-row"><span class="uc-k">tan θ</span><span class="uc-val" id="uc-tan">—</span></div>
+      <div class="uc-row"><span class="uc-k">θ</span><span class="uc-val" id="uc-ang">—</span></div>
+      <div class="uc-snap" id="uc-snap"></div>
+    </div>
     <div class="prof-presets" id="prof-presets"></div>
     <div class="prof-readout" id="readout">x = —   y = —</div>
   </div>
@@ -122,7 +98,6 @@
 import { initTheme, mountThemeToggle } from "./core/theme.js";
 import { compile } from "./core/mathEngine.js";
 import { Plot, formatExactValue } from "./core/plotEngine.js";
-import { UnitCircle } from "./components/unitCircle.js";
 import { mountFloatingKeypad } from "./components/keypad.js";
 
 initTheme();
@@ -132,118 +107,253 @@ mountFloatingKeypad();
 const COLORS = ["var(--accent)","var(--accent-2)","#60a5fa","#34d399","#a78bfa","#fb923c"];
 
 const PRESET_GROUPS = [
-  { title: "Exponencial", items: [
-    { label:"2ˣ vs ½ˣ",   fns:["y=2^x","y=(1/2)^x"],          pi:false, uc:false },
-    { label:"Bases > 1",   fns:["y=2^x","y=3^x","y=10^x"],      pi:false, uc:false },
-    { label:"Juros 3%",    fns:["y=1800*(1.03)^x"],              pi:false, uc:false, view:{xmin:0,xmax:30,ymin:0,ymax:5000} },
-    { label:"Decaimento",  fns:["y=100*(0.5)^x"],                pi:false, uc:false, view:{xmin:0,xmax:10,ymin:0,ymax:110} },
+  { title:"Exponencial", items:[
+    { label:"2ˣ vs ½ˣ",   fns:["y=2^x","y=(1/2)^x"],           pi:false, uc:false },
+    { label:"Bases > 1",   fns:["y=2^x","y=3^x","y=10^x"],       pi:false, uc:false },
+    { label:"Juros 3%",    fns:["y=1800*(1.03)^x"],               pi:false, uc:false, view:{xmin:0,xmax:30,ymin:0,ymax:5000} },
+    { label:"Decaimento",  fns:["y=100*(0.5)^x"],                 pi:false, uc:false, view:{xmin:0,xmax:10,ymin:0,ymax:110} },
   ]},
-  { title: "Sequências", items: [
-    { label:"PA  r=5",     fns:["y=3+(x-1)*5"],                  pi:false, uc:false, view:{xmin:0,xmax:10,ymin:-5,ymax:50} },
-    { label:"PG  q=2",     fns:["y=2*2^(x-1)"],                  pi:false, uc:false, view:{xmin:0,xmax:8,ymin:-2,ymax:60} },
-    { label:"PA vs PG",    fns:["y=5+(x-1)*5","y=5*1.5^(x-1)"], pi:false, uc:false, view:{xmin:0,xmax:14,ymin:-5,ymax:100} },
+  { title:"Sequências", items:[
+    { label:"PA  r=5",     fns:["y=3+(x-1)*5"],                   pi:false, uc:false, view:{xmin:0,xmax:10,ymin:-5,ymax:50} },
+    { label:"PG  q=2",     fns:["y=2*2^(x-1)"],                   pi:false, uc:false, view:{xmin:0,xmax:8,ymin:-2,ymax:60} },
+    { label:"PA vs PG",    fns:["y=5+(x-1)*5","y=5*1.5^(x-1)"],   pi:false, uc:false, view:{xmin:0,xmax:14,ymin:-5,ymax:100} },
   ]},
-  { title: "Trigonometria", items: [
-    { label:"sin(x)",      fns:["y=sin(x)"],                     pi:true, uc:true },
-    { label:"cos(x)",      fns:["y=cos(x)"],                     pi:true, uc:true },
-    { label:"tan(x)",      fns:["y=tan(x)"],                     pi:true, uc:true, view:{xmin:-Math.PI,xmax:Math.PI,ymin:-4,ymax:4} },
-    { label:"sin + cos",   fns:["y=sin(x)","y=cos(x)"],          pi:true, uc:true },
-    { label:"Amplitude 2", fns:["y=sin(x)","y=2*sin(x)"],        pi:true, uc:true },
-    { label:"Círculo unit.",fns:[],                               pi:false, uc:true },
+  { title:"Trigonometria", items:[
+    { label:"sin(x)",      fns:["y=sin(x)"],                      pi:true,  uc:true  },
+    { label:"cos(x)",      fns:["y=cos(x)"],                      pi:true,  uc:true  },
+    { label:"tan(x)",      fns:["y=tan(x)"],                      pi:true,  uc:true,  view:{xmin:-Math.PI,xmax:Math.PI,ymin:-4,ymax:4} },
+    { label:"sin + cos",   fns:["y=sin(x)","y=cos(x)"],           pi:true,  uc:true  },
+    { label:"Círculo unit.",fns:[],                                pi:false, uc:true  },
   ]},
-  { title: "Álgebra", items: [
-    { label:"Parábola",    fns:["y=x^2","y=x^2-4"],              pi:false, uc:false },
-    { label:"Raízes",      fns:["y=sqrt(x)","y=x^(1/3)"],        pi:false, uc:false, view:{xmin:-3,xmax:8,ymin:-3,ymax:4} },
+  { title:"Álgebra", items:[
+    { label:"Parábola",    fns:["y=x^2","y=x^2-4"],               pi:false, uc:false },
+    { label:"Raízes",      fns:["y=sqrt(x)","y=x^(1/3)"],         pi:false, uc:false, view:{xmin:-3,xmax:8,ymin:-3,ymax:4} },
   ]},
 ];
 
-// Plot
+/* ──────────── PLOT ──────────── */
 const canvas = document.getElementById("plot-canvas");
-const plot = new Plot(canvas, { xmin:-6, xmax:6, ymin:-4, ymax:4 });
+const plot   = new Plot(canvas, { xmin:-6, xmax:6, ymin:-4, ymax:4 });
+
 plot.onProbe = (x, y) => {
-  document.getElementById("readout").textContent = `x = ${formatExactValue(x)}   y = ${formatExactValue(y)}`;
+  document.getElementById("readout").textContent =
+    `x = ${formatExactValue(x)}   y = ${formatExactValue(y)}`;
 };
-plot.onDraw = () => { redrawCircle(); };
 
-// UnitCircle
-const ucOverlay = document.getElementById("uc-overlay");
-const ucCanvas  = document.getElementById("uc-canvas");
-const ucVals    = document.getElementById("uc-vals");
-let uc = null;
+/* ──────────── CÍRCULO UNITÁRIO — desenhado direto no canvas do plot ──────────── */
+const NOTABLE = [
+  {a:0,l:"0",s:"0",c:"1",t:"0"},{a:Math.PI/6,l:"π/6",s:"1/2",c:"√3/2",t:"√3/3"},
+  {a:Math.PI/4,l:"π/4",s:"√2/2",c:"√2/2",t:"1"},{a:Math.PI/3,l:"π/3",s:"√3/2",c:"1/2",t:"√3"},
+  {a:Math.PI/2,l:"π/2",s:"1",c:"0",t:"∄"},{a:2*Math.PI/3,l:"2π/3",s:"√3/2",c:"-1/2",t:"-√3"},
+  {a:3*Math.PI/4,l:"3π/4",s:"√2/2",c:"-√2/2",t:"-1"},{a:5*Math.PI/6,l:"5π/6",s:"1/2",c:"-√3/2",t:"-√3/3"},
+  {a:Math.PI,l:"π",s:"0",c:"-1",t:"0"},{a:7*Math.PI/6,l:"7π/6",s:"-1/2",c:"-√3/2",t:"√3/3"},
+  {a:5*Math.PI/4,l:"5π/4",s:"-√2/2",c:"-√2/2",t:"1"},{a:4*Math.PI/3,l:"4π/3",s:"-√3/2",c:"-1/2",t:"√3"},
+  {a:3*Math.PI/2,l:"3π/2",s:"-1",c:"0",t:"∄"},{a:5*Math.PI/3,l:"5π/3",s:"-√3/2",c:"1/2",t:"-√3"},
+  {a:7*Math.PI/4,l:"7π/4",s:"-√2/2",c:"√2/2",t:"-1"},{a:11*Math.PI/6,l:"11π/6",s:"-1/2",c:"√3/2",t:"-√3/3"},
+];
 
-function getPlotLayout() {
-  // Sync UC canvas to same physical size as plot canvas
-  const dpr = window.devicePixelRatio || 1;
+let ucActive  = false;
+let ucTheta   = Math.PI / 3;
+let ucSnapped = null;
+let ucDragging = false;
+
+function ucSnap(t) {
+  const n = ((t % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
+  for (const k of NOTABLE) if (Math.abs(n - k.a) < 0.1) return k;
+  return null;
+}
+
+function ucGetCXYR() {
+  return { cx: plot.X(0), cy: plot.Y(0), r: plot.X(1) - plot.X(0) };
+}
+
+function ucAutoZoom() {
   const W = canvas.clientWidth, H = canvas.clientHeight;
-  if (ucCanvas.width !== Math.round(W*dpr) || ucCanvas.height !== Math.round(H*dpr)) {
-    ucCanvas.width  = Math.round(W * dpr);
-    ucCanvas.height = Math.round(H * dpr);
-    ucCanvas.style.width  = W + "px";
-    ucCanvas.style.height = H + "px";
+  const yRange = 3.2;
+  const xRange = yRange * (W / H);
+  plot.setView({ xmin:-xRange/2, xmax:xRange/2, ymin:-yRange/2, ymax:yRange/2 });
+}
+
+/* Desenha o círculo no ctx do plot — chamado dentro de plot.onDraw */
+function ucDraw() {
+  if (!ucActive) return;
+  const ctx  = plot.ctx;
+  const dpr  = window.devicePixelRatio || 1;
+  const { cx, cy, r } = ucGetCXYR();
+  if (r < 10) return;
+
+  const css  = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const dark = document.documentElement.getAttribute("data-theme") !== "light";
+  const fg   = dark ? "#e8e3da" : "#1a1a2e";
+  const fgMut= dark ? "rgba(220,210,190,.35)" : "rgba(60,60,80,.28)";
+  const acc  = css("--accent")   || "#ffa500";
+  const acc2 = css("--accent-2") || "#ffd23f";
+  const grn  = dark ? "#4ade80"  : "#16a34a";
+
+  const t  = ucTheta;
+  const tN = ((t % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
+  const co = Math.cos(t), si = Math.sin(t);
+  const px = cx + r*co, py = cy - r*si;
+
+  ctx.save();
+
+  /* Círculo */
+  ctx.strokeStyle = fgMut; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2*Math.PI); ctx.stroke();
+
+  /* Pontos notáveis */
+  ctx.fillStyle = fgMut;
+  for (const n of NOTABLE) {
+    ctx.beginPath();
+    ctx.arc(cx + r*Math.cos(n.a), cy - r*Math.sin(n.a), 2, 0, 2*Math.PI);
+    ctx.fill();
   }
-  // Pixel position of origin and 1 unit — using plot coordinate functions
-  return {
-    cx: plot.X(0),
-    cy: plot.Y(0),
-    r:  plot.X(1) - plot.X(0),   // 1 unit in X pixels
-  };
-}
 
-function autoZoomForCircle() {
-  // Set view so X and Y have equal px/unit, circle fills nicely
-  const W = canvas.clientWidth, H = canvas.clientHeight;
-  const ratio = W / H;
-  const yRange = 3.2;              // -1.6 to 1.6 — mostra o círculo com margem
-  const xRange = yRange * ratio;   // escala igual em X e Y
-  plot.setView({
-    xmin: -xRange/2, xmax: xRange/2,
-    ymin: -yRange/2, ymax: yRange/2
-  });
-}
+  /* Arco percorrido */
+  ctx.strokeStyle = acc+"70"; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, -tN, false); ctx.stroke();
+  ctx.strokeStyle = acc+"80"; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(cx, cy, r*.2, 0, -tN, false); ctx.stroke();
 
-let _redrawPending = false;
-function redrawCircle() {
-  if (!uc || !circleActive || _redrawPending) return;
-  _redrawPending = true;
-  requestAnimationFrame(() => {
-    _redrawPending = false;
-    if (uc && circleActive) uc.draw(getPlotLayout());
-  });
-}
-
-function showCircle(active) {
-  ucOverlay.classList.toggle("active", active);
-  if (active) {
-    autoZoomForCircle();   // zoom automático com escala igual
-    if (!uc) uc = new UnitCircle(ucCanvas, ucVals);
-    // Pequeno delay para o plot terminar de redesenhar
-    requestAnimationFrame(() => {
-      redrawCircle();
-      uc._updateInfo();
-    });
+  /* Tangente */
+  if (Math.abs(co) > 0.07) {
+    const tn = si/co, tx = cx+r, ty = cy - r*tn;
+    const H  = plot.H;
+    ctx.strokeStyle = grn+"25"; ctx.lineWidth = 1; ctx.setLineDash([3,4]);
+    ctx.beginPath(); ctx.moveTo(tx, 0); ctx.lineTo(tx, H); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.strokeStyle = grn+"bb"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(tx, cy); ctx.lineTo(tx, ty); ctx.stroke();
+    ctx.strokeStyle = grn+"44"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(tx, ty); ctx.stroke();
+    ctx.fillStyle = grn;
+    ctx.beginPath(); ctx.arc(tx, ty, 3.5, 0, 2*Math.PI); ctx.fill();
   }
+  ctx.setLineDash([]);
+
+  /* Projeções */
+  ctx.strokeStyle = acc;  ctx.lineWidth = 1.8; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(cx, py); ctx.lineTo(px, py); ctx.stroke();
+  ctx.strokeStyle = acc2; ctx.lineWidth = 1.8;
+  ctx.beginPath(); ctx.moveTo(px, cy); ctx.lineTo(px, py); ctx.stroke();
+  ctx.setLineDash([]);
+
+  /* Pontos nos eixos */
+  ctx.fillStyle = acc;  ctx.beginPath(); ctx.arc(px, cy, 4, 0, 2*Math.PI); ctx.fill();
+  ctx.fillStyle = acc2; ctx.beginPath(); ctx.arc(cx, py, 4, 0, 2*Math.PI); ctx.fill();
+
+  /* Triângulo retângulo */
+  ctx.strokeStyle = fgMut; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(px,cy); ctx.lineTo(px,py); ctx.stroke();
+
+  /* Raio */
+  ctx.strokeStyle = fg; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke();
+
+  /* Ponto principal */
+  ctx.fillStyle = ucSnapped ? acc2 : acc;
+  ctx.beginPath(); ctx.arc(px, py, 9, 0, 2*Math.PI); ctx.fill();
+  ctx.strokeStyle = dark ? "rgba(8,8,20,.8)" : "rgba(255,255,255,.8)";
+  ctx.lineWidth = 2; ctx.stroke();
+
+  /* Labels */
+  const fs = ~~(r*.1);
+  ctx.font = `bold ${fs}px monospace`;
+  ctx.fillStyle = acc; ctx.textAlign = "center";
+  ctx.fillText("cos θ", (cx+px)/2, cy + (si>=0?13:-10));
+  ctx.fillStyle = acc2; ctx.textAlign = co>=0?"left":"right"; ctx.textBaseline="middle";
+  ctx.fillText("sin θ", px+(co>=0?6:-6), (cy+py)/2);
+
+  /* Ângulo */
+  const la=tN/2, lr=r*.28;
+  ctx.fillStyle = fg; ctx.font=`bold ${~~(r*.11)}px monospace`;
+  ctx.textAlign="left"; ctx.textBaseline="middle";
+  let lbl = ucSnapped ? ucSnapped.l : `${(tN*180/Math.PI).toFixed(1)}°`;
+  if (Math.abs(t) > 2*Math.PI+.2) lbl += ` ×${(t/(2*Math.PI)).toFixed(1)}`;
+  ctx.fillText(lbl, cx+lr*Math.cos(la)+4, cy-lr*Math.sin(la));
+
+  ctx.restore();
 }
 
-// Fórmulas
+plot.onDraw = () => ucDraw();
+
+/* Interação com o círculo — no canvas do plot */
+let ucPrev = null;
+
+canvas.addEventListener("pointerdown", e => {
+  if (!ucActive) return;
+  const { cx, cy, r } = ucGetCXYR();
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (plot.W / rect.width);
+  const my = (e.clientY - rect.top)  * (plot.H / rect.height);
+  const px = cx + r * Math.cos(ucTheta);
+  const py = cy - r * Math.sin(ucTheta);
+  if (Math.hypot(mx - px, my - py) > 50) return; // longe → plot faz pan/zoom
+  e.stopPropagation(); // evita pan do plot
+  canvas.setPointerCapture(e.pointerId);
+  ucDragging = true;
+  ucPrev = Math.atan2(-(my - cy), mx - cx);
+}, { capture: true });
+
+canvas.addEventListener("pointermove", e => {
+  if (!ucDragging) return;
+  const { cx, cy } = ucGetCXYR();
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (plot.W / rect.width);
+  const my = (e.clientY - rect.top)  * (plot.H / rect.height);
+  const cur = Math.atan2(-(my - cy), mx - cx);
+  let delta = cur - ucPrev;
+  if (delta >  Math.PI) delta -= 2*Math.PI;
+  if (delta < -Math.PI) delta += 2*Math.PI;
+  ucTheta += delta;
+  ucPrev = cur;
+  const sn = ucSnap(ucTheta);
+  if (sn) {
+    const turns = Math.round(ucTheta / (2*Math.PI));
+    const snapped = turns*2*Math.PI + sn.a;
+    if (Math.abs(snapped - ucTheta) < 0.15) ucTheta = snapped;
+  }
+  ucSnapped = sn;
+  ucUpdateInfo();
+  plot.draw(); // redesenha tudo (plot + círculo)
+}, { capture: true });
+
+canvas.addEventListener("pointerup", e => {
+  if (!ucDragging) return;
+  ucDragging = false;
+  canvas.releasePointerCapture(e.pointerId);
+}, { capture: true });
+
+function ucUpdateInfo() {
+  const co = Math.cos(ucTheta), si = Math.sin(ucTheta), tn = si/co;
+  const tN = ((ucTheta%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
+  const n  = ucSnapped;
+  document.getElementById("uc-cos").textContent = n ? `${n.c}  (${co.toFixed(3)})` : co.toFixed(4);
+  document.getElementById("uc-sin").textContent = n ? `${n.s}  (${si.toFixed(3)})` : si.toFixed(4);
+  document.getElementById("uc-tan").textContent = n ? n.t : (Math.abs(co)<.01?"∄":tn.toFixed(4));
+  document.getElementById("uc-ang").textContent = n ? n.l : `${(tN*180/Math.PI).toFixed(1)}°`;
+  document.getElementById("uc-snap").textContent = n ? "⊙ ângulo notável" :
+    (Math.abs(ucTheta)>2*Math.PI+.2 ? `↻ ${(ucTheta/(2*Math.PI)).toFixed(2)} voltas` : "");
+}
+
+/* ──────────── FÓRMULAS ──────────── */
 let formulas = [];
-let piActive = false;
-let circleActive = false;
+let piActive = false, circleActive = false;
 
-function addFormula(expr = "") {
+function addFormula(expr="") {
   const idx = formulas.length;
   const color = COLORS[idx % COLORS.length];
   const row = document.createElement("div");
   row.className = "frow";
   row.innerHTML = `
     <span class="frow-dot" style="background:${color}"></span>
-    <input class="frow-inp" name="formula" autocomplete="off" placeholder="y = ..." value="${expr}" spellcheck="false">
+    <input class="frow-inp" name="f${idx}" autocomplete="off" placeholder="y=..." value="${expr}" spellcheck="false">
     <button class="frow-del">×</button>`;
   const inp = row.querySelector("input");
   inp.addEventListener("input", updatePlot);
   row.querySelector("button").addEventListener("click", () => {
-    row.remove();
-    formulas = formulas.filter(f => f.inp !== inp);
-    updatePlot();
+    row.remove(); formulas = formulas.filter(f => f.inp !== inp); updatePlot();
   });
   document.getElementById("formulas-rows").appendChild(row);
   formulas.push({ inp, color });
@@ -251,93 +361,72 @@ function addFormula(expr = "") {
 }
 
 function updatePlot() {
-  const curves = formulas.map(({ inp, color }) => {
-    const expr = inp.value.trim();
-    if (!expr) return null;
-    try {
-      const c = compile(expr);
-      return (c && !c.error) ? { fn: c.fn, color } : null;
-    } catch { return null; }
+  const curves = formulas.map(({inp,color}) => {
+    const expr = inp.value.trim(); if (!expr) return null;
+    try { const c=compile(expr); return (c&&!c.error)?{fn:c.fn,color}:null; } catch { return null; }
   }).filter(Boolean);
   plot.setCurves(curves);
   document.getElementById("prof-labels").innerHTML = formulas
-    .filter(f => f.inp.value.trim())
-    .map(f => `<span class="prof-label" style="color:${f.color}">${f.inp.value.trim()}</span>`)
-    .join("");
+    .filter(f=>f.inp.value.trim())
+    .map(f=>`<span class="prof-label" style="color:${f.color}">${f.inp.value.trim()}</span>`).join("");
 }
 
 function setView(v) {
   const def = piActive
     ? {xmin:-2*Math.PI,xmax:2*Math.PI,ymin:-3,ymax:3}
     : {xmin:-6,xmax:6,ymin:-4,ymax:4};
-  plot.setView(v || def);
+  plot.setView(v||def);
 }
 
-document.getElementById("btn-add").addEventListener("click", () => addFormula());
+document.getElementById("btn-add").addEventListener("click", ()=>addFormula());
 
 const btnPi = document.getElementById("btn-pi");
-btnPi.addEventListener("click", () => {
-  piActive = !piActive;
-  btnPi.classList.toggle("active", piActive);
-  plot.setPiAxis(piActive);
-  setView(null);
+btnPi.addEventListener("click", ()=>{
+  piActive=!piActive; btnPi.classList.toggle("active",piActive);
+  plot.setPiAxis(piActive); setView(null);
 });
 
 const btnCircle = document.getElementById("btn-circle");
-btnCircle.addEventListener("click", () => {
-  circleActive = !circleActive;
-  btnCircle.classList.toggle("active", circleActive);
-  showCircle(circleActive);
+btnCircle.addEventListener("click", ()=>{
+  circleActive=!circleActive; btnCircle.classList.toggle("active",circleActive);
+  ucActive = circleActive;
+  document.getElementById("uc-info").classList.toggle("show",circleActive);
+  if (circleActive) { ucAutoZoom(); ucUpdateInfo(); }
+  else plot.draw();
 });
 
-document.getElementById("btn-reset").addEventListener("click", () => {
-  setView(null); plot.draw();
-});
+document.getElementById("btn-reset").addEventListener("click", ()=>{ setView(null); plot.draw(); });
 
-// Presets
+/* Presets */
 const presetsEl = document.getElementById("prof-presets");
-const allPresets = PRESET_GROUPS.flatMap(g => g.items.map(p => ({...p, group: g.title})));
-
-presetsEl.innerHTML = PRESET_GROUPS.map(group => `
+const allPresets = PRESET_GROUPS.flatMap(g=>g.items.map(p=>({...p,group:g.title})));
+presetsEl.innerHTML = PRESET_GROUPS.map(g=>`
   <div class="preset-group">
-    <div class="preset-group-title">${group.title}</div>
+    <div class="preset-group-title">${g.title}</div>
     <div class="preset-btns">
-      ${group.items.map(p => `<button class="preset-btn" data-g="${group.title}" data-label="${p.label}">${p.label}</button>`).join("")}
+      ${g.items.map(p=>`<button class="preset-btn" data-g="${g.title}" data-label="${p.label}">${p.label}</button>`).join("")}
     </div>
-  </div>`
-).join("");
+  </div>`).join("");
 
-presetsEl.querySelectorAll(".preset-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    presetsEl.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+presetsEl.querySelectorAll(".preset-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    presetsEl.querySelectorAll(".preset-btn").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
-    const p = allPresets.find(x => x.group === btn.dataset.g && x.label === btn.dataset.label);
+    const p = allPresets.find(x=>x.group===btn.dataset.g&&x.label===btn.dataset.label);
     if (!p) return;
-
-    document.getElementById("formulas-rows").innerHTML = "";
-    formulas = [];
-    p.fns.forEach(f => addFormula(f));
-
-    piActive = p.pi;
-    btnPi.classList.toggle("active", p.pi);
-    plot.setPiAxis(p.pi);
-
-    circleActive = p.uc;
-    btnCircle.classList.toggle("active", p.uc);
-    showCircle(p.uc);
-
-    setView(p.view || null);
+    document.getElementById("formulas-rows").innerHTML=""; formulas=[];
+    p.fns.forEach(f=>addFormula(f));
+    piActive=p.pi; btnPi.classList.toggle("active",p.pi); plot.setPiAxis(p.pi);
+    circleActive=p.uc; btnCircle.classList.toggle("active",p.uc);
+    ucActive=p.uc;
+    document.getElementById("uc-info").classList.toggle("show",p.uc);
+    if (p.uc) { ucAutoZoom(); ucUpdateInfo(); }
+    else setView(p.view||null);
   });
 });
 
-window.addEventListener("themechange", () => {
-  plot.draw();
-  if (uc) uc.draw();
-});
-
-// Init
-addFormula("y=2^x");
-addFormula("y=(1/2)^x");
+window.addEventListener("themechange", ()=>{ plot.draw(); });
+addFormula("y=2^x"); addFormula("y=(1/2)^x");
 </script>
 </body>
 </html>
