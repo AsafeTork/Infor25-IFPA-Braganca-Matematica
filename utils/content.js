@@ -23,7 +23,9 @@ export const def  = (title, body)    => `<div class="def"><div class="def-h">${t
 export const box  = (kind, tag, body)=> `<div class="box ${kind}"><span class="box-tag">${tag}</span>${body}</div>`;
 export const think  = (body) => box("think",   "Para pensar",      body);
 export const explore= (body) => box("explore", "Para explorar",    body);
-export const solved = (title, body)  => box("solved",  `Resolução — ${title}`, body);
+export const solved = (bodyOrTitle, body) => body !== undefined
+  ? box("solved", `Resolução — ${bodyOrTitle}`, body)
+  : box("solved", "Resolução", bodyOrTitle);
 export const apply  = (body) => box("apply",   "Aplicação real",   body);
 export const labSlot = (id)  => `<div id="${id}" class="lab-slot"></div>`;
 export const quizSlot= (id)  => `<div id="${id}"></div>`;
