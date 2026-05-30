@@ -317,7 +317,7 @@ function ucDraw() {
   ctx.fillStyle = fg; ctx.font=`bold ${~~(r*.11)}px monospace`;
   ctx.textAlign="left"; ctx.textBaseline="middle";
   let lbl = ucSnapped ? ucSnapped.l : `${(tN*180/Math.PI).toFixed(1)}°`;
-  if (Math.abs(t) > 2*Math.PI+.2) lbl += ` ×${(t/(2*Math.PI)).toFixed(1)}`;
+  if (k > 0) lbl += `  (k=${k})`;
   ctx.fillText(lbl, cx+lr*Math.cos(la)+4, cy-lr*Math.sin(la));
 
   ctx.restore();
@@ -401,7 +401,9 @@ function ucUpdateInfo() {
   document.getElementById("uc-tan").textContent = n ? n.t : (Math.abs(co)<.01?"∄":tn.toFixed(4));
   const angBase = n ? n.l : `${(tN*180/Math.PI).toFixed(1)}°`;
   document.getElementById("uc-ang").textContent = k > 0 ? `${angBase} + 2·${k}π` : angBase;
-  document.getElementById("uc-snap").textContent = n ? "⊙ ângulo notável" : (k > 0 ? `k = ${k}` : "");
+  document.getElementById("uc-snap").textContent = k > 0
+    ? (n ? `⊙ notável · k = ${k}` : `k = ${k}`)
+    : (n ? "⊙ ângulo notável" : "");
   // Destacar botão ativo (compara com módulo para aguentar multi-volta)
   const tCur = ((ucTheta % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
   const tCurSigned = ucTheta < 0 ? tCur - 2*Math.PI : tCur;
