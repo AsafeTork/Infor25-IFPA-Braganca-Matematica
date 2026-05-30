@@ -157,9 +157,9 @@ let ucTheta   = Math.PI / 3;
 let ucSnapped = null;
 let ucDragging = false;
 
-function ucSnap(t) {
+function ucSnap(t, thresh = 0.1) {
   const n = ((t % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
-  for (const k of NOTABLE) if (Math.abs(n - k.a) < 0.1) return k;
+  for (const k of NOTABLE) if (Math.abs(n - k.a) < thresh) return k;
   return null;
 }
 
@@ -278,71 +278,76 @@ function ucDraw() {
 
 plot.onDraw = () => ucDraw();
 
-/* Interação com o círculo — num div overlay fino só para capturar o toque no ponto */
+/* Interação com o círculo — capture phase para ter prioridade sobre o plot */
 let ucPrev = null;
-
-// Usar pointerId dedicado para não conflitar com pan/zoom do plot
 let ucPointerId = null;
 
+function ucCanvasCoords(e) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    mx: (e.clientX - rect.left) / rect.width  * plot.W,
+    my: (e.clientY - rect.top)  / rect.height * plot.H,
+  };
+}
+
+// CAPTURE PHASE — dispara antes dos handlers do plot (bubble)
 canvas.addEventListener("pointerdown", e => {
   if (!ucActive || ucPointerId !== null) return;
   const { cx, cy, r } = ucGetCXYR();
-  const rect = canvas.getBoundingClientRect();
-  // Coordenadas em pixels lógicos do canvas
-  const mx = (e.clientX - rect.left) / rect.width  * plot.W;
-  const my = (e.clientY - rect.top)  / rect.height * plot.H;
-  // Posição atual do ponto no círculo
+  const { mx, my } = ucCanvasCoords(e);
   const px = cx + r * Math.cos(ucTheta);
   const py = cy - r * Math.sin(ucTheta);
-  const dist = Math.hypot(mx - px, my - py);
-  // Área de toque: 55px ou 15% do raio (o que for maior)
-  const hitRadius = Math.max(55, r * 0.15);
-  if (dist > hitRadius) return;
-  // Dentro da área → capturar para o círculo
+  const hit = Math.max(52, r * 0.18);
+  if (Math.hypot(mx - px, my - py) > hit) return; // fora → deixa plot fazer pan
   e.preventDefault();
-  e.stopImmediatePropagation();
+  e.stopPropagation(); // bloqueia plot
   canvas.setPointerCapture(e.pointerId);
   ucPointerId = e.pointerId;
-  ucDragging = true;
+  ucDragging  = true;
   ucPrev = Math.atan2(-(my - cy), mx - cx);
-});
+}, { capture: true });
 
 canvas.addEventListener("pointermove", e => {
   if (!ucDragging || e.pointerId !== ucPointerId) return;
   e.preventDefault();
-  e.stopImmediatePropagation();
+  e.stopPropagation(); // mantém o plot parado durante o drag
   const { cx, cy } = ucGetCXYR();
-  const rect = canvas.getBoundingClientRect();
-  const mx = (e.clientX - rect.left) / rect.width  * plot.W;
-  const my = (e.clientY - rect.top)  / rect.height * plot.H;
+  const { mx, my } = ucCanvasCoords(e);
   const cur = Math.atan2(-(my - cy), mx - cx);
   let delta = cur - ucPrev;
   if (delta >  Math.PI) delta -= 2*Math.PI;
   if (delta < -Math.PI) delta += 2*Math.PI;
   ucTheta += delta;
   ucPrev = cur;
-  const sn = ucSnap(ucTheta);
+  // Snap suave — só trava quando muito perto (0.06 rad ≈ 3.5°)
+  const sn = ucSnap(ucTheta, 0.06);
   if (sn) {
-    const turns = Math.round(ucTheta / (2*Math.PI));
-    const snapped = turns*2*Math.PI + sn.a;
-    if (Math.abs(snapped - ucTheta) < 0.15) ucTheta = snapped;
+    const turns   = Math.round(ucTheta / (2*Math.PI));
+    const snapped = turns * 2*Math.PI + sn.a;
+    if (Math.abs(snapped - ucTheta) < 0.06) ucTheta = snapped;
   }
   ucSnapped = sn;
   ucUpdateInfo();
   plot.draw();
-});
+}, { capture: true });
 
-canvas.addEventListener("pointerup", e => {
+const ucRelease = e => {
   if (e.pointerId !== ucPointerId) return;
-  ucDragging = false;
+  // Snap final mais forte ao soltar
+  const sn = ucSnap(ucTheta, 0.12);
+  if (sn) {
+    const turns = Math.round(ucTheta / (2*Math.PI));
+    ucTheta = turns * 2*Math.PI + sn.a;
+    ucSnapped = sn;
+    ucUpdateInfo();
+    plot.draw();
+  }
+  ucDragging  = false;
   ucPointerId = null;
   canvas.releasePointerCapture(e.pointerId);
-});
-canvas.addEventListener("pointercancel", e => {
-  if (e.pointerId !== ucPointerId) return;
-  ucDragging = false;
-  ucPointerId = null;
-});
+};
+canvas.addEventListener("pointerup",     ucRelease, { capture: true });
+canvas.addEventListener("pointercancel", ucRelease, { capture: true });
 
 function ucUpdateInfo() {
   const co = Math.cos(ucTheta), si = Math.sin(ucTheta), tn = si/co;
