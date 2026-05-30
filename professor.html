@@ -307,10 +307,11 @@ canvas.addEventListener("pointerdown", e => {
   ucPrev = Math.atan2(-(my - cy), mx - cx);
 }, { capture: true });
 
+let ucRaf = null;
 canvas.addEventListener("pointermove", e => {
   if (!ucDragging || e.pointerId !== ucPointerId) return;
   e.preventDefault();
-  e.stopPropagation(); // mantém o plot parado durante o drag
+  e.stopPropagation();
   const { cx, cy } = ucGetCXYR();
   const { mx, my } = ucCanvasCoords(e);
   const cur = Math.atan2(-(my - cy), mx - cx);
@@ -319,16 +320,10 @@ canvas.addEventListener("pointermove", e => {
   if (delta < -Math.PI) delta += 2*Math.PI;
   ucTheta += delta;
   ucPrev = cur;
-  // Snap suave — só trava quando muito perto (0.06 rad ≈ 3.5°)
-  const sn = ucSnap(ucTheta, 0.06);
-  if (sn) {
-    const turns   = Math.round(ucTheta / (2*Math.PI));
-    const snapped = turns * 2*Math.PI + sn.a;
-    if (Math.abs(snapped - ucTheta) < 0.06) ucTheta = snapped;
-  }
-  ucSnapped = sn;
+  ucSnapped = ucSnap(ucTheta, 0.1);
   ucUpdateInfo();
-  plot.draw();
+  // Desenha no próximo frame — não bloqueia os eventos de pointer
+  if (!ucRaf) ucRaf = requestAnimationFrame(() => { ucRaf = null; plot.draw(); });
 }, { capture: true });
 
 const ucRelease = e => {
