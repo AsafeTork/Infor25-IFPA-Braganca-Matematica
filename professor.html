@@ -245,30 +245,40 @@ function ucDraw() {
     ctx.fill();
   }
 
-  /* ── Arco: uma única linha, cor muda por volta (k) ── */
+  /* ── Arco: cor muda por volta (k), voltas completas visíveis ── */
   const TURN_COLORS = [acc, acc2, "#60a5fa", "#34d399", "#a78bfa", "#fb923c", "#f472b6"];
   const isNeg   = ucTheta < 0;
   const absT    = Math.abs(ucTheta);
-  const k       = Math.floor(absT / (2 * Math.PI));  // número de voltas completas
-  const partial = absT % (2 * Math.PI);               // ângulo na volta atual
-  const kColor  = TURN_COLORS[k % TURN_COLORS.length];
-  // Canvas arc convention:
-  //   endAngle = isNeg ? +partial : -partial  (canvas Y é invertido)
-  //   anticlockwise = !isNeg  (positivo em matemática = anti-horário na tela)
+  const k       = Math.floor(absT / (2 * Math.PI));
+  const partial = absT % (2 * Math.PI);
+  // Canvas: Y invertido → ângulo positivo (mat) = anti-horário na tela = arcCCW=true
+  //         ângulo negativo (mat) = horário na tela = arcCCW=false
   const arcEnd = isNeg ? partial : -partial;
   const arcCCW = !isNeg;
 
-  // Trilha — círculo completo sempre visível (parte ainda não percorrida da volta atual)
-  ctx.strokeStyle = fgMut; ctx.lineWidth = 1.5;
+  // 1. Trilha fantasma — círculo guia muito suave
+  ctx.strokeStyle = fgMut + "55"; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI); ctx.stroke();
 
-  // Arco percorrido — mesma trilha, cor da volta atual (k)
-  ctx.strokeStyle = kColor + "cc"; ctx.lineWidth = 3.5;
+  // 2. Voltas COMPLETAS anteriores — circulo cheio, cada uma na sua cor
+  //    A mais antiga fica mais apagada
+  for (let i = 0; i < k; i++) {
+    const col  = TURN_COLORS[i % TURN_COLORS.length];
+    const age  = k - 1 - i;                           // 0 = mais recente
+    const opac = Math.max(30, 90 - age * 22);         // opacidade 30..90
+    const hex  = opac.toString(16).padStart(2, "0");
+    ctx.strokeStyle = col + hex; ctx.lineWidth = 3.5;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI); ctx.stroke();
+  }
+
+  // 3. Arco parcial da volta atual — mais brilhante, por cima
+  const kColor = TURN_COLORS[k % TURN_COLORS.length];
+  ctx.strokeStyle = kColor + "dd"; ctx.lineWidth = 4;
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, arcEnd, arcCCW);
   ctx.stroke();
 
-  // Mini arco indicador de ângulo no centro
+  // 4. Mini arco indicador de ângulo no centro
   ctx.strokeStyle = kColor + "99"; ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.arc(cx, cy, r * .2, 0, arcEnd, arcCCW);
