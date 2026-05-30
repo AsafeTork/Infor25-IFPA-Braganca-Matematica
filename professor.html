@@ -278,30 +278,43 @@ function ucDraw() {
 
 plot.onDraw = () => ucDraw();
 
-/* Interação com o círculo — no canvas do plot */
+/* Interação com o círculo — num div overlay fino só para capturar o toque no ponto */
 let ucPrev = null;
 
+// Usar pointerId dedicado para não conflitar com pan/zoom do plot
+let ucPointerId = null;
+
 canvas.addEventListener("pointerdown", e => {
-  if (!ucActive) return;
+  if (!ucActive || ucPointerId !== null) return;
   const { cx, cy, r } = ucGetCXYR();
   const rect = canvas.getBoundingClientRect();
-  const mx = (e.clientX - rect.left) * (plot.W / rect.width);
-  const my = (e.clientY - rect.top)  * (plot.H / rect.height);
+  // Coordenadas em pixels lógicos do canvas
+  const mx = (e.clientX - rect.left) / rect.width  * plot.W;
+  const my = (e.clientY - rect.top)  / rect.height * plot.H;
+  // Posição atual do ponto no círculo
   const px = cx + r * Math.cos(ucTheta);
   const py = cy - r * Math.sin(ucTheta);
-  if (Math.hypot(mx - px, my - py) > 50) return; // longe → plot faz pan/zoom
-  e.stopPropagation(); // evita pan do plot
+  const dist = Math.hypot(mx - px, my - py);
+  // Área de toque: 55px ou 15% do raio (o que for maior)
+  const hitRadius = Math.max(55, r * 0.15);
+  if (dist > hitRadius) return;
+  // Dentro da área → capturar para o círculo
+  e.preventDefault();
+  e.stopImmediatePropagation();
   canvas.setPointerCapture(e.pointerId);
+  ucPointerId = e.pointerId;
   ucDragging = true;
   ucPrev = Math.atan2(-(my - cy), mx - cx);
-}, { capture: true });
+});
 
 canvas.addEventListener("pointermove", e => {
-  if (!ucDragging) return;
+  if (!ucDragging || e.pointerId !== ucPointerId) return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
   const { cx, cy } = ucGetCXYR();
   const rect = canvas.getBoundingClientRect();
-  const mx = (e.clientX - rect.left) * (plot.W / rect.width);
-  const my = (e.clientY - rect.top)  * (plot.H / rect.height);
+  const mx = (e.clientX - rect.left) / rect.width  * plot.W;
+  const my = (e.clientY - rect.top)  / rect.height * plot.H;
   const cur = Math.atan2(-(my - cy), mx - cx);
   let delta = cur - ucPrev;
   if (delta >  Math.PI) delta -= 2*Math.PI;
@@ -316,14 +329,20 @@ canvas.addEventListener("pointermove", e => {
   }
   ucSnapped = sn;
   ucUpdateInfo();
-  plot.draw(); // redesenha tudo (plot + círculo)
-}, { capture: true });
+  plot.draw();
+});
 
 canvas.addEventListener("pointerup", e => {
-  if (!ucDragging) return;
+  if (e.pointerId !== ucPointerId) return;
   ucDragging = false;
+  ucPointerId = null;
   canvas.releasePointerCapture(e.pointerId);
-}, { capture: true });
+});
+canvas.addEventListener("pointercancel", e => {
+  if (e.pointerId !== ucPointerId) return;
+  ucDragging = false;
+  ucPointerId = null;
+});
 
 function ucUpdateInfo() {
   const co = Math.cos(ucTheta), si = Math.sin(ucTheta), tn = si/co;

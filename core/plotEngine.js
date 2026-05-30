@@ -220,53 +220,34 @@ export class Plot {
 
 }
 
-// Helper: format numerical values as exact mathematical expressions
-export function formatExactValue(val, tolerance = 0.005) {
-  // Try to match π multiples
+// Formata um valor numérico como expressão exata — SEM RECURSÃO
+export function formatExactValue(val, tolerance = 0.01) {
+  if (!isFinite(val)) return "∄";
+  if (Math.abs(val) < tolerance) return "0";
+
+  // Múltiplos de π — n é o coeficiente REAL (ex: 1/6 para π/6)
   const piMultiples = [
-    { n: 6, sym: "π/6" }, { n: 4, sym: "π/4" }, { n: 3, sym: "π/3" },
-    { n: 2, sym: "π/2" }, { n: 1, sym: "π" }, { n: -1, sym: "-π" },
-    { n: -2, sym: "-π/2" }, { n: -3, sym: "-π/3" }, { n: -4, sym: "-π/4" },
-    { n: -6, sym: "-π/6" }, { n: 2/3, sym: "2π/3" }, { n: 3/4, sym: "3π/4" },
-    { n: 5/6, sym: "5π/6" }, { n: 4/3, sym: "4π/3" }, { n: 5/4, sym: "5π/4" },
+    [1/6,"π/6"],[1/4,"π/4"],[1/3,"π/3"],[1/2,"π/2"],[2/3,"2π/3"],
+    [3/4,"3π/4"],[5/6,"5π/6"],[1,"π"],[4/3,"4π/3"],[3/2,"3π/2"],
+    [5/4,"5π/4"],[5/3,"5π/3"],[7/4,"7π/4"],[11/6,"11π/6"],[2,"2π"],
+    [-1/6,"-π/6"],[-1/4,"-π/4"],[-1/3,"-π/3"],[-1/2,"-π/2"],[-1,"-π"],
   ];
-  for (const { n, sym } of piMultiples) {
+  for (const [n, sym] of piMultiples) {
     if (Math.abs(val - n * Math.PI) < tolerance) return sym;
   }
 
-  // Try to match sin/cos/tan of notable angles
-  const notable = [
-    { angle: 0, sin: 0, cos: 1, tan: 0 },
-    { angle: Math.PI/6, sin: 0.5, cos: Math.sqrt(3)/2, tan: 1/Math.sqrt(3) },
-    { angle: Math.PI/4, sin: Math.sqrt(2)/2, cos: Math.sqrt(2)/2, tan: 1 },
-    { angle: Math.PI/3, sin: Math.sqrt(3)/2, cos: 0.5, tan: Math.sqrt(3) },
-    { angle: Math.PI/2, sin: 1, cos: 0, tan: Infinity },
-    { angle: 2*Math.PI/3, sin: Math.sqrt(3)/2, cos: -0.5, tan: -Math.sqrt(3) },
-    { angle: 3*Math.PI/4, sin: Math.sqrt(2)/2, cos: -Math.sqrt(2)/2, tan: -1 },
-    { angle: 5*Math.PI/6, sin: 0.5, cos: -Math.sqrt(3)/2, tan: -1/Math.sqrt(3) },
-    { angle: Math.PI, sin: 0, cos: -1, tan: 0 },
-    { angle: 5*Math.PI/4, sin: -Math.sqrt(2)/2, cos: -Math.sqrt(2)/2, tan: 1 },
-    { angle: 3*Math.PI/2, sin: -1, cos: 0, tan: -Infinity },
+  // Valores notáveis de sin/cos/tan — SEM recursão, direto
+  const known = [
+    [0.5,"1/2"],[0.25,"1/4"],[0.75,"3/4"],
+    [Math.sqrt(2)/2,"√2/2"],[Math.sqrt(3)/2,"√3/2"],[1/Math.sqrt(3),"√3/3"],
+    [Math.sqrt(2),"√2"],[Math.sqrt(3),"√3"],
+    [1,"1"],[2,"2"],[3,"3"],
   ];
-
-  for (const n of notable) {
-    if (Math.abs(val - n.sin) < tolerance) return `sin(${formatExactValue(n.angle, tolerance)})`;
-    if (Math.abs(val - n.cos) < tolerance) return `cos(${formatExactValue(n.angle, tolerance)})`;
-    if (Math.abs(val - n.tan) < tolerance && isFinite(n.tan)) return `tan(${formatExactValue(n.angle, tolerance)})`;
+  for (const [v, s] of known) {
+    if (Math.abs(val - v)  < tolerance) return s;
+    if (Math.abs(val + v)  < tolerance) return `-${s}`;
   }
 
-  // Try simple fractions and √
-  const sqrts = [
-    { v: Math.sqrt(2), s: "√2" }, { v: Math.sqrt(3), s: "√3" },
-    { v: Math.sqrt(5), s: "√5" }, { v: 1/Math.sqrt(2), s: "√2/2" },
-    { v: Math.sqrt(3)/2, s: "√3/2" }, { v: 1/Math.sqrt(3), s: "√3/3" },
-  ];
-  for (const { v, s } of sqrts) {
-    if (Math.abs(val - v) < tolerance) return s;
-    if (Math.abs(val + v) < tolerance) return `-${s}`;
-  }
-
-  // Fallback to decimal
-  const r = Math.round(val * 1000) / 1000;
-  return String(r);
+  // Fallback decimal
+  return String(Math.round(val * 100) / 100);
 }
