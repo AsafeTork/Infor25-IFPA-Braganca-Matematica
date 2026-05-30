@@ -22,7 +22,7 @@
 @media(max-width:700px){.prof-wrap{grid-template-columns:1fr;grid-template-rows:55vw 1fr;}}
 
 /* Stage — gráfico + círculo sobreposto */
-.prof-stage{position:relative;background:var(--bg);overflow:hidden;}
+.prof-stage{position:relative;background:var(--bg);overflow:visible;}
 .prof-stage canvas#plot-canvas{width:100%;height:100%;display:block;}
 .prof-labels{position:absolute;top:.5rem;left:.5rem;display:flex;flex-direction:column;gap:.2rem;pointer-events:none;}
 .prof-label{font-family:var(--font-mono);font-size:.75rem;background:color-mix(in srgb,var(--bg) 75%,transparent);padding:.15rem .45rem;border-radius:4px;}
@@ -30,7 +30,7 @@
 /* Círculo unitário sobre o gráfico */
 .uc-overlay{position:absolute;top:0;left:0;width:100%;height:100%;display:none;pointer-events:none;}
 .uc-overlay.active{display:flex;pointer-events:auto;}
-.uc-canvas-wrap{position:relative;margin:auto;aspect-ratio:1;height:min(100%,100vw - 280px);}
+.uc-canvas-wrap{position:relative;margin:auto;width:min(100%,calc(100vh - 52px));aspect-ratio:1;}
 .uc-canvas-wrap canvas{width:100%;height:100%;cursor:grab;display:block;}
 .uc-canvas-wrap canvas:active{cursor:grabbing;}
 .uc-vals{position:absolute;top:.4rem;right:.4rem;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:8px;padding:.4rem .6rem;font-family:var(--font-mono);font-size:.72rem;min-width:120px;}
