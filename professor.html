@@ -162,6 +162,7 @@ const plot = new Plot(canvas, { xmin:-6, xmax:6, ymin:-4, ymax:4 });
 plot.onProbe = (x, y) => {
   document.getElementById("readout").textContent = `x = ${formatExactValue(x)}   y = ${formatExactValue(y)}`;
 };
+plot.onDraw = () => { redrawCircle(); };
 
 // UnitCircle
 const ucOverlay = document.getElementById("uc-overlay");
@@ -169,16 +170,35 @@ const ucCanvas  = document.getElementById("uc-canvas");
 const ucVals    = document.getElementById("uc-vals");
 let uc = null;
 
+function getPlotLayout() {
+  // Sync UC canvas size with plot canvas
+  ucCanvas.style.width  = canvas.style.width  || canvas.clientWidth  + "px";
+  ucCanvas.style.height = canvas.style.height || canvas.clientHeight + "px";
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.clientWidth, H = canvas.clientHeight;
+  ucCanvas.width  = Math.round(W * dpr);
+  ucCanvas.height = Math.round(H * dpr);
+  // Pass plot's coordinate system so circle aligns with cartesian plane
+  return {
+    cx: plot.X(0),   // pixel x of mathematical origin
+    cy: plot.Y(0),   // pixel y of mathematical origin
+    r:  plot.X(1) - plot.X(0),  // 1 unit in pixels
+  };
+}
+
+function redrawCircle() {
+  if (!uc || !circleActive) return;
+  const layout = getPlotLayout();
+  uc.draw(layout);
+}
+
 function showCircle(active) {
   ucOverlay.classList.toggle("active", active);
-  if (active && !uc) {
-    uc = new UnitCircle(ucCanvas, ucVals);
-  } else if (active && uc) {
-    uc.draw();
+  if (active) {
+    if (!uc) uc = new UnitCircle(ucCanvas, ucVals);
+    redrawCircle();
     uc._updateInfo();
   }
-  // Esconder/mostrar o gráfico (pode coexistir)
-  // O círculo fica por CIMA — já está no z-index correto pelo CSS
 }
 
 // Fórmulas
