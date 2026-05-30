@@ -228,11 +228,36 @@ function ucDraw() {
     ctx.fill();
   }
 
-  /* Arco percorrido */
-  ctx.strokeStyle = acc+"70"; ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.arc(cx, cy, r, 0, -tN, false); ctx.stroke();
-  ctx.strokeStyle = acc+"80"; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.arc(cx, cy, r*.2, 0, -tN, false); ctx.stroke();
+  /* ── Arco multi-volta: cada volta tem cor e raio diferentes ── */
+  const TURN_COLORS = [acc, acc2, "#60a5fa", "#34d399", "#a78bfa", "#fb923c", "#f472b6"];
+  const isNeg   = ucTheta < 0;
+  const absT    = Math.abs(ucTheta);
+  const nTurns  = Math.floor(absT / (2 * Math.PI));  // voltas completas
+  const partial = absT % (2 * Math.PI);               // arco parcial atual
+  const dir     = false; // canvas: false = sentido horário do canvas = antihorário matemático
+
+  // Desenhar voltas completas antigas (do mais antigo para o mais recente)
+  for (let i = 0; i < nTurns; i++) {
+    const col    = TURN_COLORS[(i + 1) % TURN_COLORS.length];
+    const arcR   = r - (nTurns - i) * 5;  // mais antigo = raio menor
+    if (arcR < 10) continue;
+    ctx.strokeStyle = col + "55"; ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.arc(cx, cy, arcR, 0, 2 * Math.PI);  // circulo completo
+    ctx.stroke();
+  }
+
+  // Arco da volta atual (parcial) — cor principal, raio cheio
+  ctx.strokeStyle = TURN_COLORS[0] + "80"; ctx.lineWidth = 3.5;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, isNeg ? partial : -partial, isNeg ? true : dir);
+  ctx.stroke();
+
+  // Mini arco de ângulo no centro
+  ctx.strokeStyle = TURN_COLORS[0] + "90"; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r*.2, 0, isNeg ? partial : -partial, isNeg ? true : dir);
+  ctx.stroke();
 
   /* Tangente */
   if (Math.abs(co) > 0.07) {
