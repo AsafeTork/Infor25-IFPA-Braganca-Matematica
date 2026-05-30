@@ -242,12 +242,20 @@ function go(id) {
   titleEl.textContent = l.title;
   lessonEl.innerHTML = "";
 
-  const boot = () => { l.render(lessonEl); };
+  const boot = () => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        l.render(lessonEl);
+      });
+    });
+  };
   if (window.katex) boot();
   else window.addEventListener("load", boot, { once: true });
 
   prevBtn.disabled = cur === 0;
-  nextBtn.disabled = cur === ALL.length - 1;
+  nextBtn.disabled = cur >= ALL.length - 1;
+  prevBtn.style.visibility = cur === 0 ? "hidden" : "visible";
+  nextBtn.style.visibility = cur >= ALL.length - 1 ? "hidden" : "visible";
   history.replaceState(null, "", "#" + id);
 
   buildSidebar(id);
@@ -261,7 +269,10 @@ nextBtn.addEventListener("click", () => { if (cur < ALL.length - 1) go(ALL[cur +
 
 const hash = location.hash.slice(1);
 buildSidebar(null);
-go(hash && ALL.find(l => l.id === hash) ? hash : ALL[0].id);
+// Defer initial render until after browser paint — eliminates load-time reflows
+requestAnimationFrame(() => {
+  go(hash && ALL.find(l => l.id === hash) ? hash : ALL[0].id);
+});
 </script>
 </body>
 </html>
