@@ -237,40 +237,27 @@ function ucDraw() {
     ctx.fill();
   }
 
-  /* ── Arco multi-volta: mesmo raio, cores diferentes por volta ── */
+  /* ── Arco: uma única linha, cor muda por volta (k) ── */
   const TURN_COLORS = [acc, acc2, "#60a5fa", "#34d399", "#a78bfa", "#fb923c", "#f472b6"];
   const isNeg   = ucTheta < 0;
   const absT    = Math.abs(ucTheta);
-  const nTurns  = Math.floor(absT / (2 * Math.PI));  // voltas completas
-  const partial = absT % (2 * Math.PI);               // arco parcial atual
-  // canvas arc: isNeg ? true (anticlockwise canvas) : false (clockwise canvas)
-  const ccw = isNeg;
+  const k       = Math.floor(absT / (2 * Math.PI));  // número de voltas completas
+  const partial = absT % (2 * Math.PI);               // ângulo na volta atual
+  const ccw     = isNeg;
+  const kColor  = TURN_COLORS[k % TURN_COLORS.length];
 
-  // 1) Trilha fantasma — círculo completo sempre visível (trajeto não percorrido)
-  ctx.strokeStyle = fgMut + "60"; ctx.lineWidth = 2;
-  ctx.setLineDash([]);
+  // Trilha — círculo completo sempre visível (parte ainda não percorrida da volta atual)
+  ctx.strokeStyle = fgMut; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI); ctx.stroke();
 
-  // 2) Voltas completas — do mais antigo para o mais recente, mesmo raio
-  //    opacidade decresce para os mais antigos ficarem mais apagados
-  for (let i = 0; i < nTurns; i++) {
-    const col = TURN_COLORS[(i + 1) % TURN_COLORS.length];
-    // Quanto mais antiga, mais transparente (mas nunca invisível)
-    const opacity = Math.max(30, 80 - (nTurns - 1 - i) * 18);
-    const opHex   = opacity.toString(16).padStart(2, "0");
-    ctx.strokeStyle = col + opHex; ctx.lineWidth = 3.5;
-    ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI); ctx.stroke();
-  }
-
-  // 3) Arco parcial da volta atual — cor da volta atual, traçado por cima
-  const curColor = TURN_COLORS[nTurns % TURN_COLORS.length];
-  ctx.strokeStyle = curColor + "cc"; ctx.lineWidth = 4;
+  // Arco percorrido — mesma trilha, cor da volta atual (k)
+  ctx.strokeStyle = kColor + "cc"; ctx.lineWidth = 3.5;
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, ccw ? partial : -partial, ccw);
   ctx.stroke();
 
-  // 4) Mini arco indicador de ângulo no centro
-  ctx.strokeStyle = curColor + "99"; ctx.lineWidth = 1.5;
+  // Mini arco indicador de ângulo no centro
+  ctx.strokeStyle = kColor + "99"; ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.arc(cx, cy, r * .2, 0, ccw ? partial : -partial, ccw);
   ctx.stroke();
@@ -407,13 +394,14 @@ canvas.addEventListener("pointercancel", ucRelease, { capture: true });
 function ucUpdateInfo() {
   const co = Math.cos(ucTheta), si = Math.sin(ucTheta), tn = si/co;
   const tN = ((ucTheta%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
+  const k  = Math.floor(Math.abs(ucTheta) / (2*Math.PI));
   const n  = ucSnapped;
   document.getElementById("uc-cos").textContent = n ? `${n.c}  (${co.toFixed(3)})` : co.toFixed(4);
   document.getElementById("uc-sin").textContent = n ? `${n.s}  (${si.toFixed(3)})` : si.toFixed(4);
   document.getElementById("uc-tan").textContent = n ? n.t : (Math.abs(co)<.01?"∄":tn.toFixed(4));
-  document.getElementById("uc-ang").textContent = n ? n.l : `${(tN*180/Math.PI).toFixed(1)}°`;
-  document.getElementById("uc-snap").textContent = n ? "⊙ ângulo notável" :
-    (Math.abs(ucTheta)>2*Math.PI+.2 ? `↻ ${(ucTheta/(2*Math.PI)).toFixed(2)} voltas` : "");
+  const angBase = n ? n.l : `${(tN*180/Math.PI).toFixed(1)}°`;
+  document.getElementById("uc-ang").textContent = k > 0 ? `${angBase} + 2·${k}π` : angBase;
+  document.getElementById("uc-snap").textContent = n ? "⊙ ângulo notável" : (k > 0 ? `k = ${k}` : "");
   // Destacar botão ativo (compara com módulo para aguentar multi-volta)
   const tCur = ((ucTheta % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
   const tCurSigned = ucTheta < 0 ? tCur - 2*Math.PI : tCur;
