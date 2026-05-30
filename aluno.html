@@ -17,19 +17,7 @@
 <link rel="stylesheet" href="styles/aluno.css">
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
 <style>
-.al-context-strip {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: .45rem .85rem;
-  background: color-mix(in srgb, var(--accent) 9%, var(--surface));
-  border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
-  border-radius: 8px; margin-bottom: 1rem;
-  font-size: .78rem; color: var(--text-mut); letter-spacing: .03em;
-}
-.al-strip-close {
-  background: none; border: none; cursor: pointer;
-  color: var(--text-mut); font-size: 1rem; padding: 0 .2rem; line-height: 1;
-}
-.al-strip-close:hover { color: var(--text); }
+
 </style>
 </head>
 <body>
@@ -72,11 +60,7 @@
       <div class="al-crumb" id="crumb"></div>
       <h1 class="al-title" id="title">…</h1>
     </div>
-    <div class="al-context-strip" id="context-strip">
-      <span>📐 Matemática — Informática 25 · IFPA Bragança</span>
-      <button class="al-strip-close" onclick="document.getElementById('context-strip').remove()" aria-label="Fechar">×</button>
-    </div>
-    <div class="al-lesson-body" id="lesson"></div>
+<div class="al-lesson-body" id="lesson"></div>
     <div class="al-lesson-nav">
       <button class="btn ghost" id="prev" disabled>← Anterior</button>
       <button class="btn primary" id="next">Próximo →</button>

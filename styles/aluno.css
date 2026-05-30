@@ -126,7 +126,7 @@
 .al-main {
   flex: 1; min-width: 0;
   padding: 1.25rem 1rem 2rem;
-  overflow: hidden;
+  overflow: visible;
 }
 @media (min-width: 600px) { .al-main { padding: 1.75rem 1.5rem 2.5rem; } }
 @media (min-width: 900px) { .al-main { padding: 2rem 2.5rem 3rem; max-width: 820px; } }
@@ -157,7 +157,7 @@
 .al-lesson-body li { margin: .15rem 0; }
 .al-lesson-body .lesson-note { font-size: calc(0.75rem * var(--zoom-scale)); color: var(--text-mut); font-style: italic; }
 .katex { font-size: calc(1.12em * var(--zoom-scale)); }
-.katex-display { margin: .6rem 0; overflow-x: auto; }
+.katex-display { margin: .6rem 0; overflow-x: clip; max-width: 100%; }
 
 /* Lesson nav */
 .al-lesson-nav {
@@ -185,7 +185,7 @@
 
 /* Improved code display */
 .lab-base-tex { font-size: 0.85rem; line-height: 1.6; }
-.katex-display { overflow-x: auto; padding: 0.25rem 0; }
+.katex-display { overflow-x: clip; padding: 0.25rem 0; max-width: 100%; }
 
 /* Lab elements better spacing */
 .varlist { gap: 0.3rem; }

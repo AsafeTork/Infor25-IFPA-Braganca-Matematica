@@ -62,7 +62,7 @@
   color: var(--text); font-size: .95rem; font-family: var(--font-mono);
   min-width: 0;
 }
-.lab-render .katex-display { margin: .25rem 0; overflow-x: auto; }
+.lab-render .katex-display { margin: .25rem 0; overflow-x: clip; }
 .lab-err { display: none; color: #e05; font-size: .82rem; font-family: var(--font-mono); padding: .2rem 0; }
 
 .lab-examples { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; }
