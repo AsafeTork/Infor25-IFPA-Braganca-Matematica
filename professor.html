@@ -12,138 +12,60 @@
 <link rel="stylesheet" href="styles/board.css">
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
 <style>
-/* ── Topbar ── */
-.prof-top {
-  position: sticky; top: 0; z-index: 50;
-  height: 52px; display: flex; align-items: center; gap: .6rem;
-  padding: 0 1rem;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-}
-.prof-brand {
-  font-family: var(--font-display); font-weight: 800; font-size: 1rem;
-  color: var(--text); text-decoration: none; letter-spacing: -.02em; flex: 1;
-}
-.prof-brand b { color: var(--accent); }
-.prof-toplink {
-  font-size: .8rem; color: var(--text-soft); padding: .25rem .6rem;
-  border-radius: 6px; text-decoration: none; transition: all .15s;
-}
-.prof-toplink:hover { background: var(--surface-2); color: var(--text); }
+.prof-top{position:sticky;top:0;z-index:50;height:52px;display:flex;align-items:center;gap:.6rem;padding:0 1rem;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+.prof-brand{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);text-decoration:none;letter-spacing:-.02em;flex:1;}
+.prof-brand b{color:var(--accent);}
+.prof-toplink{font-size:.8rem;color:var(--text-soft);padding:.25rem .6rem;border-radius:6px;text-decoration:none;transition:all .15s;}
+.prof-toplink:hover{background:var(--surface-2);color:var(--text);}
 
-/* ── Layout ── */
-.prof-wrap {
-  display: grid;
-  grid-template-columns: 1fr 280px;
-  height: calc(100dvh - 52px);
-  overflow: hidden;
-}
-@media (max-width: 700px) {
-  .prof-wrap { grid-template-columns: 1fr; grid-template-rows: 55vw 1fr; }
-}
+.prof-wrap{display:grid;grid-template-columns:1fr 280px;height:calc(100dvh - 52px);overflow:hidden;}
+@media(max-width:700px){.prof-wrap{grid-template-columns:1fr;grid-template-rows:55vw 1fr;}}
 
-/* ── Gráfico ── */
-.prof-stage {
-  position: relative;
-  background: var(--bg);
-  overflow: hidden;
-}
-.prof-stage canvas {
-  width: 100%; height: 100%; display: block;
-}
-.prof-labels {
-  position: absolute; top: .5rem; left: .5rem;
-  display: flex; flex-direction: column; gap: .2rem;
-  pointer-events: none;
-}
-.prof-label {
-  font-family: var(--font-mono); font-size: .75rem;
-  background: color-mix(in srgb, var(--bg) 75%, transparent);
-  padding: .15rem .45rem; border-radius: 4px;
-}
+/* Stage — gráfico + círculo sobreposto */
+.prof-stage{position:relative;background:var(--bg);overflow:hidden;}
+.prof-stage canvas#plot-canvas{width:100%;height:100%;display:block;}
+.prof-labels{position:absolute;top:.5rem;left:.5rem;display:flex;flex-direction:column;gap:.2rem;pointer-events:none;}
+.prof-label{font-family:var(--font-mono);font-size:.75rem;background:color-mix(in srgb,var(--bg) 75%,transparent);padding:.15rem .45rem;border-radius:4px;}
 
-/* ── Painel lateral ── */
-.prof-panel {
-  display: flex; flex-direction: column; gap: 0;
-  border-left: 1px solid var(--border);
-  background: var(--surface);
-  overflow: hidden;
-}
-.prof-section {
-  padding: .75rem 1rem;
-  border-bottom: 1px solid var(--border);
-}
-.prof-section-title {
-  font-family: var(--font-mono); font-size: .65rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .1em;
-  color: var(--text-mut); margin-bottom: .5rem;
-}
+/* Círculo unitário sobre o gráfico */
+.uc-overlay{position:absolute;top:0;left:0;width:100%;height:100%;display:none;pointer-events:none;}
+.uc-overlay.active{display:flex;pointer-events:auto;}
+.uc-canvas-wrap{position:relative;margin:auto;aspect-ratio:1;height:min(100%,100vw - 280px);}
+.uc-canvas-wrap canvas{width:100%;height:100%;cursor:grab;display:block;}
+.uc-canvas-wrap canvas:active{cursor:grabbing;}
+.uc-vals{position:absolute;top:.4rem;right:.4rem;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:8px;padding:.4rem .6rem;font-family:var(--font-mono);font-size:.72rem;min-width:120px;}
+.uc-row{display:flex;justify-content:space-between;gap:.5rem;padding:.1rem 0;line-height:1.3;}
+.uc-k{font-weight:700;}
+.uc-exact{color:var(--text);}
+.uc-dec{color:var(--text-mut);font-size:.65rem;}
+.uc-snap{color:var(--accent);font-size:.65rem;text-align:right;margin-top:.2rem;}
 
-/* ── Linhas de fórmula ── */
-.frow {
-  display: flex; align-items: center; gap: .4rem; margin: .25rem 0;
-}
-.frow-dot {
-  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-}
-.frow-inp {
-  flex: 1; background: var(--surface-2); border: 1px solid var(--border);
-  color: var(--text); padding: .3rem .5rem; border-radius: 6px;
-  font-family: var(--font-mono); font-size: .82rem; outline: none;
-  transition: border-color .15s;
-}
-.frow-inp:focus { border-color: var(--accent); }
-.frow-del {
-  width: 22px; height: 22px; border-radius: 4px; border: none;
-  background: transparent; color: var(--text-mut); cursor: pointer;
-  font-size: .9rem; display: flex; align-items: center; justify-content: center;
-  transition: all .15s;
-}
-.frow-del:hover { background: color-mix(in srgb, #f00 15%, var(--surface)); color: #f66; }
+/* Painel lateral */
+.prof-panel{display:flex;flex-direction:column;border-left:1px solid var(--border);background:var(--surface);overflow:hidden;}
+.prof-section{padding:.75rem 1rem;border-bottom:1px solid var(--border);}
+.prof-section-title{font-family:var(--font-mono);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-mut);margin-bottom:.5rem;}
 
-/* ── Controles ── */
-.prof-controls {
-  display: flex; align-items: center; gap: .4rem;
-}
-.ctrl-btn {
-  height: 30px; padding: 0 .6rem; border-radius: 6px;
-  border: 1px solid var(--border); background: var(--surface-2);
-  color: var(--text-soft); cursor: pointer; font-size: .8rem;
-  transition: all .15s; white-space: nowrap;
-}
-.ctrl-btn:hover { border-color: var(--accent); color: var(--accent); }
-.ctrl-btn.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.frow{display:flex;align-items:center;gap:.4rem;margin:.25rem 0;}
+.frow-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.frow-inp{flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:.3rem .5rem;border-radius:6px;font-family:var(--font-mono);font-size:.82rem;outline:none;transition:border-color .15s;}
+.frow-inp:focus{border-color:var(--accent);}
+.frow-del{width:22px;height:22px;border-radius:4px;border:none;background:transparent;color:var(--text-mut);cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.frow-del:hover{background:color-mix(in srgb,#f00 15%,var(--surface));color:#f66;}
 
-/* ── Presets ── */
-.prof-presets {
-  flex: 1; overflow-y: auto; padding: .5rem;
-}
-.preset-group { margin-bottom: .5rem; }
-.preset-group-title {
-  font-family: var(--font-mono); font-size: .6rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .1em;
-  color: var(--text-mut); padding: .2rem .25rem; margin-bottom: .2rem;
-}
-.preset-btns { display: flex; flex-direction: column; gap: .2rem; }
-.preset-btn {
-  text-align: left; padding: .35rem .6rem; border-radius: 6px;
-  border: 1px solid var(--border); background: transparent;
-  color: var(--text-soft); cursor: pointer; font-size: .8rem;
-  transition: all .15s;
-}
-.preset-btn:hover { background: var(--surface-2); color: var(--text); }
-.preset-btn.active {
-  border-color: var(--accent); background: var(--accent-soft); color: var(--accent);
-}
+.prof-controls{display:flex;align-items:center;gap:.4rem;}
+.ctrl-btn{height:30px;padding:0 .6rem;border-radius:6px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-soft);cursor:pointer;font-size:.8rem;transition:all .15s;white-space:nowrap;}
+.ctrl-btn:hover{border-color:var(--accent);color:var(--accent);}
+.ctrl-btn.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
 
-/* ── Readout ── */
-.prof-readout {
-  font-family: var(--font-mono); font-size: .78rem;
-  color: var(--text-soft); padding: .6rem 1rem;
-  border-top: 1px solid var(--border);
-  background: var(--surface);
-}
+.prof-presets{flex:1;overflow-y:auto;padding:.5rem;}
+.preset-group{margin-bottom:.6rem;}
+.preset-group-title{font-family:var(--font-mono);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-mut);padding:.2rem .25rem;margin-bottom:.25rem;}
+.preset-btns{display:flex;flex-direction:column;gap:.2rem;}
+.preset-btn{text-align:left;padding:.35rem .6rem;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-soft);cursor:pointer;font-size:.8rem;transition:all .15s;}
+.preset-btn:hover{background:var(--surface-2);color:var(--text);}
+.preset-btn.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
+
+.prof-readout{font-family:var(--font-mono);font-size:.78rem;color:var(--text-soft);padding:.6rem 1rem;border-top:1px solid var(--border);}
 </style>
 </head>
 <body>
@@ -155,35 +77,33 @@
 </header>
 
 <div class="prof-wrap">
-  <!-- Gráfico -->
-  <div class="prof-stage">
+  <div class="prof-stage" id="prof-stage">
     <canvas id="plot-canvas"></canvas>
     <div class="prof-labels" id="prof-labels"></div>
+
+    <!-- Círculo unitário sobreposto ao gráfico -->
+    <div class="uc-overlay" id="uc-overlay">
+      <div class="uc-canvas-wrap">
+        <canvas id="uc-canvas"></canvas>
+        <div class="uc-vals" id="uc-vals"></div>
+      </div>
+    </div>
   </div>
 
-  <!-- Painel -->
   <div class="prof-panel">
-
-    <!-- Fórmulas -->
     <div class="prof-section">
       <div class="prof-section-title">Fórmulas</div>
       <div id="formulas-rows"></div>
       <button class="ctrl-btn" id="btn-add" style="width:100%;margin-top:.4rem;text-align:center">+ linha</button>
     </div>
-
-    <!-- Controles -->
     <div class="prof-section">
       <div class="prof-controls">
         <button class="ctrl-btn" id="btn-pi">π eixo</button>
         <button class="ctrl-btn" id="btn-circle">⊙ círculo</button>
-        <button class="ctrl-btn" id="btn-reset" title="Recentrar">⌖</button>
+        <button class="ctrl-btn" id="btn-reset">⌖</button>
       </div>
     </div>
-
-    <!-- Presets -->
     <div class="prof-presets" id="prof-presets"></div>
-
-    <!-- Readout -->
     <div class="prof-readout" id="readout">x = —   y = —</div>
   </div>
 </div>
@@ -192,46 +112,67 @@
 import { initTheme, mountThemeToggle } from "./core/theme.js";
 import { compile } from "./core/mathEngine.js";
 import { Plot, formatExactValue } from "./core/plotEngine.js";
+import { UnitCircle } from "./components/unitCircle.js";
 import { mountFloatingKeypad } from "./components/keypad.js";
 
 initTheme();
 mountThemeToggle(document.getElementById("theme-btn"));
 mountFloatingKeypad();
 
-const COLORS = ["var(--accent)", "var(--accent-2)", "#60a5fa", "#34d399", "#a78bfa", "#fb923c"];
+const COLORS = ["var(--accent)","var(--accent-2)","#60a5fa","#34d399","#a78bfa","#fb923c"];
 
 const PRESET_GROUPS = [
   { title: "Exponencial", items: [
-    { label: "2ˣ vs ½ˣ",   fns: ["y=2^x", "y=(1/2)^x"], pi: false, uc: false },
-    { label: "Bases > 1",   fns: ["y=2^x", "y=3^x", "y=10^x"], pi: false, uc: false },
-    { label: "Juros 3%",    fns: ["y=1800*(1.03)^x"], pi: false, uc: false },
-    { label: "Decaimento",  fns: ["y=100*(0.5)^x"], pi: false, uc: false },
+    { label:"2ˣ vs ½ˣ",   fns:["y=2^x","y=(1/2)^x"],          pi:false, uc:false },
+    { label:"Bases > 1",   fns:["y=2^x","y=3^x","y=10^x"],      pi:false, uc:false },
+    { label:"Juros 3%",    fns:["y=1800*(1.03)^x"],              pi:false, uc:false, view:{xmin:0,xmax:30,ymin:0,ymax:5000} },
+    { label:"Decaimento",  fns:["y=100*(0.5)^x"],                pi:false, uc:false, view:{xmin:0,xmax:10,ymin:0,ymax:110} },
   ]},
   { title: "Sequências", items: [
-    { label: "PA  r=5",     fns: ["y=3+(x-1)*5"], pi: false, uc: false },
-    { label: "PG  q=2",     fns: ["y=2*2^(x-1)"], pi: false, uc: false },
-    { label: "PA vs PG",    fns: ["y=5+(x-1)*5", "y=5*1.5^(x-1)"], pi: false, uc: false },
+    { label:"PA  r=5",     fns:["y=3+(x-1)*5"],                  pi:false, uc:false, view:{xmin:0,xmax:10,ymin:-5,ymax:50} },
+    { label:"PG  q=2",     fns:["y=2*2^(x-1)"],                  pi:false, uc:false, view:{xmin:0,xmax:8,ymin:-2,ymax:60} },
+    { label:"PA vs PG",    fns:["y=5+(x-1)*5","y=5*1.5^(x-1)"], pi:false, uc:false, view:{xmin:0,xmax:14,ymin:-5,ymax:100} },
   ]},
   { title: "Trigonometria", items: [
-    { label: "sin(x)",      fns: ["y=sin(x)"], pi: true, uc: true },
-    { label: "cos(x)",      fns: ["y=cos(x)"], pi: true, uc: true },
-    { label: "tan(x)",      fns: ["y=tan(x)"], pi: true, uc: true, view:{xmin:-Math.PI,xmax:Math.PI,ymin:-4,ymax:4} },
-    { label: "sin + cos",   fns: ["y=sin(x)", "y=cos(x)"], pi: true, uc: true },
-    { label: "Amplitude 2", fns: ["y=sin(x)", "y=2*sin(x)"], pi: true, uc: true },
-    { label: "Círculo unit.",fns: [], pi: false, uc: true },
+    { label:"sin(x)",      fns:["y=sin(x)"],                     pi:true, uc:true },
+    { label:"cos(x)",      fns:["y=cos(x)"],                     pi:true, uc:true },
+    { label:"tan(x)",      fns:["y=tan(x)"],                     pi:true, uc:true, view:{xmin:-Math.PI,xmax:Math.PI,ymin:-4,ymax:4} },
+    { label:"sin + cos",   fns:["y=sin(x)","y=cos(x)"],          pi:true, uc:true },
+    { label:"Amplitude 2", fns:["y=sin(x)","y=2*sin(x)"],        pi:true, uc:true },
+    { label:"Círculo unit.",fns:[],                               pi:false, uc:true },
   ]},
   { title: "Álgebra", items: [
-    { label: "Parábola",    fns: ["y=x^2", "y=x^2-4"], pi: false, uc: false },
-    { label: "Raízes",      fns: ["y=sqrt(x)", "y=x^(1/3)"], pi: false, uc: false },
+    { label:"Parábola",    fns:["y=x^2","y=x^2-4"],              pi:false, uc:false },
+    { label:"Raízes",      fns:["y=sqrt(x)","y=x^(1/3)"],        pi:false, uc:false, view:{xmin:-3,xmax:8,ymin:-3,ymax:4} },
   ]},
 ];
 
+// Plot
 const canvas = document.getElementById("plot-canvas");
 const plot = new Plot(canvas, { xmin:-6, xmax:6, ymin:-4, ymax:4 });
 plot.onProbe = (x, y) => {
   document.getElementById("readout").textContent = `x = ${formatExactValue(x)}   y = ${formatExactValue(y)}`;
 };
 
+// UnitCircle
+const ucOverlay = document.getElementById("uc-overlay");
+const ucCanvas  = document.getElementById("uc-canvas");
+const ucVals    = document.getElementById("uc-vals");
+let uc = null;
+
+function showCircle(active) {
+  ucOverlay.classList.toggle("active", active);
+  if (active && !uc) {
+    uc = new UnitCircle(ucCanvas, ucVals);
+  } else if (active && uc) {
+    uc.draw();
+    uc._updateInfo();
+  }
+  // Esconder/mostrar o gráfico (pode coexistir)
+  // O círculo fica por CIMA — já está no z-index correto pelo CSS
+}
+
+// Fórmulas
 let formulas = [];
 let piActive = false;
 let circleActive = false;
@@ -244,7 +185,7 @@ function addFormula(expr = "") {
   row.innerHTML = `
     <span class="frow-dot" style="background:${color}"></span>
     <input class="frow-inp" placeholder="y = ..." value="${expr}" spellcheck="false">
-    <button class="frow-del" title="Remover">×</button>`;
+    <button class="frow-del">×</button>`;
   const inp = row.querySelector("input");
   inp.addEventListener("input", updatePlot);
   row.querySelector("button").addEventListener("click", () => {
@@ -267,7 +208,6 @@ function updatePlot() {
     } catch { return null; }
   }).filter(Boolean);
   plot.setCurves(curves);
-
   document.getElementById("prof-labels").innerHTML = formulas
     .filter(f => f.inp.value.trim())
     .map(f => `<span class="prof-label" style="color:${f.color}">${f.inp.value.trim()}</span>`)
@@ -275,16 +215,14 @@ function updatePlot() {
 }
 
 function setView(v) {
-  const defV = piActive
-    ? {xmin:-2*Math.PI, xmax:2*Math.PI, ymin:-3, ymax:3}
-    : {xmin:-6, xmax:6, ymin:-4, ymax:4};
-  plot.setView(v || defV);
+  const def = piActive
+    ? {xmin:-2*Math.PI,xmax:2*Math.PI,ymin:-3,ymax:3}
+    : {xmin:-6,xmax:6,ymin:-4,ymax:4};
+  plot.setView(v || def);
 }
 
-// Botão + linha
 document.getElementById("btn-add").addEventListener("click", () => addFormula());
 
-// Botão π
 const btnPi = document.getElementById("btn-pi");
 btnPi.addEventListener("click", () => {
   piActive = !piActive;
@@ -293,39 +231,34 @@ btnPi.addEventListener("click", () => {
   setView(null);
 });
 
-// Botão ⊙ círculo
 const btnCircle = document.getElementById("btn-circle");
 btnCircle.addEventListener("click", () => {
   circleActive = !circleActive;
   btnCircle.classList.toggle("active", circleActive);
-  plot.showUnitCircle = circleActive;
-  plot.draw();
+  showCircle(circleActive);
 });
 
-// Botão reset
 document.getElementById("btn-reset").addEventListener("click", () => {
-  setView(null);
-  plot.draw();
+  setView(null); plot.draw();
 });
 
 // Presets
 const presetsEl = document.getElementById("prof-presets");
+const allPresets = PRESET_GROUPS.flatMap(g => g.items.map(p => ({...p, group: g.title})));
+
 presetsEl.innerHTML = PRESET_GROUPS.map(group => `
   <div class="preset-group">
     <div class="preset-group-title">${group.title}</div>
     <div class="preset-btns">
-      ${group.items.map((p, i) => `<button class="preset-btn" data-g="${group.title}" data-label="${p.label}">${p.label}</button>`).join("")}
+      ${group.items.map(p => `<button class="preset-btn" data-g="${group.title}" data-label="${p.label}">${p.label}</button>`).join("")}
     </div>
   </div>`
 ).join("");
-
-const allPresets = PRESET_GROUPS.flatMap(g => g.items.map(p => ({ ...p, group: g.title })));
 
 presetsEl.querySelectorAll(".preset-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     presetsEl.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-
     const p = allPresets.find(x => x.group === btn.dataset.g && x.label === btn.dataset.label);
     if (!p) return;
 
@@ -339,13 +272,16 @@ presetsEl.querySelectorAll(".preset-btn").forEach(btn => {
 
     circleActive = p.uc;
     btnCircle.classList.toggle("active", p.uc);
-    plot.showUnitCircle = p.uc;
+    showCircle(p.uc);
 
     setView(p.view || null);
   });
 });
 
-window.addEventListener("themechange", () => plot.draw());
+window.addEventListener("themechange", () => {
+  plot.draw();
+  if (uc) uc.draw();
+});
 
 // Init
 addFormula("y=2^x");

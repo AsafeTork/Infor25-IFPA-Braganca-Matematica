@@ -21,7 +21,6 @@ export class Plot {
     };
     this.onProbe = null;
     this.onDraw  = null;
-    this.showUnitCircle = false;  // Toggle for unit circle overlay
     this._bind();
     this.resize();
     window.addEventListener("resize", () => this.resize());
@@ -135,8 +134,6 @@ export class Plot {
     ctx.beginPath(); ctx.moveTo(0, this.Y(0)); ctx.lineTo(W, this.Y(0)); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(this.X(0), 0); ctx.lineTo(this.X(0), H); ctx.stroke();
 
-    // unit circle overlay (if enabled)
-    if (this.showUnitCircle) this._drawUnitCircle();
 
     // curves
     this.curves.forEach((c) => this._drawCurve(c));
@@ -221,52 +218,6 @@ export class Plot {
     if (this.onDraw) this.onDraw();
   }
 
-  _drawUnitCircle() {
-    try {
-      const ctx = this.ctx, { W, H } = this;
-      const cx = this.X(0), cy = this.Y(0);
-
-      // Raio = 1 unidade matemática em pixels
-      const r = this.X(1) - this.X(0);
-      if (r < 10) return;
-
-      const isDark = document.documentElement.getAttribute("data-theme") !== "light";
-      const circleColor = isDark ? "rgba(255,165,0,0.5)" : "rgba(200,100,0,0.5)";
-      const lineColor   = isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)";
-
-      // Linhas de referência horizontal e vertical
-      ctx.save();
-      ctx.strokeStyle = lineColor;
-      ctx.lineWidth = 0.8;
-      ctx.setLineDash([4, 4]);
-      ctx.beginPath(); ctx.moveTo(cx - r * 1.3, cy); ctx.lineTo(cx + r * 1.3, cy); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(cx, cy - r * 1.3); ctx.lineTo(cx, cy + r * 1.3); ctx.stroke();
-      ctx.setLineDash([]);
-
-      // Círculo
-      ctx.strokeStyle = circleColor;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, 2 * Math.PI);
-      ctx.stroke();
-
-      // Marcadores nos ângulos notáveis
-      const angles = [0, Math.PI/6, Math.PI/4, Math.PI/3, Math.PI/2, 2*Math.PI/3, 3*Math.PI/4, 5*Math.PI/6,
-                      Math.PI, 7*Math.PI/6, 5*Math.PI/4, 4*Math.PI/3, 3*Math.PI/2, 5*Math.PI/3, 7*Math.PI/4, 11*Math.PI/6];
-      ctx.fillStyle = circleColor;
-      for (const a of angles) {
-        const px = cx + r * Math.cos(a);
-        const py = cy - r * Math.sin(a);
-        ctx.beginPath();
-        ctx.arc(px, py, 3, 0, 2*Math.PI);
-        ctx.fill();
-      }
-
-      ctx.restore();
-    } catch (e) {
-      console.warn("Erro ao desenhar círculo:", e);
-    }
-  }
 }
 
 // Helper: format numerical values as exact mathematical expressions
