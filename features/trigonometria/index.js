@@ -350,3 +350,203 @@ export const trigonometriaLessons = [
     }
   },
 ];
+
+/* ──────────── AULA 7: Lista de Revisão · Simulado ──────────── */
+trigonometriaLessons.push({
+  id: "trig-revisao-simulado",
+  title: "📋 Revisão para o Simulado",
+  render(c) {
+    const h = (html) => html;
+    c.innerHTML = `
+<div class="lesson-section">
+  <div class="al-crumb" style="color:var(--accent);font-weight:700;font-size:.8rem;margin-bottom:.5rem">
+    ⚠️ Esta aula é preparação direta para o simulado
+  </div>
+  <h1 class="al-title">Lista de Revisão · Simulado de Trigonometria</h1>
+  <p style="color:var(--text-soft);margin-bottom:1.5rem">
+    Prof.ª Dr.ª Andréia Gomes Pinheiro · IFPA Campus Bragança<br>
+    Resolva cada questão após ler a estratégia. As soluções completas estão abaixo de cada exercício.
+  </p>
+</div>
+
+<!-- ═══ DICA GERAL ═══ -->
+<div class="def" style="margin-bottom:1.5rem">
+  <div class="def-h">🧠 Estratégia Geral para o Simulado</div>
+  <p>Antes de qualquer questão, cheque dois pontos:</p>
+  <ol style="margin:.4rem 0;padding-left:1.3rem">
+    <li><strong>Calculadora:</strong> está em DEG ou RAD? Troque conforme o enunciado pede.</li>
+    <li><strong>Ângulo grande?</strong> Divida por 360° e trabalhe só com o resto — economiza tempo e evita erros.</li>
+  </ol>
+  <p style="margin-top:.5rem">A âncora de tudo: <strong>180° = π rad</strong>. Toda conversão sai daí por regra de três simples.</p>
+</div>
+
+<!-- ═══ Q1 ═══ -->
+<div class="box explore" style="margin-bottom:1rem">
+  <h3 style="color:var(--accent);margin:0 0 .5rem">Q1 · Converter radianos → graus</h3>
+  <p>Converta cada medida para graus: a) $\\dfrac{2\\pi}{3}$ · b) $\\dfrac{3\\pi}{4}$ · c) $\\dfrac{11\\pi}{6}$ · d) $\\dfrac{5\\pi}{3}$</p>
+</div>
+<div class="box solved" style="margin-bottom:1.5rem">
+  <p><strong>💡 Truque:</strong> Substitua $\\pi$ por $180°$ diretamente na fração e simplifique.</p>
+  <p>a) $\\dfrac{2\\pi}{3} \\to \\dfrac{2 \\times 180°}{3} = \\mathbf{120°}$</p>
+  <p>b) $\\dfrac{3\\pi}{4} \\to \\dfrac{3 \\times 180°}{4} = \\mathbf{135°}$</p>
+  <p>c) $\\dfrac{11\\pi}{6} \\to \\dfrac{11 \\times 180°}{6} = \\mathbf{330°}$</p>
+  <p>d) $\\dfrac{5\\pi}{3} \\to \\dfrac{5 \\times 180°}{3} = \\mathbf{300°}$</p>
+  <p><strong>⚠️ Erro comum:</strong> Multiplicar por $\\pi/180$ quando devia ser o contrário. Lembre: rad → grau = <em>multiplica</em> por $180°$, divide por $\\pi$.</p>
+</div>
+
+<!-- ═══ Q2 ═══ -->
+<div class="box explore" style="margin-bottom:1rem">
+  <h3 style="color:var(--accent);margin:0 0 .5rem">Q2 · Converter graus → radianos</h3>
+  <p>Converta para radianos: a) 249° · b) 225° · c) 75° · d) 315°</p>
+</div>
+<div class="box solved" style="margin-bottom:1.5rem">
+  <p><strong>💡 Método:</strong> Multiplique por $\\dfrac{\\pi}{180}$ e simplifique a fração. Sempre divida pelo MDC.</p>
+  <p>a) $249° \\times \\dfrac{\\pi}{180} = \\dfrac{249\\pi}{180} = \\mathbf{\\dfrac{83\\pi}{60}}$</p>
+  <p>b) $225° \\times \\dfrac{\\pi}{180} = \\dfrac{225\\pi}{180} = \\mathbf{\\dfrac{5\\pi}{4}}$</p>
+  <p>c) $75° \\times \\dfrac{\\pi}{180} = \\dfrac{75\\pi}{180} = \\mathbf{\\dfrac{5\\pi}{12}}$</p>
+  <p>d) $315° \\times \\dfrac{\\pi}{180} = \\dfrac{315\\pi}{180} = \\mathbf{\\dfrac{7\\pi}{4}}$</p>
+</div>
+
+<!-- ═══ Q3 ═══ -->
+<div class="box explore" style="margin-bottom:1rem">
+  <h3 style="color:var(--accent);margin:0 0 .5rem">Q3 · Comprimento de arco → encontrar o raio</h3>
+  <p>Uma circunferência tem arco $AB = 8{,}5$ cm e ângulo central $= 2{,}5$ rad. Qual é o raio?</p>
+</div>
+<div class="box solved" style="margin-bottom:1.5rem">
+  <p><strong>💡 Fórmula:</strong> $\\ell = r \\cdot \\theta$ (com $\\theta$ em radianos!)</p>
+  <p>Isolando $r$: $r = \\dfrac{\\ell}{\\theta} = \\dfrac{8{,}5}{2{,}5} = \\mathbf{3{,}4 \\text{ cm}}$</p>
+  <p><strong>⚠️ Erro comum:</strong> Usar $\\theta$ em graus diretamente na fórmula. Se vier em graus, converta primeiro!</p>
+</div>
+
+<!-- ═══ Q4 ═══ -->
+<div class="box explore" style="margin-bottom:1rem">
+  <h3 style="color:var(--accent);margin:0 0 .5rem">Q4 · Comprimento do arco do pêndulo</h3>
+  <p>Pêndulo de 15 cm oscila de A até B descrevendo ângulo $\\theta = \\dfrac{\\pi}{12}$ rad. Qual o comprimento da trajetória?</p>
+</div>
+<div class="box solved" style="margin-bottom:1.5rem">
+  <p><strong>💡 O pêndulo é o "raio"</strong> e o ângulo já está em radianos, então basta aplicar $\\ell = r \\cdot \\theta$.</p>
+  <p>$\\ell = 15 \\times \\dfrac{\\pi}{12} = \\dfrac{15\\pi}{12} = \\dfrac{5\\pi}{4} \\approx \\mathbf{3{,}93 \\text{ cm}}$</p>
+</div>
+
+<!-- ═══ Q5 ═══ -->
+<div class="box explore" style="margin-bottom:1rem">
+  <h3 style="color:var(--accent);margin:0 0 .5rem">Q5 · Determinar o quadrante de ângulos grandes</h3>
+  <p>Indique o quadrante: a) 8000° · b) 3600° · c) $\\dfrac{15\\pi}{4}$ · d) $\\dfrac{77\\pi}{3}$</p>
+</div>
+<div class="box solved" style="margin-bottom:1.5rem">
+  <p><strong>💡 Método:</strong> Divida por 360° (ou 2π). O <em>resto</em> é o que importa.</p>
+  <p>a) $8000 \\div 360 = 22$ voltas com resto $8000 - 22\\times360 = 80°$ → $0° < 80° < 90°$ → <strong>Q1</strong></p>
+  <p>b) $3600 \\div 360 = 10$ voltas exatas, resto $= 0°$ → <strong>eixo positivo de x</strong> (não pertence a quadrante)</p>
+  <p>c) $\\dfrac{15\\pi}{4} - 2\\pi = \\dfrac{15\\pi}{4} - \\dfrac{8\\pi}{4} = \\dfrac{7\\pi}{4} = 315°$ → $270° < 315° < 360°$ → <strong>Q4</strong></p>
+  <p>d) $\\dfrac{77\\pi}{3} \\div 2\\pi = \\dfrac{77}{6} \\approx 12{,}8$ → 12 voltas $= \\dfrac{72\\pi}{3}$; resto $= \\dfrac{5\\pi}{3} = 300°$ → <strong>Q4</strong></p>
+  <p><strong>⚠️ Erro comum:</strong> Ângulos exatamente em 90°, 180°, 270°, 360° estão nos eixos, não em quadrantes.</p>
+</div>
+
+<!-- ═══ Q6 ═══ -->
+<div class="box explore" style="margin-bottom:1rem">
+  <h3 style="color:var(--accent);margin:0 0 .5rem">Q6 · Expressão geral $x = 220° + 360°\\cdot k$</h3>
+  <p>a) Qual a medida do arco para $k=10$? b) A que quadrante pertencem todos os arcos $x$? c) Qual é a menor determinação positiva?</p>
+</div>
+<div class="box solved" style="margin-bottom:1.5rem">
+  <p>a) $x = 220° + 360° \\times 10 = 220° + 3600° = \\mathbf{3820°}$</p>
+  <p>b) $220°$ está entre $180°$ e $270°$ → todos os arcos terminam no <strong>3º quadrante (Q3)</strong> — cada volta de 360° retorna ao mesmo ponto.</p>
+  <p>c) A menor determinação positiva é o próprio ângulo base: $\\mathbf{220°}$.</p>
+  <p><strong>💡 Lembre:</strong> A expressão $\\alpha + 360° \\cdot k$ representa a família infinita de arcos côngruos a $\\alpha$ — todos terminam no mesmo ponto da circunferência.</p>
+</div>
+
+<!-- ═══ Q7 ═══ -->
+<div class="box explore" style="margin-bottom:1rem">
+  <h3 style="color:var(--accent);margin:0 0 .5rem">Q7 · Arcos côngruos — expressão geral</h3>
+  <p>Encontre a primeira determinação positiva e a expressão geral dos côngruos de: a) 30° · b) 240° · c) −60° · d) $\\dfrac{2\\pi}{3}$ · e) $-\\dfrac{3\\pi}{4}$</p>
+</div>
+<div class="box solved" style="margin-bottom:1.5rem">
+  <p><strong>💡 Dois arcos são côngruos</strong> se sua diferença é múltiplo de $360°$ (ou $2\\pi$). Para negativos, some $360°$ até ficar positivo.</p>
+  <p>a) $30°$ já positivo → Expressão: $\\mathbf{30° + 360°k}$</p>
+  <p>b) $240°$ já positivo → Expressão: $\\mathbf{240° + 360°k}$</p>
+  <p>c) $-60° + 360° = 300°$ → Menor det. positiva: $\\mathbf{300°}$ → Expressão: $\\mathbf{-60° + 360°k}$ (ou $300° + 360°k$)</p>
+  <p>d) $\\dfrac{2\\pi}{3}$ já positivo → Expressão: $\\mathbf{\\dfrac{2\\pi}{3} + 2\\pi k}$</p>
+  <p>e) $-\\dfrac{3\\pi}{4} + 2\\pi = \\dfrac{5\\pi}{4}$ → Menor det. positiva: $\\mathbf{\\dfrac{5\\pi}{4}}$ → Expressão: $\\mathbf{-\\dfrac{3\\pi}{4} + 2\\pi k}$</p>
+</div>
+
+<!-- ═══ Q8 ═══ -->
+<div class="box explore" style="margin-bottom:1rem">
+  <h3 style="color:var(--accent);margin:0 0 .5rem">Q8 · Sen e cos com redução ao 1º quadrante</h3>
+  <p>Calcule sen e cos de: a) 150° · b) 315° · c) $\\dfrac{4\\pi}{3}$</p>
+</div>
+<div class="box solved" style="margin-bottom:1.5rem">
+  <p><strong>💡 Passos:</strong> (1) Ache o quadrante. (2) Calcule o ângulo de referência (distância ao eixo x mais próximo). (3) Use o valor notável. (4) Aplique o sinal do quadrante (regra TSCS: <em>Todos–Seno–Cosseno–Tangente</em>, o que é positivo em cada quadrante: Q1 todos, Q2 só sen, Q3 só tan, Q4 só cos).</p>
+  <p><strong>a) 150° (Q2):</strong> ref. = $180° - 150° = 30°$. Q2: sen(+), cos(−).<br>
+     $\\sin 150° = +\\sin 30° = \\mathbf{\\dfrac{1}{2}}$ · $\\cos 150° = -\\cos 30° = \\mathbf{-\\dfrac{\\sqrt{3}}{2}}$</p>
+  <p><strong>b) 315° (Q4):</strong> ref. = $360° - 315° = 45°$. Q4: sen(−), cos(+).<br>
+     $\\sin 315° = -\\sin 45° = \\mathbf{-\\dfrac{\\sqrt{2}}{2}}$ · $\\cos 315° = +\\cos 45° = \\mathbf{\\dfrac{\\sqrt{2}}{2}}$</p>
+  <p><strong>c) $\\dfrac{4\\pi}{3}$ = 240° (Q3):</strong> ref. = $240° - 180° = 60°$. Q3: sen(−), cos(−).<br>
+     $\\sin\\dfrac{4\\pi}{3} = -\\sin 60° = \\mathbf{-\\dfrac{\\sqrt{3}}{2}}$ · $\\cos\\dfrac{4\\pi}{3} = -\\cos 60° = \\mathbf{-\\dfrac{1}{2}}$</p>
+</div>
+
+<!-- ═══ Q9 ═══ -->
+<div class="box explore" style="margin-bottom:1rem">
+  <h3 style="color:var(--accent);margin:0 0 .5rem">Q9 · Gráfico de $f(x) = \\sin x$</h3>
+  <p>Esboce o gráfico e indique domínio, imagem, valor máximo, valor mínimo e intervalos de crescimento/decrescimento.</p>
+</div>
+<div class="box solved" style="margin-bottom:1.5rem">
+  <p><strong>💡 Mnemônico:</strong> "Seno começa em zero, vai para cima." Plote os 5 pontos-chave por período:</p>
+  <table class="vtab mono" style="margin:.5rem 0">
+    <thead><tr><th>$x$</th><th>$0$</th><th>$\\pi/2$</th><th>$\\pi$</th><th>$3\\pi/2$</th><th>$2\\pi$</th></tr></thead>
+    <tbody><tr><th>$f(x)$</th><td>$0$</td><td>$1$</td><td>$0$</td><td>$-1$</td><td>$0$</td></tr></tbody>
+  </table>
+  <p>• <strong>Domínio:</strong> $\\mathbb{R}$ · <strong>Imagem:</strong> $[-1,\\,1]$</p>
+  <p>• <strong>Máximo:</strong> $y=1$ em $x = \\dfrac{\\pi}{2}+2k\\pi$ · <strong>Mínimo:</strong> $y=-1$ em $x = \\dfrac{3\\pi}{2}+2k\\pi$</p>
+  <p>• <strong>Crescente</strong> em $\\left[-\\dfrac{\\pi}{2}+2k\\pi,\\; \\dfrac{\\pi}{2}+2k\\pi\\right]$</p>
+  <p>• <strong>Decrescente</strong> em $\\left[\\dfrac{\\pi}{2}+2k\\pi,\\; \\dfrac{3\\pi}{2}+2k\\pi\\right]$</p>
+  <p>• Função <strong>ímpar</strong>: $\\sin(-x) = -\\sin x$ (simétrica em relação à origem)</p>
+</div>
+
+<!-- ═══ Q10 ═══ -->
+<div class="box explore" style="margin-bottom:1rem">
+  <h3 style="color:var(--accent);margin:0 0 .5rem">Q10 · Gráfico de $f(x) = \\cos x$</h3>
+  <p>Esboce o gráfico e indique domínio, imagem, valor máximo, valor mínimo e intervalos de crescimento/decrescimento.</p>
+</div>
+<div class="box solved" style="margin-bottom:1.5rem">
+  <p><strong>💡 Mnemônico:</strong> "Cosseno começa no máximo." Pontos-chave:</p>
+  <table class="vtab mono" style="margin:.5rem 0">
+    <thead><tr><th>$x$</th><th>$0$</th><th>$\\pi/2$</th><th>$\\pi$</th><th>$3\\pi/2$</th><th>$2\\pi$</th></tr></thead>
+    <tbody><tr><th>$f(x)$</th><td>$1$</td><td>$0$</td><td>$-1$</td><td>$0$</td><td>$1$</td></tr></tbody>
+  </table>
+  <p>• <strong>Domínio:</strong> $\\mathbb{R}$ · <strong>Imagem:</strong> $[-1,\\,1]$</p>
+  <p>• <strong>Máximo:</strong> $y=1$ em $x = 2k\\pi$ · <strong>Mínimo:</strong> $y=-1$ em $x = \\pi+2k\\pi$</p>
+  <p>• <strong>Decrescente</strong> em $[2k\\pi,\\; \\pi+2k\\pi]$</p>
+  <p>• <strong>Crescente</strong> em $[\\pi+2k\\pi,\\; 2\\pi+2k\\pi]$</p>
+  <p>• Função <strong>par</strong>: $\\cos(-x) = \\cos x$ (simétrica em relação ao eixo $y$)</p>
+  <p>• $\\cos x = \\sin\\!\\left(x + \\dfrac{\\pi}{2}\\right)$ — o cosseno é o seno com defasagem de $\\dfrac{\\pi}{2}$.</p>
+</div>
+
+<!-- ═══ Q11 ═══ -->
+<div class="box explore" style="margin-bottom:1rem">
+  <h3 style="color:var(--accent);margin:0 0 .5rem">Q11 · Determinar parâmetro da função trigonométrica</h3>
+  <p>O ponto $(0,\\,5)$ pertence a $f(x) = a + \\sin x$. Calcule $f\\!\\left(\\dfrac{3\\pi}{2}\\right)$.</p>
+</div>
+<div class="box solved" style="margin-bottom:2rem">
+  <p><strong>Passo 1:</strong> Use o ponto dado para encontrar $a$.</p>
+  <p>$(0,5)$ pertence à função → $f(0) = 5$</p>
+  <p>$f(0) = a + \\sin 0 = a + 0 = a \\Rightarrow \\mathbf{a = 5}$</p>
+  <p><strong>Passo 2:</strong> Aplique $a=5$ em $f\\!\\left(\\dfrac{3\\pi}{2}\\right)$.</p>
+  <p>$f\\!\\left(\\dfrac{3\\pi}{2}\\right) = 5 + \\sin\\dfrac{3\\pi}{2} = 5 + (-1) = \\mathbf{4}$</p>
+</div>
+
+<!-- ═══ DICAS FINAIS ═══ -->
+<div class="def" style="border-top-color:#60a5fa;background:color-mix(in srgb,#60a5fa 8%,var(--surface))">
+  <div class="def-h" style="color:#60a5fa">📌 Resumo das Estratégias para o Simulado</div>
+  <ol style="padding-left:1.3rem;line-height:1.9">
+    <li><strong>Âncora única:</strong> $180° = \\pi$ rad — toda conversão sai daí.</li>
+    <li><strong>Ângulo grande?</strong> Divida por 360° e use o resto.</li>
+    <li><strong>Comprimento de arco:</strong> $\\ell = r\\theta$ — $\\theta$ <em>obrigatoriamente</em> em radianos.</li>
+    <li><strong>Sinais por quadrante (TSCS):</strong> Q1 Todos, Q2 Seno, Q3 Cosseno, Q4 Tangente — o que é positivo em cada um.</li>
+    <li><strong>Valores notáveis:</strong> sen/cos de 30°, 45°, 60° de cor. cos 30° = sen 60° = √3/2; cos 60° = sen 30° = 1/2; cos 45° = sen 45° = √2/2.</li>
+    <li><strong>Seno começa em zero, cosseno começa no máximo.</strong></li>
+    <li><strong>Calculadora:</strong> confira DEG ou RAD antes de calcular.</li>
+  </ol>
+</div>`;
+
+    autoRender(c);
+  }
+});

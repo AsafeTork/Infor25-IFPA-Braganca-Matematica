@@ -60,6 +60,20 @@
 .uc-k{font-weight:700;color:var(--text-mut);}
 .uc-val{color:var(--text);}
 .uc-snap{font-size:.65rem;color:var(--accent);text-align:right;margin-top:.2rem;}
+/* ── Ferramentas do professor ── */
+.tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:.3rem;margin-top:.4rem;}
+.tool-btn{padding:.35rem .4rem;border-radius:6px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-soft);cursor:pointer;font-size:.72rem;text-align:left;transition:all .15s;display:flex;align-items:center;gap:.35rem;}
+.tool-btn:hover{border-color:var(--accent);color:var(--accent);}
+.tool-btn.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:700;}
+.tool-icon{font-size:.85rem;flex-shrink:0;}
+.color-row{display:flex;gap:.3rem;margin-top:.35rem;flex-wrap:wrap;}
+.color-dot{width:18px;height:18px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .15s,border-color .15s;}
+.color-dot:hover{transform:scale(1.25);}
+.color-dot.active{border-color:#fff;}
+.sect-title{font-family:var(--font-mono);font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-mut);margin:.5rem 0 .25rem;}
+.opacity-row{display:flex;align-items:center;gap:.4rem;margin-top:.3rem;}
+.opacity-row input{flex:1;accent-color:var(--accent);}
+.opacity-row span{font-family:var(--font-mono);font-size:.68rem;color:var(--text-mut);min-width:28px;}
 .uc-set{margin-top:.6rem;border-top:1px solid var(--border);padding-top:.5rem;}
 .uc-set-title{font-family:var(--font-mono);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-mut);margin-bottom:.4rem;}
 .uc-angle-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.2rem;}
@@ -125,6 +139,48 @@
         </div>
       </div>
     </div>
+    <!-- ── Ferramentas Pedagógicas ── -->
+    <div class="prof-section" id="tools-section">
+      <div class="prof-section-title">Ferramentas</div>
+
+      <div class="sect-title">Destaques no gráfico</div>
+      <div class="tools-grid">
+        <button class="tool-btn" id="tool-marker" title="Marcar ponto específico">
+          <span class="tool-icon">📍</span> Marcar ponto
+        </button>
+        <button class="tool-btn" id="tool-vline" title="Linha vertical de destaque">
+          <span class="tool-icon">|</span> Linha vertical
+        </button>
+        <button class="tool-btn" id="tool-area" title="Sombrear área sob a curva">
+          <span class="tool-icon">▓</span> Sombrear área
+        </button>
+        <button class="tool-btn" id="tool-triangle" title="Triângulo retângulo colorido">
+          <span class="tool-icon">△</span> Triângulo
+        </button>
+      </div>
+
+      <div class="sect-title">Cor do destaque</div>
+      <div class="color-row" id="tool-colors">
+        <div class="color-dot active" data-c="#ffa500" style="background:#ffa500" title="Laranja"></div>
+        <div class="color-dot" data-c="#ffd23f" style="background:#ffd23f" title="Amarelo"></div>
+        <div class="color-dot" data-c="#60a5fa" style="background:#60a5fa" title="Azul"></div>
+        <div class="color-dot" data-c="#34d399" style="background:#34d399" title="Verde"></div>
+        <div class="color-dot" data-c="#f472b6" style="background:#f472b6" title="Rosa"></div>
+        <div class="color-dot" data-c="#f87171" style="background:#f87171" title="Vermelho"></div>
+        <div class="color-dot" data-c="#e2e8f0" style="background:#e2e8f0" title="Branco"></div>
+      </div>
+
+      <div class="sect-title">Opacidade da área</div>
+      <div class="opacity-row">
+        <input type="range" id="area-opacity" min="5" max="60" value="25">
+        <span id="area-opacity-val">25%</span>
+      </div>
+
+      <button class="tool-btn" id="tool-clear" style="margin-top:.4rem;width:100%;justify-content:center">
+        <span class="tool-icon">🗑</span> Limpar destaques
+      </button>
+    </div>
+
     <div class="prof-presets" id="prof-presets"></div>
     <div class="prof-readout" id="readout">x = —   y = —</div>
   </div>
@@ -379,7 +435,7 @@ function ucDraw() {
   ctx.restore();
 }
 
-plot.onDraw = () => ucDraw();
+plot.onDraw = () => { ucDraw(); drawOverlays(); };
 
 /* Interação com o círculo — capture phase para ter prioridade sobre o plot */
 let ucPrev = null;
@@ -568,6 +624,177 @@ document.getElementById("uc-custom-btn").addEventListener("click", () => {
 document.getElementById("uc-custom-inp").addEventListener("keydown", e => {
   if (e.key === "Enter") document.getElementById("uc-custom-btn").click();
 });
+
+/* ──────────── FERRAMENTAS PEDAGÓGICAS ──────────── */
+let toolColor = "#ffa500";
+let toolMode  = null; // 'marker' | 'vline' | 'area' | 'triangle'
+let areaOpacity = 0.25;
+
+// Overlays persistentes
+const overlays = []; // { type, x, x2, color, opacity, label }
+
+// Cor ativa
+document.querySelectorAll(".color-dot").forEach(dot => {
+  dot.addEventListener("click", () => {
+    document.querySelectorAll(".color-dot").forEach(d => d.classList.remove("active"));
+    dot.classList.add("active");
+    toolColor = dot.dataset.c;
+  });
+});
+
+// Opacidade
+const opSlider = document.getElementById("area-opacity");
+const opVal    = document.getElementById("area-opacity-val");
+opSlider.addEventListener("input", () => {
+  areaOpacity = +opSlider.value / 100;
+  opVal.textContent = opSlider.value + "%";
+});
+
+// Botões de ferramenta
+function setTool(mode, btn) {
+  toolMode = toolMode === mode ? null : mode;
+  document.querySelectorAll(".tool-btn").forEach(b => b.classList.remove("active"));
+  if (toolMode) btn.classList.add("active");
+  canvas.style.cursor = toolMode ? "crosshair" : "";
+}
+
+document.getElementById("tool-marker").addEventListener("click", e => setTool("marker", e.currentTarget));
+document.getElementById("tool-vline").addEventListener("click", e => setTool("vline", e.currentTarget));
+document.getElementById("tool-area").addEventListener("click",  e => setTool("area",   e.currentTarget));
+document.getElementById("tool-triangle").addEventListener("click", e => setTool("triangle", e.currentTarget));
+document.getElementById("tool-clear").addEventListener("click", () => {
+  overlays.length = 0;
+  areaStart = null;
+  plot.draw();
+});
+
+let areaStart = null;
+
+canvas.addEventListener("click", e => {
+  if (ucDragging) return;
+  if (!toolMode) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) / rect.width  * plot.W;
+  const my = (e.clientY - rect.top)  / rect.height * plot.H;
+  const x  = plot.invX(mx);
+  const y  = plot.invY(my);
+
+  if (toolMode === "marker") {
+    overlays.push({ type: "marker", x, y, color: toolColor, label: formatExactValue(x) });
+    plot.draw();
+  } else if (toolMode === "vline") {
+    overlays.push({ type: "vline", x, color: toolColor });
+    plot.draw();
+  } else if (toolMode === "area") {
+    if (areaStart === null) {
+      areaStart = x;
+    } else {
+      overlays.push({ type: "area", x: Math.min(areaStart, x), x2: Math.max(areaStart, x), color: toolColor, opacity: areaOpacity });
+      areaStart = null;
+      setTool(null, null);
+      plot.draw();
+    }
+  } else if (toolMode === "triangle") {
+    overlays.push({ type: "triangle", x, y, color: toolColor });
+    setTool(null, null);
+    plot.draw();
+  }
+});
+
+/* Desenhar overlays dentro do plot.onDraw */
+function drawOverlays() {
+  const ctx = plot.ctx, dpr = window.devicePixelRatio || 1;
+  ctx.save();
+  ctx.scale(dpr, dpr);
+
+  for (const ov of overlays) {
+    if (ov.type === "marker") {
+      const px = plot.X(ov.x), py = plot.Y(ov.y);
+      // Ponto
+      ctx.fillStyle = ov.color;
+      ctx.beginPath(); ctx.arc(px, py, 7, 0, 2*Math.PI); ctx.fill();
+      ctx.strokeStyle = "rgba(0,0,0,.5)"; ctx.lineWidth = 1.5; ctx.stroke();
+      // Linhas tracejadas até os eixos
+      ctx.strokeStyle = ov.color + "88"; ctx.lineWidth = 1.2; ctx.setLineDash([5,4]);
+      ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, plot.Y(0)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(plot.X(0), py); ctx.stroke();
+      ctx.setLineDash([]);
+      // Label
+      ctx.fillStyle = ov.color; ctx.font = "bold 11px monospace";
+      ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+      ctx.fillText(ov.label, px, py - 10);
+
+    } else if (ov.type === "vline") {
+      const px = plot.X(ov.x);
+      ctx.strokeStyle = ov.color + "cc"; ctx.lineWidth = 2; ctx.setLineDash([6,4]);
+      ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, plot.H); ctx.stroke();
+      ctx.setLineDash([]);
+      // Label
+      ctx.fillStyle = ov.color; ctx.font = "bold 11px monospace";
+      ctx.textAlign = "center"; ctx.textBaseline = "top";
+      ctx.fillText(formatExactValue(ov.x), px, 6);
+
+    } else if (ov.type === "area") {
+      const px1 = plot.X(ov.x), px2 = plot.X(ov.x2);
+      const py0 = plot.Y(0);
+      ctx.fillStyle = ov.color + Math.round(ov.opacity * 255).toString(16).padStart(2,"0");
+      // Sombrear área sob cada curva
+      for (const cv of formulas) {
+        const expr = cv.inp.value.trim(); if (!expr) continue;
+        const cmp = compile(expr); if (!cmp || cmp.error) continue;
+        ctx.beginPath(); ctx.moveTo(px1, py0);
+        for (let X = ov.x; X <= ov.x2; X += (ov.x2 - ov.x) / 200) {
+          try {
+            const Y = cmp.fn(X);
+            if (!isFinite(Y)) continue;
+            ctx.lineTo(plot.X(X), plot.Y(Y));
+          } catch {}
+        }
+        ctx.lineTo(px2, py0); ctx.closePath(); ctx.fill();
+      }
+      // Bordas
+      ctx.strokeStyle = ov.color + "99"; ctx.lineWidth = 1.5; ctx.setLineDash([4,3]);
+      ctx.beginPath(); ctx.moveTo(px1, 0); ctx.lineTo(px1, plot.H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(px2, 0); ctx.lineTo(px2, plot.H); ctx.stroke();
+      ctx.setLineDash([]);
+
+    } else if (ov.type === "triangle") {
+      const cx = plot.X(0), cy = plot.Y(0);
+      const px = plot.X(ov.x), py = plot.Y(ov.y);
+      // Cateto horizontal (cosseno) — azul
+      ctx.strokeStyle = "#60a5fa"; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, cy); ctx.stroke();
+      // Cateto vertical (seno) — verde
+      ctx.strokeStyle = "#34d399"; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(px, cy); ctx.lineTo(px, py); ctx.stroke();
+      // Hipotenusa — cor do usuário
+      ctx.strokeStyle = ov.color; ctx.lineWidth = 2.5; ctx.setLineDash([6,3]);
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke();
+      ctx.setLineDash([]);
+      // Labels
+      ctx.font = "bold 11px monospace";
+      ctx.fillStyle = "#60a5fa"; ctx.textAlign = "center"; ctx.textBaseline = "top";
+      ctx.fillText("cos", (cx+px)/2, cy+5);
+      ctx.fillStyle = "#34d399"; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+      ctx.fillText("sin", px+5, (cy+py)/2);
+      ctx.fillStyle = ov.color; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText("r=1", (cx+px)/2 - 10*Math.sin(Math.atan2(cy-py, px-cx)),
+                           (cy+py)/2 - 10*Math.cos(Math.atan2(cy-py, px-cx)));
+    }
+  }
+
+  // Indicador de area em andamento
+  if (areaStart !== null) {
+    const px = plot.X(areaStart);
+    ctx.strokeStyle = toolColor + "bb"; ctx.lineWidth = 2; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, plot.H); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = toolColor; ctx.font = "10px monospace";
+    ctx.textAlign = "center"; ctx.fillText("→ clique p/ fechar área", px, 14);
+  }
+
+  ctx.restore();
+}
 
 /* ──────────── FÓRMULAS ──────────── */
 let formulas = [];
