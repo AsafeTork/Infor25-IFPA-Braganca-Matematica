@@ -17,8 +17,8 @@
 .al-brand b{color:var(--accent);}
 .al-topright{display:flex;align-items:center;gap:.4rem;}
 .al-toplink{font-size:.8rem;color:var(--text-soft);padding:.25rem .5rem;border-radius:6px;text-decoration:none;}
-#debug{position:fixed;bottom:0;left:0;right:0;height:150px;background:rgba(0,0,0,0.95);color:#0f0;font-family:monospace;font-size:10px;padding:8px;overflow-y:auto;z-index:999;border-top:2px solid #0f0;}
-.debug-line{margin:2px 0;white-space:pre-wrap;word-break:break-all;}
+#debug{position:fixed;bottom:0;left:0;right:0;height:200px;background:rgba(0,0,0,0.95);color:#0f0;font-family:monospace;font-size:10px;padding:8px;overflow-y:auto;z-index:999;border-top:2px solid #0f0;}
+.debug-line{margin:2px 0;}
 .debug-err{color:#f00;}
 .debug-ok{color:#0f0;}
 .debug-warn{color:#ff0;}
@@ -60,12 +60,9 @@
   </div>
 </div>
 
-<div id="debug">
-  <div class="debug-line debug-ok">🔍 DEBUG LOG INICIADO</div>
-</div>
+<div id="debug"><div class="debug-line debug-ok">🔍 DEBUG LOG</div></div>
 
 <script type="module">
-// Logger
 const debugLog = document.getElementById('debug');
 window.addLog = (msg, type='') => {
   const line = document.createElement('div');
@@ -73,159 +70,129 @@ window.addLog = (msg, type='') => {
   line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
   debugLog.appendChild(line);
   debugLog.scrollTop = debugLog.scrollHeight;
-  console.log(msg);
 };
 
-window.addLog('📦 Importando módulos...', 'ok');
+window.addLog('📦 Carregando módulos...', 'ok');
 
-try {
-  const mod1 = await import("./core/theme.js");
-  window.addLog('✅ theme.js carregado', 'ok');
-  
-  const mod2 = await import("./core/mathEngine.js");
-  window.addLog('✅ mathEngine.js carregado', 'ok');
-  
-  const mod3 = await import("./core/plotEngine.js");
-  window.addLog('✅ plotEngine.js carregado', 'ok');
-  
-  const mod4 = await import("./components/keypad.js");
-  window.addLog('✅ keypad.js carregado', 'ok');
-  
-  const { initTheme, mountThemeToggle } = mod1;
-  const { compile } = mod2;
-  const { Plot, formatExactValue } = mod3;
-  const { mountFloatingKeypad } = mod4;
-  
-  window.addLog('🎨 Inicializando tema...', 'ok');
-  initTheme();
-  mountThemeToggle(document.getElementById("theme-btn"));
-  mountFloatingKeypad();
-  
-  const COLORS = ["var(--accent)", "var(--accent-2)", "#60a5fa", "#34d399"];
-  const PRESETS = [
-    { g: "Exponencial", label: "2ˣ vs ½ˣ", fns: ["y=2^x", "y=(1/2)^x"], pi: false, uc: false },
-    { g: "Trigonometria", label: "sin(x)", fns: ["y=sin(x)"], pi: true, uc: true },
-  ];
+const { initTheme, mountThemeToggle } = await import("./core/theme.js");
+const { compile } = await import("./core/mathEngine.js");
+const { Plot, formatExactValue } = await import("./core/plotEngine.js");
+const { mountFloatingKeypad } = await import("./components/keypad.js");
 
-  window.addLog('📊 Criando Plot...', 'ok');
-  const canvas = document.getElementById("plot-canvas");
-  window.addLog(`Canvas encontrado: ${canvas ? 'SIM' : 'NÃO'}`, canvas ? 'ok' : 'err');
-  
-  const plot = new Plot(canvas, { xmin: -6, xmax: 6, ymin: -4, ymax: 4 });
-  window.addLog('✅ Plot criado', 'ok');
-  window.addLog(`showUnitCircle existe: ${plot.showUnitCircle !== undefined ? 'SIM' : 'NÃO'}`, 'ok');
+window.addLog('✅ Módulos carregados', 'ok');
 
-  plot.onProbe = (x, y) => {
-    const xStr = formatExactValue(x);
-    const yStr = formatExactValue(y);
-    document.getElementById("readout").textContent = `x = ${xStr}   y = ${yStr}`;
-  };
+initTheme();
+mountThemeToggle(document.getElementById("theme-btn"));
+mountFloatingKeypad();
 
-  let formulas = [];
+const PRESETS = [
+  { label: "2ˣ vs ½ˣ", fns: ["y=2^x", "y=(1/2)^x"], pi: false, uc: false },
+  { label: "2ˣ, 3ˣ, 10ˣ", fns: ["y=2^x", "y=3^x", "y=10^x"], pi: false, uc: false },
+  { label: "PA r=5", fns: ["y=3+(x-1)*5"], pi: false, uc: false },
+  { label: "PG q=2", fns: ["y=2*2^(x-1)"], pi: false, uc: false },
+  { label: "sin(x)", fns: ["y=sin(x)"], pi: true, uc: true },
+  { label: "cos(x)", fns: ["y=cos(x)"], pi: true, uc: true },
+  { label: "tan(x)", fns: ["y=tan(x)"], pi: true, uc: true },
+  { label: "sin + cos", fns: ["y=sin(x)", "y=cos(x)"], pi: true, uc: true },
+  { label: "Círculo unitário", fns: [], pi: false, uc: true },
+];
 
-  function addFormula(expr = "") {
-    const idx = formulas.length;
-    const color = COLORS[idx % COLORS.length];
-    const row = document.createElement("div");
-    row.className = "frow";
-    row.innerHTML = `
-      <span class="frow-dot" style="background:${color}"></span>
-      <input class="frow-inp mono" placeholder="y=..." value="${expr}" spellcheck="false">
-      <button class="frow-del">×</button>`;
-    
-    const inp = row.querySelector("input");
-    const delBtn = row.querySelector("button");
-    
-    inp.addEventListener("input", updatePlot);
-    delBtn.addEventListener("click", () => {
-      row.remove();
-      formulas = formulas.filter(f => f.input !== inp);
-      updatePlot();
-    });
-    
-    document.getElementById("formulas-rows").appendChild(row);
-    formulas.push({ input: inp, color });
+const canvas = document.getElementById("plot-canvas");
+window.addLog(`Canvas: ${canvas ? '✓' : '✗'}`, canvas ? 'ok' : 'err');
+
+const plot = new Plot(canvas, { xmin: -6, xmax: 6, ymin: -4, ymax: 4 });
+window.addLog('✅ Plot criado', 'ok');
+window.addLog(`_drawUnitCircle: ${plot._drawUnitCircle ? '✓' : '✗'}`, 'ok');
+
+plot.onProbe = (x, y) => {
+  document.getElementById("readout").textContent = `x = ${formatExactValue(x)}   y = ${formatExactValue(y)}`;
+};
+
+let formulas = [];
+
+function addFormula(expr = "") {
+  const row = document.createElement("div");
+  row.className = "frow";
+  row.innerHTML = `<span class="frow-dot"></span><input class="frow-inp mono" placeholder="y=..." value="${expr}"><button class="frow-del">×</button>`;
+  const inp = row.querySelector("input");
+  inp.addEventListener("input", updatePlot);
+  row.querySelector("button").addEventListener("click", () => {
+    row.remove();
+    formulas = formulas.filter(f => f.input !== inp);
     updatePlot();
-  }
-
-  function updatePlot() {
-    const curves = [];
-    for (const { input, color } of formulas) {
-      const expr = input.value.trim();
-      if (!expr) continue;
-      try {
-        const compiled = compile(expr);
-        if (compiled && !compiled.error) {
-          curves.push({ fn: compiled.fn, color });
-          window.addLog(`📈 Fórmula: ${expr}`, 'ok');
-        } else {
-          window.addLog(`❌ Erro ao compilar: ${expr}`, 'err');
-        }
-      } catch (e) {
-        window.addLog(`❌ Exception: ${e.message}`, 'err');
-      }
-    }
-    plot.setCurves(curves);
-  }
-
-  document.getElementById("btn-add-formula").addEventListener("click", () => {
-    window.addLog('➕ Nova linha adicionada', 'ok');
-    addFormula();
   });
-
-  document.getElementById("toggle-pi").addEventListener("change", (e) => {
-    window.addLog(`π toggle: ${e.target.checked ? 'ON' : 'OFF'}`, 'ok');
-    plot.setPiAxis(e.target.checked);
-    plot.setView(e.target.checked ? { xmin: -2*Math.PI, xmax: 2*Math.PI, ymin: -3, ymax: 3 } : { xmin: -6, xmax: 6, ymin: -4, ymax: 4 });
-    plot.draw();
-  });
-
-  document.getElementById("toggle-circle").addEventListener("change", (e) => {
-    window.addLog(`⊙ Circle toggle: ${e.target.checked ? 'ATIVO' : 'INATIVO'}`, e.target.checked ? 'ok' : 'warn');
-    window.addLog(`showUnitCircle será: ${e.target.checked}`, 'ok');
-    plot.showUnitCircle = e.target.checked;
-    plot.draw();
-  });
-
-  document.getElementById("btn-reset").addEventListener("click", () => {
-    window.addLog('🔄 Reset pressionado', 'ok');
-    const pi = document.getElementById("toggle-pi").checked;
-    plot.setView(pi ? {xmin:-2*Math.PI,xmax:2*Math.PI,ymin:-3,ymax:3} : {xmin:-6,xmax:6,ymin:-4,ymax:4});
-    plot.draw();
-  });
-
-  const presetGrid = document.getElementById("presets-grid");
-  presetGrid.innerHTML = PRESETS.map((p, i) => `<button class="preset-btn" data-idx="${i}">${p.label}</button>`).join("");
-
-  presetGrid.querySelectorAll(".preset-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const p = PRESETS[+btn.dataset.idx];
-      window.addLog(`📌 Preset selecionado: ${p.label}`, 'ok');
-      document.getElementById("formulas-rows").innerHTML = "";
-      formulas = [];
-      p.fns.forEach(f => addFormula(f));
-      
-      document.getElementById("toggle-pi").checked = p.pi;
-      plot.setPiAxis(p.pi);
-      plot.setView(p.pi ? {xmin:-2*Math.PI,xmax:2*Math.PI,ymin:-3,ymax:3} : {xmin:-6,xmax:6,ymin:-4,ymax:4});
-      
-      document.getElementById("toggle-circle").checked = p.uc;
-      plot.showUnitCircle = p.uc;
-      window.addLog(`Circle ativado: ${p.uc}`, 'ok');
-      plot.draw();
-    });
-  });
-
-  window.addLog('✅ Professor carregado 100%!', 'ok');
-  addFormula("y=2^x");
-  addFormula("y=(1/2)^x");
-
-  window.addEventListener("themechange", () => plot.draw());
-
-} catch (err) {
-  window.addLog(`🔴 ERRO CRÍTICO: ${err.message}`, 'err');
-  window.addLog(err.stack, 'err');
+  document.getElementById("formulas-rows").appendChild(row);
+  formulas.push({ input: inp });
+  updatePlot();
 }
+
+function updatePlot() {
+  const curves = [];
+  for (const { input } of formulas) {
+    const expr = input.value.trim();
+    if (!expr) continue;
+    try {
+      const c = compile(expr);
+      if (c && !c.error) curves.push({ fn: c.fn, color: "var(--accent)" });
+    } catch (e) {
+      window.addLog(`❌ ${expr}`, 'err');
+    }
+  }
+  plot.setCurves(curves);
+}
+
+document.getElementById("btn-add-formula").addEventListener("click", () => addFormula());
+
+document.getElementById("toggle-pi").addEventListener("change", (e) => {
+  window.addLog(`π = ${e.target.checked}`, 'ok');
+  plot.setPiAxis(e.target.checked);
+  plot.setView(e.target.checked ? {xmin:-2*Math.PI,xmax:2*Math.PI,ymin:-3,ymax:3} : {xmin:-6,xmax:6,ymin:-4,ymax:4});
+  plot.draw();
+});
+
+document.getElementById("btn-reset").addEventListener("click", () => {
+  const pi = document.getElementById("toggle-pi").checked;
+  plot.setView(pi ? {xmin:-2*Math.PI,xmax:2*Math.PI,ymin:-3,ymax:3} : {xmin:-6,xmax:6,ymin:-4,ymax:4});
+  plot.draw();
+});
+
+document.getElementById("toggle-circle").addEventListener("change", (e) => {
+  window.addLog(`⊙ TOGGLE = ${e.target.checked}`, e.target.checked ? 'ok' : 'warn');
+  window.addLog(`plot.showUnitCircle ANTES = ${plot.showUnitCircle}`, 'ok');
+  plot.showUnitCircle = e.target.checked;
+  window.addLog(`plot.showUnitCircle DEPOIS = ${plot.showUnitCircle}`, 'ok');
+  window.addLog(`Chamando plot.draw()...`, 'ok');
+  try {
+    plot.draw();
+    window.addLog(`✅ draw() sucesso`, 'ok');
+  } catch (err) {
+    window.addLog(`❌ draw() erro: ${err.message}`, 'err');
+  }
+});
+
+const presetGrid = document.getElementById("presets-grid");
+presetGrid.innerHTML = PRESETS.map((p, i) => `<button class="preset-btn" data-idx="${i}">${p.label}</button>`).join("");
+
+presetGrid.querySelectorAll(".preset-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const p = PRESETS[+btn.dataset.idx];
+    window.addLog(`📌 ${p.label}`, 'ok');
+    document.getElementById("formulas-rows").innerHTML = "";
+    formulas = [];
+    p.fns.forEach(f => addFormula(f));
+    document.getElementById("toggle-pi").checked = p.pi;
+    plot.setPiAxis(p.pi);
+    document.getElementById("toggle-circle").checked = p.uc;
+    window.addLog(`showUnitCircle = ${p.uc}`, 'ok');
+    plot.showUnitCircle = p.uc;
+    plot.setView(p.pi ? {xmin:-2*Math.PI,xmax:2*Math.PI,ymin:-3,ymax:3} : {xmin:-6,xmax:6,ymin:-4,ymax:4});
+    plot.draw();
+  });
+});
+
+window.addLog('✅ Professor 100% carregado', 'ok');
+addFormula("y=2^x");
+addFormula("y=(1/2)^x");
 </script>
 </body>
 </html>
