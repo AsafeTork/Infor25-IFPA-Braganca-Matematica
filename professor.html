@@ -16,8 +16,12 @@
 .al-brand{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);letter-spacing:-.02em;flex:1;text-decoration:none;}
 .al-brand b{color:var(--accent);}
 .al-topright{display:flex;align-items:center;gap:.4rem;}
-.al-toplink{font-size:.8rem;color:var(--text-soft);padding:.25rem .5rem;border-radius:6px;text-decoration:none;transition:all .2s;}
-.al-toplink:hover{background:var(--surface-2);color:var(--text);}
+.al-toplink{font-size:.8rem;color:var(--text-soft);padding:.25rem .5rem;border-radius:6px;text-decoration:none;}
+#debug{position:fixed;bottom:0;left:0;right:0;height:150px;background:rgba(0,0,0,0.95);color:#0f0;font-family:monospace;font-size:10px;padding:8px;overflow-y:auto;z-index:999;border-top:2px solid #0f0;}
+.debug-line{margin:2px 0;white-space:pre-wrap;word-break:break-all;}
+.debug-err{color:#f00;}
+.debug-ok{color:#0f0;}
+.debug-warn{color:#ff0;}
 </style>
 </head>
 <body>
@@ -56,129 +60,172 @@
   </div>
 </div>
 
+<div id="debug">
+  <div class="debug-line debug-ok">🔍 DEBUG LOG INICIADO</div>
+</div>
+
 <script type="module">
-import { initTheme, mountThemeToggle } from "./core/theme.js";
-import { compile } from "./core/mathEngine.js";
-import { Plot, formatExactValue } from "./core/plotEngine.js";
-import { mountFloatingKeypad } from "./components/keypad.js";
-
-// Inicializar
-initTheme();
-mountThemeToggle(document.getElementById("theme-btn"));
-mountFloatingKeypad();
-
-const COLORS = ["var(--accent)", "var(--accent-2)", "#60a5fa", "#34d399"];
-const PRESETS = [
-  { g: "Exponencial", label: "2ˣ vs ½ˣ", fns: ["y=2^x", "y=(1/2)^x"], pi: false, uc: false },
-  { g: "Exponencial", label: "Crescimento", fns: ["y=2^x", "y=3^x"], pi: false, uc: false },
-  { g: "Sequências", label: "PA r=5", fns: ["y=3+(x-1)*5"], pi: false, uc: false },
-  { g: "Trigonometria", label: "sin(x)", fns: ["y=sin(x)"], pi: true, uc: true },
-  { g: "Trigonometria", label: "cos(x)", fns: ["y=cos(x)"], pi: true, uc: true },
-  { g: "Trigonometria", label: "sin + cos", fns: ["y=sin(x)", "y=cos(x)"], pi: true, uc: true },
-  { g: "Trigonometria", label: "Círculo", fns: [], pi: false, uc: true },
-];
-
-const canvas = document.getElementById("plot-canvas");
-const plot = new Plot(canvas, { xmin: -6, xmax: 6, ymin: -4, ymax: 4 });
-
-plot.onProbe = (x, y) => {
-  document.getElementById("readout").textContent = `x = ${formatExactValue(x)}   y = ${formatExactValue(y)}`;
+// Logger
+const debugLog = document.getElementById('debug');
+window.addLog = (msg, type='') => {
+  const line = document.createElement('div');
+  line.className = `debug-line debug-${type || 'ok'}`;
+  line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  debugLog.appendChild(line);
+  debugLog.scrollTop = debugLog.scrollHeight;
+  console.log(msg);
 };
 
-let formulas = [];
+window.addLog('📦 Importando módulos...', 'ok');
 
-function addFormula(expr = "") {
-  const idx = formulas.length;
-  const color = COLORS[idx % COLORS.length];
-  const row = document.createElement("div");
-  row.className = "frow";
-  row.innerHTML = `
-    <span class="frow-dot" style="background:${color}"></span>
-    <input class="frow-inp mono" placeholder="y=..." value="${expr}" spellcheck="false">
-    <button class="frow-del">×</button>`;
+try {
+  const mod1 = await import("./core/theme.js");
+  window.addLog('✅ theme.js carregado', 'ok');
   
-  const inp = row.querySelector("input");
-  const delBtn = row.querySelector("button");
+  const mod2 = await import("./core/mathEngine.js");
+  window.addLog('✅ mathEngine.js carregado', 'ok');
   
-  inp.addEventListener("input", updatePlot);
-  delBtn.addEventListener("click", () => {
-    row.remove();
-    formulas = formulas.filter(f => f.input !== inp);
+  const mod3 = await import("./core/plotEngine.js");
+  window.addLog('✅ plotEngine.js carregado', 'ok');
+  
+  const mod4 = await import("./components/keypad.js");
+  window.addLog('✅ keypad.js carregado', 'ok');
+  
+  const { initTheme, mountThemeToggle } = mod1;
+  const { compile } = mod2;
+  const { Plot, formatExactValue } = mod3;
+  const { mountFloatingKeypad } = mod4;
+  
+  window.addLog('🎨 Inicializando tema...', 'ok');
+  initTheme();
+  mountThemeToggle(document.getElementById("theme-btn"));
+  mountFloatingKeypad();
+  
+  const COLORS = ["var(--accent)", "var(--accent-2)", "#60a5fa", "#34d399"];
+  const PRESETS = [
+    { g: "Exponencial", label: "2ˣ vs ½ˣ", fns: ["y=2^x", "y=(1/2)^x"], pi: false, uc: false },
+    { g: "Trigonometria", label: "sin(x)", fns: ["y=sin(x)"], pi: true, uc: true },
+  ];
+
+  window.addLog('📊 Criando Plot...', 'ok');
+  const canvas = document.getElementById("plot-canvas");
+  window.addLog(`Canvas encontrado: ${canvas ? 'SIM' : 'NÃO'}`, canvas ? 'ok' : 'err');
+  
+  const plot = new Plot(canvas, { xmin: -6, xmax: 6, ymin: -4, ymax: 4 });
+  window.addLog('✅ Plot criado', 'ok');
+  window.addLog(`showUnitCircle existe: ${plot.showUnitCircle !== undefined ? 'SIM' : 'NÃO'}`, 'ok');
+
+  plot.onProbe = (x, y) => {
+    const xStr = formatExactValue(x);
+    const yStr = formatExactValue(y);
+    document.getElementById("readout").textContent = `x = ${xStr}   y = ${yStr}`;
+  };
+
+  let formulas = [];
+
+  function addFormula(expr = "") {
+    const idx = formulas.length;
+    const color = COLORS[idx % COLORS.length];
+    const row = document.createElement("div");
+    row.className = "frow";
+    row.innerHTML = `
+      <span class="frow-dot" style="background:${color}"></span>
+      <input class="frow-inp mono" placeholder="y=..." value="${expr}" spellcheck="false">
+      <button class="frow-del">×</button>`;
+    
+    const inp = row.querySelector("input");
+    const delBtn = row.querySelector("button");
+    
+    inp.addEventListener("input", updatePlot);
+    delBtn.addEventListener("click", () => {
+      row.remove();
+      formulas = formulas.filter(f => f.input !== inp);
+      updatePlot();
+    });
+    
+    document.getElementById("formulas-rows").appendChild(row);
+    formulas.push({ input: inp, color });
     updatePlot();
-  });
-  
-  document.getElementById("formulas-rows").appendChild(row);
-  formulas.push({ input: inp, color });
-  updatePlot();
-}
-
-function updatePlot() {
-  const curves = [];
-  for (const { input, color } of formulas) {
-    const expr = input.value.trim();
-    if (!expr) continue;
-    try {
-      const compiled = compile(expr);
-      if (compiled && !compiled.error) {
-        curves.push({ fn: compiled.fn, color });
-      }
-    } catch (e) {
-      console.warn("Erro ao compilar:", expr, e);
-    }
   }
-  plot.setCurves(curves);
-  
-  const labels = document.getElementById("formulas-labels");
-  labels.innerHTML = formulas
-    .map(({ input, color }) => input.value.trim() ? `<div class="bflabel" style="color:${color}">${input.value}</div>` : "")
-    .join("");
-}
 
-document.getElementById("btn-add-formula").addEventListener("click", () => addFormula());
+  function updatePlot() {
+    const curves = [];
+    for (const { input, color } of formulas) {
+      const expr = input.value.trim();
+      if (!expr) continue;
+      try {
+        const compiled = compile(expr);
+        if (compiled && !compiled.error) {
+          curves.push({ fn: compiled.fn, color });
+          window.addLog(`📈 Fórmula: ${expr}`, 'ok');
+        } else {
+          window.addLog(`❌ Erro ao compilar: ${expr}`, 'err');
+        }
+      } catch (e) {
+        window.addLog(`❌ Exception: ${e.message}`, 'err');
+      }
+    }
+    plot.setCurves(curves);
+  }
 
-document.getElementById("toggle-pi").addEventListener("change", (e) => {
-  plot.setPiAxis(e.target.checked);
-  plot.setView(e.target.checked ? { xmin: -2*Math.PI, xmax: 2*Math.PI, ymin: -3, ymax: 3 } : { xmin: -6, xmax: 6, ymin: -4, ymax: 4 });
-  plot.draw();
-});
+  document.getElementById("btn-add-formula").addEventListener("click", () => {
+    window.addLog('➕ Nova linha adicionada', 'ok');
+    addFormula();
+  });
 
-document.getElementById("toggle-circle").addEventListener("change", (e) => {
-  plot.showUnitCircle = e.target.checked;
-  plot.draw();
-});
-
-document.getElementById("btn-reset").addEventListener("click", () => {
-  const pi = document.getElementById("toggle-pi").checked;
-  plot.setView(pi ? {xmin:-2*Math.PI,xmax:2*Math.PI,ymin:-3,ymax:3} : {xmin:-6,xmax:6,ymin:-4,ymax:4});
-  plot.draw();
-});
-
-const presetGrid = document.getElementById("presets-grid");
-presetGrid.innerHTML = PRESETS.map((p, i) => `<button class="preset-btn" data-idx="${i}">${p.label}</button>`).join("");
-
-presetGrid.querySelectorAll(".preset-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const p = PRESETS[+btn.dataset.idx];
-    document.getElementById("formulas-rows").innerHTML = "";
-    formulas = [];
-    p.fns.forEach(f => addFormula(f));
-    
-    document.getElementById("toggle-pi").checked = p.pi;
-    plot.setPiAxis(p.pi);
-    plot.setView(p.pi ? {xmin:-2*Math.PI,xmax:2*Math.PI,ymin:-3,ymax:3} : {xmin:-6,xmax:6,ymin:-4,ymax:4});
-    
-    document.getElementById("toggle-circle").checked = p.uc;
-    plot.showUnitCircle = p.uc;
+  document.getElementById("toggle-pi").addEventListener("change", (e) => {
+    window.addLog(`π toggle: ${e.target.checked ? 'ON' : 'OFF'}`, 'ok');
+    plot.setPiAxis(e.target.checked);
+    plot.setView(e.target.checked ? { xmin: -2*Math.PI, xmax: 2*Math.PI, ymin: -3, ymax: 3 } : { xmin: -6, xmax: 6, ymin: -4, ymax: 4 });
     plot.draw();
   });
-});
 
-// Iniciar
-addFormula("y=2^x");
-addFormula("y=(1/2)^x");
+  document.getElementById("toggle-circle").addEventListener("change", (e) => {
+    window.addLog(`⊙ Circle toggle: ${e.target.checked ? 'ATIVO' : 'INATIVO'}`, e.target.checked ? 'ok' : 'warn');
+    window.addLog(`showUnitCircle será: ${e.target.checked}`, 'ok');
+    plot.showUnitCircle = e.target.checked;
+    plot.draw();
+  });
 
-window.addEventListener("themechange", () => plot.draw());
+  document.getElementById("btn-reset").addEventListener("click", () => {
+    window.addLog('🔄 Reset pressionado', 'ok');
+    const pi = document.getElementById("toggle-pi").checked;
+    plot.setView(pi ? {xmin:-2*Math.PI,xmax:2*Math.PI,ymin:-3,ymax:3} : {xmin:-6,xmax:6,ymin:-4,ymax:4});
+    plot.draw();
+  });
 
+  const presetGrid = document.getElementById("presets-grid");
+  presetGrid.innerHTML = PRESETS.map((p, i) => `<button class="preset-btn" data-idx="${i}">${p.label}</button>`).join("");
+
+  presetGrid.querySelectorAll(".preset-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const p = PRESETS[+btn.dataset.idx];
+      window.addLog(`📌 Preset selecionado: ${p.label}`, 'ok');
+      document.getElementById("formulas-rows").innerHTML = "";
+      formulas = [];
+      p.fns.forEach(f => addFormula(f));
+      
+      document.getElementById("toggle-pi").checked = p.pi;
+      plot.setPiAxis(p.pi);
+      plot.setView(p.pi ? {xmin:-2*Math.PI,xmax:2*Math.PI,ymin:-3,ymax:3} : {xmin:-6,xmax:6,ymin:-4,ymax:4});
+      
+      document.getElementById("toggle-circle").checked = p.uc;
+      plot.showUnitCircle = p.uc;
+      window.addLog(`Circle ativado: ${p.uc}`, 'ok');
+      plot.draw();
+    });
+  });
+
+  window.addLog('✅ Professor carregado 100%!', 'ok');
+  addFormula("y=2^x");
+  addFormula("y=(1/2)^x");
+
+  window.addEventListener("themechange", () => plot.draw());
+
+} catch (err) {
+  window.addLog(`🔴 ERRO CRÍTICO: ${err.message}`, 'err');
+  window.addLog(err.stack, 'err');
+}
 </script>
 </body>
 </html>
