@@ -1,0 +1,82 @@
+/* styles/content.css — shell de aplicação */
+
+:root { --topbar-h: 60px; }
+
+.app {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: calc(100vh - var(--topbar-h));
+}
+
+/* ─── Sidebar ─── */
+.sidebar {
+  border-right: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  padding: var(--sp-4) var(--sp-3);
+  position: sticky; top: var(--topbar-h);
+  height: calc(100vh - var(--topbar-h));
+  overflow-y: auto; overflow-x: hidden;
+}
+.side-group { margin-bottom: var(--sp-5); }
+.side-chap { display: flex; align-items: baseline; gap: .4rem; margin-bottom: var(--sp-2); }
+.side-chap .num { font-family: var(--font-mono); color: var(--accent); font-size: .75rem; }
+.side-chap h3 { font-size: 1rem; }
+.side-link {
+  display: block; padding: .45rem .7rem; border-radius: var(--radius-sm);
+  color: var(--text-soft); font-family: var(--font-display); font-size: .88rem;
+  cursor: pointer; border: 1px solid transparent; transition: all .18s; margin-bottom: .2rem;
+}
+.side-link:hover { background: var(--surface-2); color: var(--text); }
+.side-link.active { background: var(--accent-soft); color: var(--accent); border-color: var(--border-strong); }
+.side-link .dot { display: inline-block; width: 6px; height: 6px; border-radius: 99px; background: var(--ink-600); margin-right: .45rem; vertical-align: middle; }
+.side-link.active .dot { background: var(--accent); }
+
+/* ─── Content ─── */
+.content { padding: var(--sp-7) var(--sp-6); max-width: 900px; }
+.content-head { margin-bottom: var(--sp-5); }
+.content-head .crumb { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .12em; color: var(--text-mut); text-transform: uppercase; }
+.content-head h1 { font-size: clamp(1.7rem, 4.5vw, 2.8rem); margin: .25rem 0; }
+
+.lesson-section { margin-bottom: var(--sp-7); }
+.lesson-h2 { font-size: clamp(1.2rem, 3vw, 1.7rem); margin: .2rem 0 var(--sp-3); }
+.lesson-section p { margin: var(--sp-3) 0; color: var(--text-soft); }
+.lesson-section p strong, .lesson-section b { color: var(--text); }
+.lesson-section ul, .lesson-section ol { color: var(--text-soft); padding-left: 1.4rem; margin: var(--sp-3) 0; }
+.lesson-section li { margin: .3rem 0; }
+.lesson-note { font-size: .82rem; color: var(--text-mut); font-style: italic; }
+.katex { font-size: 1.04em; }
+.katex-display { margin: .7rem 0; overflow-x: auto; overflow-y: hidden; padding: .15rem 0; }
+
+.lesson-nav {
+  display: flex; justify-content: space-between; gap: var(--sp-3);
+  margin-top: var(--sp-7); padding-top: var(--sp-4); border-top: 1px solid var(--border);
+}
+.lesson-nav button:disabled { opacity: .35; cursor: default; }
+
+/* ─── Mobile ─── */
+.menu-btn { display: none; }
+
+/* Overlay when sidebar open on mobile */
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0; z-index: 35;
+  background: rgba(0,0,0,.45);
+}
+.sidebar-overlay.active { display: block; }
+
+@media (max-width: 860px) {
+  .app { grid-template-columns: 1fr; }
+
+  .sidebar {
+    position: fixed; z-index: 40;
+    left: 0; top: var(--topbar-h);
+    width: min(80vw, 280px);
+    height: calc(100vh - var(--topbar-h));
+    transform: translateX(-105%);
+    transition: transform .28s cubic-bezier(.4,0,.2,1);
+    box-shadow: 4px 0 24px rgba(0,0,0,.35);
+  }
+  .sidebar.open { transform: none; }
+
+  .menu-btn { display: grid !important; }
+  .content { padding: var(--sp-5) var(--sp-4); }
+}

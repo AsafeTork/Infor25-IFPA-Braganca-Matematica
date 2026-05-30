@@ -1,0 +1,108 @@
+/* ═══════════════════════════════════════════════════════════════
+   BOXES PEDAGÓGICAS — Design Limpo e Consistente
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Definição (laranja/amarelo, fundo suave) ── */
+.def {
+  border: none;
+  border-top: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  padding: 1rem 1.2rem;
+  margin: 1rem 0;
+  border-radius: 0;
+}
+
+.def .def-h {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--accent);
+  margin: 0 0 0.6rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.def > div:last-child {
+  font-size: 0.93rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+  margin: 0;
+}
+
+/* ── Caixas com border (sem balões) ── */
+.box {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 1rem 1.2rem;
+  margin: 1rem 0;
+  border-radius: 0;
+  border-left: 4px solid var(--accent);
+  position: relative;
+}
+
+/* Ocultar box-tag (balões) — não combina com design */
+.box > .box-tag {
+  display: none;
+}
+
+.box.think {
+  border-left-color: #ffd23f;
+  background: color-mix(in srgb, #ffd23f 6%, var(--surface));
+}
+
+.box.explore {
+  border-left-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+}
+
+.box.solved {
+  border-left-color: #60a5fa;
+  background: color-mix(in srgb, #60a5fa 6%, var(--surface));
+}
+
+.box.apply {
+  border-left-color: #34d399;
+  background: color-mix(in srgb, #34d399 6%, var(--surface));
+}
+
+/* ── Labels de tipo dentro da caixa ── */
+.box::before {
+  content: attr(data-label);
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: -0.5rem -1.2rem 0.8rem -1.2rem;
+  padding: 0.4rem 1.2rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-mut);
+}
+
+.box.think::before { content: "→ Para pensar"; color: #8b6e1a; }
+.box.explore::before { content: "→ Para explorar"; color: #b85a00; }
+.box.solved::before { content: "→ Resolução"; color: #1e40af; }
+.box.apply::before { content: "→ Aplicação real"; color: #047857; }
+
+/* ── Conteúdo dentro da caixa ── */
+.box > div,
+.box > p {
+  font-size: 0.93rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+  margin: 0;
+}
+
+.box ul, .box ol {
+  margin: 0.6rem 0;
+  padding-left: 1.5rem;
+  font-size: 0.93rem;
+}
+
+.box li {
+  margin: 0.3rem 0;
+  color: var(--text-soft);
+}
+
+/* ═══════════════════════════════════════════════════════════════ */

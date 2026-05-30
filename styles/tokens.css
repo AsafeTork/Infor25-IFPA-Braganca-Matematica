@@ -1,0 +1,99 @@
+/* ============================================================
+   Informática 25 — Design Tokens
+   Tema: preto · laranja · amarelo  (tecnológico / matemático)
+   ============================================================ */
+
+:root {
+  --zoom-scale: 1;
+  
+  /* ---- Brand ramp ---- */
+  --orange-900: #7a2e00;
+  --orange-700: #c23d00;
+  --orange-600: #ff7600;
+  --orange-500: #ffa500;  /* Changed from #ff8c00 to more yellow */
+  --orange-400: #ff7d34;
+  --amber-500:  #ffb020;
+  --yellow-400: #ffa500;
+  --yellow-300: #ffe26b;
+
+  /* ---- Ink / paper neutrals ---- */
+  --ink-950: #08080a;
+  --ink-900: #0c0d10;
+  --ink-850: #121318;
+  --ink-800: #181a20;
+  --ink-700: #232631;
+  --ink-600: #343847;
+  --ink-500: #565b6e;
+  --ink-300: #9aa0b4;
+  --paper-100: #f6f3ea;
+  --paper-200: #efe9da;
+  --paper-300: #e4dcc7;
+
+  /* ---- Typography ---- */
+  --font-display: "Bricolage Grotesque", "Sora", system-ui, sans-serif;
+  --font-body: "Spectral", Georgia, serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+
+  /* ---- Spacing scale ---- */
+  --sp-1: 0.25rem; --sp-2: 0.5rem; --sp-3: 0.75rem; --sp-4: 1rem;
+  --sp-5: 1.5rem;  --sp-6: 2rem;   --sp-8: 3rem;    --sp-10: 4.5rem;
+  --sp-12: 6rem;
+
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 22px;
+
+  --maxw: 1180px;
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+}
+
+/* ===================== DARK (default) ===================== */
+:root,
+[data-theme="dark"] {
+  --bg: var(--ink-950);
+  --bg-grad-1: #100c0a;
+  --bg-grad-2: #08080a;
+  --surface: var(--ink-850);
+  --surface-2: var(--ink-800);
+  --surface-3: var(--ink-700);
+  --border: rgba(255, 255, 255, .07);
+  --border-strong: rgba(255, 160, 60, .28);
+  --text: #f3f1ea;
+  --text-soft: #c3c6d2;
+  --text-mut: var(--ink-300);
+  --accent: var(--orange-500);
+  --accent-2: var(--yellow-400);
+  --accent-soft: rgba(255, 106, 26, .14);
+  --grid-line: rgba(255, 255, 255, .055);
+  --grid-axis: rgba(255, 226, 107, .55);
+  --plot-bg: #0b0c10;
+  --code-bg: #0d0e13;
+  --shadow: 0 24px 60px -28px rgba(0, 0, 0, .8);
+  --glow: 0 0 0 1px rgba(255,106,26,.25), 0 18px 50px -20px rgba(255,106,26,.35);
+}
+
+/* ===================== LIGHT ===================== */
+[data-theme="light"] {
+  --bg: var(--paper-100);
+  --bg-grad-1: #fbf8ef;
+  --bg-grad-2: #f1ead9;
+  --surface: #fffdf8;
+  --surface-2: #fbf6 ea;
+  --surface-2: #fbf6ea;
+  --surface-3: #f3ecda;
+  --border: rgba(40, 30, 12, .12);
+  --border-strong: rgba(226, 80, 15, .4);
+  --text: #211c14;
+  --text-soft: #4a4234;
+  --text-mut: #7d735f;
+  --accent: var(--orange-600);
+  --accent-2: var(--orange-700);
+  --accent-soft: rgba(232, 80, 15, .12);
+  --grid-line: rgba(40, 30, 12, .08);
+  --grid-axis: rgba(194, 61, 0, .65);
+  --plot-bg: #fffdf6;
+  --code-bg: #f4eede;
+  --shadow: 0 22px 50px -30px rgba(80, 50, 10, .5);
+  --glow: 0 0 0 1px rgba(226,80,15,.2), 0 16px 40px -22px rgba(226,80,15,.3);
+}
