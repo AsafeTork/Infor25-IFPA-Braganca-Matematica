@@ -52,6 +52,16 @@
 .uc-k{font-weight:700;color:var(--text-mut);}
 .uc-val{color:var(--text);}
 .uc-snap{font-size:.65rem;color:var(--accent);text-align:right;margin-top:.2rem;}
+.uc-set{margin-top:.6rem;border-top:1px solid var(--border);padding-top:.5rem;}
+.uc-set-title{font-family:var(--font-mono);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-mut);margin-bottom:.4rem;}
+.uc-angle-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.2rem;}
+.uc-abtn{background:var(--surface-2);border:1px solid var(--border);color:var(--text-soft);border-radius:5px;padding:.25rem .1rem;font-family:var(--font-mono);font-size:.62rem;cursor:pointer;text-align:center;transition:all .15s;white-space:nowrap;}
+.uc-abtn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);}
+.uc-abtn.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:700;}
+.uc-custom{display:flex;gap:.3rem;margin-top:.4rem;}
+.uc-custom input{flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:.3rem .4rem;border-radius:5px;font-family:var(--font-mono);font-size:.75rem;outline:none;}
+.uc-custom input:focus{border-color:var(--accent);}
+.uc-custom button{background:var(--accent);border:none;color:#000;padding:.3rem .5rem;border-radius:5px;font-weight:700;font-size:.72rem;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -88,6 +98,15 @@
       <div class="uc-row"><span class="uc-k">tan θ</span><span class="uc-val" id="uc-tan">—</span></div>
       <div class="uc-row"><span class="uc-k">θ</span><span class="uc-val" id="uc-ang">—</span></div>
       <div class="uc-snap" id="uc-snap"></div>
+      <!-- Seletor de ângulos -->
+      <div class="uc-set">
+        <div class="uc-set-title">Definir ângulo</div>
+        <div class="uc-angle-grid" id="uc-angle-grid"></div>
+        <div class="uc-custom">
+          <input id="uc-custom-inp" name="uc-angle" autocomplete="off" placeholder="ex: π/5 ou 72°">
+          <button id="uc-custom-btn">→</button>
+        </div>
+      </div>
     </div>
     <div class="prof-presets" id="prof-presets"></div>
     <div class="prof-readout" id="readout">x = —   y = —</div>
@@ -354,7 +373,73 @@ function ucUpdateInfo() {
   document.getElementById("uc-ang").textContent = n ? n.l : `${(tN*180/Math.PI).toFixed(1)}°`;
   document.getElementById("uc-snap").textContent = n ? "⊙ ângulo notável" :
     (Math.abs(ucTheta)>2*Math.PI+.2 ? `↻ ${(ucTheta/(2*Math.PI)).toFixed(2)} voltas` : "");
+  // Destacar botão ativo
+  document.querySelectorAll(".uc-abtn").forEach(b => {
+    b.classList.toggle("active", Math.abs(ucTheta - +b.dataset.a) < 0.01);
+  });
 }
+
+/* ── Ângulos notáveis — grade de botões ── */
+const UC_ANGLES = [
+  { l:"0",     a:0            },
+  { l:"π/6",   a:Math.PI/6   },
+  { l:"π/4",   a:Math.PI/4   },
+  { l:"π/3",   a:Math.PI/3   },
+  { l:"π/2",   a:Math.PI/2   },
+  { l:"2π/3",  a:2*Math.PI/3 },
+  { l:"3π/4",  a:3*Math.PI/4 },
+  { l:"5π/6",  a:5*Math.PI/6 },
+  { l:"π",     a:Math.PI     },
+  { l:"7π/6",  a:7*Math.PI/6 },
+  { l:"5π/4",  a:5*Math.PI/4 },
+  { l:"4π/3",  a:4*Math.PI/3 },
+  { l:"3π/2",  a:3*Math.PI/2 },
+  { l:"5π/3",  a:5*Math.PI/3 },
+  { l:"7π/4",  a:7*Math.PI/4 },
+  { l:"11π/6", a:11*Math.PI/6},
+];
+
+function ucSetAngle(theta) {
+  ucTheta   = theta;
+  ucSnapped = ucSnap(ucTheta, 0.02);
+  ucUpdateInfo();
+  plot.draw();
+}
+
+// Montar grade de botões
+const grid = document.getElementById("uc-angle-grid");
+UC_ANGLES.forEach(({ l, a }) => {
+  const btn = document.createElement("button");
+  btn.className = "uc-abtn";
+  btn.textContent = l;
+  btn.dataset.a = a;
+  btn.addEventListener("click", () => ucSetAngle(a));
+  grid.appendChild(btn);
+});
+
+// Input customizado — aceita graus (ex: 72°) ou radianos (ex: π/5 ou 0.5)
+document.getElementById("uc-custom-btn").addEventListener("click", () => {
+  const raw = document.getElementById("uc-custom-inp").value.trim();
+  if (!raw) return;
+  let val = null;
+  // Graus: "72°" ou "72"
+  const degMatch = raw.match(/^([+-]?\d+(?:\.\d+)?)\s*°?$/);
+  if (degMatch) { val = parseFloat(degMatch[1]) * Math.PI / 180; }
+  // π/n ou n*π
+  if (val === null) {
+    const piMatch = raw
+      .replace(/pi/gi, "π")
+      .replace(/π/g, String(Math.PI));
+    try { val = Function(`"use strict"; return (${piMatch})`)(); } catch {}
+  }
+  if (val !== null && isFinite(val)) {
+    document.getElementById("uc-custom-inp").value = "";
+    ucSetAngle(val);
+  }
+});
+document.getElementById("uc-custom-inp").addEventListener("keydown", e => {
+  if (e.key === "Enter") document.getElementById("uc-custom-btn").click();
+});
 
 /* ──────────── FÓRMULAS ──────────── */
 let formulas = [];
