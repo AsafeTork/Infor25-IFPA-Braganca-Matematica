@@ -28,7 +28,15 @@
 .prof-section{padding:.75rem 1rem;border-bottom:1px solid var(--border);}
 .prof-section-title{font-family:var(--font-mono);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-mut);margin-bottom:.5rem;}
 .frow{display:flex;align-items:center;gap:.4rem;margin:.25rem 0;}
-.frow-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.frow-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;cursor:pointer;border:2px solid transparent;transition:border-color .15s,transform .15s;position:relative;}
+.frow-dot:hover{border-color:rgba(255,255,255,.4);transform:scale(1.25);}
+.frow-color-inp{position:absolute;width:0;height:0;opacity:0;pointer-events:none;}
+/* Paleta de cores */
+.color-palette{position:fixed;z-index:999;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.6rem;display:grid;grid-template-columns:repeat(5,1fr);gap:.35rem;box-shadow:0 8px 32px rgba(0,0,0,.35);}
+.color-palette.hidden{display:none;}
+.cp-swatch{width:24px;height:24px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .15s,border-color .15s;}
+.cp-swatch:hover{transform:scale(1.2);border-color:rgba(255,255,255,.5);}
+.cp-swatch.active{border-color:#fff;}
 .frow-inp{flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:.3rem .5rem;border-radius:6px;font-family:var(--font-mono);font-size:.82rem;outline:none;transition:border-color .15s;}
 .frow-inp:focus{border-color:var(--accent);}
 .frow-del{width:22px;height:22px;border-radius:4px;border:none;background:transparent;color:var(--text-mut);cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;}
@@ -132,7 +140,7 @@ initTheme();
 mountThemeToggle(document.getElementById("theme-btn"));
 mountFloatingKeypad();
 
-const COLORS = ["var(--accent)","var(--accent-2)","#60a5fa","#34d399","#a78bfa","#fb923c"];
+const COLORS = ["#ffa500","#ffd23f","#60a5fa","#34d399","#a78bfa","#fb923c"];
 
 const PRESET_GROUPS = [
   { title:"Exponencial", items:[
@@ -518,22 +526,69 @@ document.getElementById("uc-custom-inp").addEventListener("keydown", e => {
 let formulas = [];
 let piActive = false, circleActive = false;
 
+/* ── Paleta de cores ── */
+const PALETTE = [
+  "#ffa500","#ffd23f","#60a5fa","#34d399","#a78bfa","#fb923c","#f472b6","#38bdf8",
+  "#e11d48","#16a34a","#7c3aed","#0ea5e9","#d97706","#059669","#dc2626","#6366f1",
+  "#f59e0b","#10b981","#3b82f6","#ec4899",
+];
+
+let _palTarget = null;
+const palette = document.getElementById("color-palette");
+palette.innerHTML = PALETTE.map(c =>
+  `<div class="cp-swatch" style="background:${c}" data-c="${c}"></div>`
+).join("");
+
+palette.querySelectorAll(".cp-swatch").forEach(sw => {
+  sw.addEventListener("click", e => {
+    e.stopPropagation();
+    if (!_palTarget) return;
+    const newColor = sw.dataset.c;
+    _palTarget.color = newColor;
+    _palTarget.dot.style.background = newColor;
+    palette.querySelectorAll(".cp-swatch").forEach(s =>
+      s.classList.toggle("active", s.dataset.c === newColor));
+    updatePlot();
+  });
+});
+
+document.addEventListener("click", () => {
+  palette.classList.add("hidden");
+  _palTarget = null;
+});
+
+function openPalette(dot, formula) {
+  _palTarget = formula;
+  const rect = dot.getBoundingClientRect();
+  palette.style.left = (rect.right + 8) + "px";
+  palette.style.top  = Math.min(rect.top, window.innerHeight - 200) + "px";
+  palette.classList.remove("hidden");
+  palette.querySelectorAll(".cp-swatch").forEach(s =>
+    s.classList.toggle("active", s.dataset.c === formula.color));
+}
+
 function addFormula(expr="") {
   const idx = formulas.length;
   const color = COLORS[idx % COLORS.length];
   const row = document.createElement("div");
   row.className = "frow";
   row.innerHTML = `
-    <span class="frow-dot" style="background:${color}"></span>
+    <span class="frow-dot" style="background:${color}" title="Mudar cor"></span>
     <input class="frow-inp" name="f${idx}" autocomplete="off" placeholder="y=..." value="${expr}" spellcheck="false">
     <button class="frow-del">×</button>`;
   const inp = row.querySelector("input");
+  const dot = row.querySelector(".frow-dot");
   inp.addEventListener("input", updatePlot);
   row.querySelector("button").addEventListener("click", () => {
     row.remove(); formulas = formulas.filter(f => f.inp !== inp); updatePlot();
   });
+  const formula = { inp, color, dot };
+  dot.addEventListener("click", e => {
+    e.stopPropagation();
+    openPalette(dot, formula);
+  });
   document.getElementById("formulas-rows").appendChild(row);
-  formulas.push({ inp, color });
+  formulas.push(formula);
   updatePlot();
 }
 
@@ -605,5 +660,9 @@ presetsEl.querySelectorAll(".preset-btn").forEach(btn=>{
 window.addEventListener("themechange", ()=>{ plot.draw(); });
 addFormula("y=2^x"); addFormula("y=(1/2)^x");
 </script>
+
+<!-- Paleta de cores para fórmulas -->
+<div class="color-palette hidden" id="color-palette">
+</div>
 </body>
 </html>
