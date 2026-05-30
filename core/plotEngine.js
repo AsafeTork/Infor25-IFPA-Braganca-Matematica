@@ -225,33 +225,46 @@ export class Plot {
     try {
       const ctx = this.ctx, { W, H } = this;
       const cx = this.X(0), cy = this.Y(0);
-      const r = Math.min(W, H) / 2 - 40;
-      if (r < 20) return; // Don't draw if too small
 
-      const isDark = !document.documentElement.getAttribute("data-theme") || 
-                     document.documentElement.getAttribute("data-theme") === "dark";
-      const fgMut = isDark ? "#6b728033" : "#9ca3af33";
+      // Raio = 1 unidade matemática em pixels
+      const r = this.X(1) - this.X(0);
+      if (r < 10) return;
 
-      ctx.globalAlpha = 0.3;
-      ctx.strokeStyle = fgMut;
-      ctx.lineWidth = 1;
+      const isDark = document.documentElement.getAttribute("data-theme") !== "light";
+      const circleColor = isDark ? "rgba(255,165,0,0.5)" : "rgba(200,100,0,0.5)";
+      const lineColor   = isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)";
+
+      // Linhas de referência horizontal e vertical
+      ctx.save();
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = 0.8;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.moveTo(cx - r * 1.3, cy); ctx.lineTo(cx + r * 1.3, cy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx, cy - r * 1.3); ctx.lineTo(cx, cy + r * 1.3); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Círculo
+      ctx.strokeStyle = circleColor;
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, 2 * Math.PI);
       ctx.stroke();
 
-      ctx.lineWidth = 0.8;
-      ctx.beginPath();
-      ctx.moveTo(cx - r * 1.2, cy);
-      ctx.lineTo(cx + r * 1.2, cy);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(cx, cy - r * 1.2);
-      ctx.lineTo(cx, cy + r * 1.2);
-      ctx.stroke();
+      // Marcadores nos ângulos notáveis
+      const angles = [0, Math.PI/6, Math.PI/4, Math.PI/3, Math.PI/2, 2*Math.PI/3, 3*Math.PI/4, 5*Math.PI/6,
+                      Math.PI, 7*Math.PI/6, 5*Math.PI/4, 4*Math.PI/3, 3*Math.PI/2, 5*Math.PI/3, 7*Math.PI/4, 11*Math.PI/6];
+      ctx.fillStyle = circleColor;
+      for (const a of angles) {
+        const px = cx + r * Math.cos(a);
+        const py = cy - r * Math.sin(a);
+        ctx.beginPath();
+        ctx.arc(px, py, 3, 0, 2*Math.PI);
+        ctx.fill();
+      }
 
-      ctx.globalAlpha = 1.0;
+      ctx.restore();
     } catch (e) {
-      console.warn("Erro ao desenhar círculo unitário:", e);
+      console.warn("Erro ao desenhar círculo:", e);
     }
   }
 }

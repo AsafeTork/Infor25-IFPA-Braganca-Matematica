@@ -12,175 +12,344 @@
 <link rel="stylesheet" href="styles/board.css">
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
 <style>
-.al-top{position:sticky;top:0;z-index:50;height:52px;display:flex;align-items:center;gap:.6rem;padding:0 .85rem;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
-.al-brand{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);letter-spacing:-.02em;flex:1;text-decoration:none;}
-.al-brand b{color:var(--accent);}
-.al-topright{display:flex;align-items:center;gap:.4rem;}
-.al-toplink{font-size:.8rem;color:var(--text-soft);padding:.25rem .5rem;border-radius:6px;text-decoration:none;}
+/* ── Topbar ── */
+.prof-top {
+  position: sticky; top: 0; z-index: 50;
+  height: 52px; display: flex; align-items: center; gap: .6rem;
+  padding: 0 1rem;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.prof-brand {
+  font-family: var(--font-display); font-weight: 800; font-size: 1rem;
+  color: var(--text); text-decoration: none; letter-spacing: -.02em; flex: 1;
+}
+.prof-brand b { color: var(--accent); }
+.prof-toplink {
+  font-size: .8rem; color: var(--text-soft); padding: .25rem .6rem;
+  border-radius: 6px; text-decoration: none; transition: all .15s;
+}
+.prof-toplink:hover { background: var(--surface-2); color: var(--text); }
+
+/* ── Layout ── */
+.prof-wrap {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  height: calc(100dvh - 52px);
+  overflow: hidden;
+}
+@media (max-width: 700px) {
+  .prof-wrap { grid-template-columns: 1fr; grid-template-rows: 55vw 1fr; }
+}
+
+/* ── Gráfico ── */
+.prof-stage {
+  position: relative;
+  background: var(--bg);
+  overflow: hidden;
+}
+.prof-stage canvas {
+  width: 100%; height: 100%; display: block;
+}
+.prof-labels {
+  position: absolute; top: .5rem; left: .5rem;
+  display: flex; flex-direction: column; gap: .2rem;
+  pointer-events: none;
+}
+.prof-label {
+  font-family: var(--font-mono); font-size: .75rem;
+  background: color-mix(in srgb, var(--bg) 75%, transparent);
+  padding: .15rem .45rem; border-radius: 4px;
+}
+
+/* ── Painel lateral ── */
+.prof-panel {
+  display: flex; flex-direction: column; gap: 0;
+  border-left: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+}
+.prof-section {
+  padding: .75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.prof-section-title {
+  font-family: var(--font-mono); font-size: .65rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .1em;
+  color: var(--text-mut); margin-bottom: .5rem;
+}
+
+/* ── Linhas de fórmula ── */
+.frow {
+  display: flex; align-items: center; gap: .4rem; margin: .25rem 0;
+}
+.frow-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.frow-inp {
+  flex: 1; background: var(--surface-2); border: 1px solid var(--border);
+  color: var(--text); padding: .3rem .5rem; border-radius: 6px;
+  font-family: var(--font-mono); font-size: .82rem; outline: none;
+  transition: border-color .15s;
+}
+.frow-inp:focus { border-color: var(--accent); }
+.frow-del {
+  width: 22px; height: 22px; border-radius: 4px; border: none;
+  background: transparent; color: var(--text-mut); cursor: pointer;
+  font-size: .9rem; display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.frow-del:hover { background: color-mix(in srgb, #f00 15%, var(--surface)); color: #f66; }
+
+/* ── Controles ── */
+.prof-controls {
+  display: flex; align-items: center; gap: .4rem;
+}
+.ctrl-btn {
+  height: 30px; padding: 0 .6rem; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--surface-2);
+  color: var(--text-soft); cursor: pointer; font-size: .8rem;
+  transition: all .15s; white-space: nowrap;
+}
+.ctrl-btn:hover { border-color: var(--accent); color: var(--accent); }
+.ctrl-btn.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+
+/* ── Presets ── */
+.prof-presets {
+  flex: 1; overflow-y: auto; padding: .5rem;
+}
+.preset-group { margin-bottom: .5rem; }
+.preset-group-title {
+  font-family: var(--font-mono); font-size: .6rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .1em;
+  color: var(--text-mut); padding: .2rem .25rem; margin-bottom: .2rem;
+}
+.preset-btns { display: flex; flex-direction: column; gap: .2rem; }
+.preset-btn {
+  text-align: left; padding: .35rem .6rem; border-radius: 6px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-soft); cursor: pointer; font-size: .8rem;
+  transition: all .15s;
+}
+.preset-btn:hover { background: var(--surface-2); color: var(--text); }
+.preset-btn.active {
+  border-color: var(--accent); background: var(--accent-soft); color: var(--accent);
+}
+
+/* ── Readout ── */
+.prof-readout {
+  font-family: var(--font-mono); font-size: .78rem;
+  color: var(--text-soft); padding: .6rem 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
 </style>
 </head>
 <body>
 
-<header class="al-top">
-  <a class="al-brand" href="index.html">Informática <b>25</b></a>
-  <div class="al-topright">
-    <a href="aluno.html" class="al-toplink">Aluno</a>
-    <button class="theme-toggle" id="theme-btn" aria-label="Tema"></button>
-  </div>
+<header class="prof-top">
+  <a class="prof-brand" href="index.html">Informática <b>25</b></a>
+  <a href="aluno.html" class="prof-toplink">Aluno</a>
+  <button class="theme-toggle" id="theme-btn" aria-label="Tema"></button>
 </header>
 
-<div class="board">
-  <div class="bstage">
-    <canvas id="plot-canvas" style="width:100%;height:100%;display:block;"></canvas>
-    <div id="formulas-labels"></div>
+<div class="prof-wrap">
+  <!-- Gráfico -->
+  <div class="prof-stage">
+    <canvas id="plot-canvas"></canvas>
+    <div class="prof-labels" id="prof-labels"></div>
   </div>
-  <div class="bpanel">
-    <div class="bsect">
-      <span class="bsect-label">Fórmulas</span>
+
+  <!-- Painel -->
+  <div class="prof-panel">
+
+    <!-- Fórmulas -->
+    <div class="prof-section">
+      <div class="prof-section-title">Fórmulas</div>
       <div id="formulas-rows"></div>
-      <button class="btn ghost sm" id="btn-add-formula" style="width:100%;margin-top:.3rem">+ linha</button>
+      <button class="ctrl-btn" id="btn-add" style="width:100%;margin-top:.4rem;text-align:center">+ linha</button>
     </div>
-    <div class="bsect brow">
-      <label class="switch-label"><input type="checkbox" id="toggle-pi"> π</label>
-      <button class="btn ghost sm" id="btn-reset">⌖</button>
-      <label class="switch-label"><input type="checkbox" id="toggle-circle"> ⊙</label>
+
+    <!-- Controles -->
+    <div class="prof-section">
+      <div class="prof-controls">
+        <button class="ctrl-btn" id="btn-pi">π eixo</button>
+        <button class="ctrl-btn" id="btn-circle">⊙ círculo</button>
+        <button class="ctrl-btn" id="btn-reset" title="Recentrar">⌖</button>
+      </div>
     </div>
-    <div class="bsect" style="flex:1;overflow-y:auto">
-      <span class="bsect-label">Exemplos</span>
-      <div id="presets-grid"></div>
-    </div>
-    <div class="bsect">
-      <div class="b-readout" id="readout">x = — · y = —</div>
-    </div>
+
+    <!-- Presets -->
+    <div class="prof-presets" id="prof-presets"></div>
+
+    <!-- Readout -->
+    <div class="prof-readout" id="readout">x = —   y = —</div>
   </div>
 </div>
 
 <script type="module">
-try {
-  const { initTheme, mountThemeToggle } = await import("./core/theme.js");
-  const { compile } = await import("./core/mathEngine.js");
-  const { Plot, formatExactValue } = await import("./core/plotEngine.js");
-  const { mountFloatingKeypad } = await import("./components/keypad.js");
+import { initTheme, mountThemeToggle } from "./core/theme.js";
+import { compile } from "./core/mathEngine.js";
+import { Plot, formatExactValue } from "./core/plotEngine.js";
+import { mountFloatingKeypad } from "./components/keypad.js";
 
-  initTheme();
-  
-  const themeBt = document.getElementById("theme-btn");
-  if (themeBt) mountThemeToggle(themeBt);
-  
-  mountFloatingKeypad();
+initTheme();
+mountThemeToggle(document.getElementById("theme-btn"));
+mountFloatingKeypad();
 
-  const PRESETS = [
-    { label: "2ˣ vs ½ˣ", fns: ["y=2^x", "y=(1/2)^x"], pi: false, uc: false },
-    { label: "2ˣ, 3ˣ, 10ˣ", fns: ["y=2^x", "y=3^x", "y=10^x"], pi: false, uc: false },
-    { label: "PA r=5", fns: ["y=3+(x-1)*5"], pi: false, uc: false },
-    { label: "PG q=2", fns: ["y=2*2^(x-1)"], pi: false, uc: false },
-    { label: "sin(x)", fns: ["y=sin(x)"], pi: true, uc: true },
-    { label: "cos(x)", fns: ["y=cos(x)"], pi: true, uc: true },
-    { label: "tan(x)", fns: ["y=tan(x)"], pi: true, uc: true },
-    { label: "sin + cos", fns: ["y=sin(x)", "y=cos(x)"], pi: true, uc: true },
-    { label: "Círculo", fns: [], pi: false, uc: true },
-  ];
+const COLORS = ["var(--accent)", "var(--accent-2)", "#60a5fa", "#34d399", "#a78bfa", "#fb923c"];
 
-  const canvas = document.getElementById("plot-canvas");
-  if (!canvas) throw new Error("Canvas não encontrado");
-  
-  const plot = new Plot(canvas, { xmin: -6, xmax: 6, ymin: -4, ymax: 4 });
-  plot.onProbe = (x, y) => {
-    const readout = document.getElementById("readout");
-    if (readout) readout.textContent = `x = ${formatExactValue(x)}   y = ${formatExactValue(y)}`;
-  };
+const PRESET_GROUPS = [
+  { title: "Exponencial", items: [
+    { label: "2ˣ vs ½ˣ",   fns: ["y=2^x", "y=(1/2)^x"], pi: false, uc: false },
+    { label: "Bases > 1",   fns: ["y=2^x", "y=3^x", "y=10^x"], pi: false, uc: false },
+    { label: "Juros 3%",    fns: ["y=1800*(1.03)^x"], pi: false, uc: false },
+    { label: "Decaimento",  fns: ["y=100*(0.5)^x"], pi: false, uc: false },
+  ]},
+  { title: "Sequências", items: [
+    { label: "PA  r=5",     fns: ["y=3+(x-1)*5"], pi: false, uc: false },
+    { label: "PG  q=2",     fns: ["y=2*2^(x-1)"], pi: false, uc: false },
+    { label: "PA vs PG",    fns: ["y=5+(x-1)*5", "y=5*1.5^(x-1)"], pi: false, uc: false },
+  ]},
+  { title: "Trigonometria", items: [
+    { label: "sin(x)",      fns: ["y=sin(x)"], pi: true, uc: true },
+    { label: "cos(x)",      fns: ["y=cos(x)"], pi: true, uc: true },
+    { label: "tan(x)",      fns: ["y=tan(x)"], pi: true, uc: true, view:{xmin:-Math.PI,xmax:Math.PI,ymin:-4,ymax:4} },
+    { label: "sin + cos",   fns: ["y=sin(x)", "y=cos(x)"], pi: true, uc: true },
+    { label: "Amplitude 2", fns: ["y=sin(x)", "y=2*sin(x)"], pi: true, uc: true },
+    { label: "Círculo unit.",fns: [], pi: false, uc: true },
+  ]},
+  { title: "Álgebra", items: [
+    { label: "Parábola",    fns: ["y=x^2", "y=x^2-4"], pi: false, uc: false },
+    { label: "Raízes",      fns: ["y=sqrt(x)", "y=x^(1/3)"], pi: false, uc: false },
+  ]},
+];
 
-  let formulas = [];
+const canvas = document.getElementById("plot-canvas");
+const plot = new Plot(canvas, { xmin:-6, xmax:6, ymin:-4, ymax:4 });
+plot.onProbe = (x, y) => {
+  document.getElementById("readout").textContent = `x = ${formatExactValue(x)}   y = ${formatExactValue(y)}`;
+};
 
-  function addFormula(expr = "") {
-    const row = document.createElement("div");
-    row.className = "frow";
-    row.innerHTML = `<span class="frow-dot"></span><input class="frow-inp mono" placeholder="y=..." value="${expr}"><button class="frow-del">×</button>`;
-    const inp = row.querySelector("input");
-    if (inp) inp.addEventListener("input", updatePlot);
-    const delBtn = row.querySelector("button");
-    if (delBtn) delBtn.addEventListener("click", () => {
-      row.remove();
-      formulas = formulas.filter(f => f.input !== inp);
-      updatePlot();
-    });
-    const container = document.getElementById("formulas-rows");
-    if (container) container.appendChild(row);
-    formulas.push({ input: inp });
+let formulas = [];
+let piActive = false;
+let circleActive = false;
+
+function addFormula(expr = "") {
+  const idx = formulas.length;
+  const color = COLORS[idx % COLORS.length];
+  const row = document.createElement("div");
+  row.className = "frow";
+  row.innerHTML = `
+    <span class="frow-dot" style="background:${color}"></span>
+    <input class="frow-inp" placeholder="y = ..." value="${expr}" spellcheck="false">
+    <button class="frow-del" title="Remover">×</button>`;
+  const inp = row.querySelector("input");
+  inp.addEventListener("input", updatePlot);
+  row.querySelector("button").addEventListener("click", () => {
+    row.remove();
+    formulas = formulas.filter(f => f.inp !== inp);
     updatePlot();
-  }
-
-  function updatePlot() {
-    const curves = [];
-    for (const { input } of formulas) {
-      if (!input) continue;
-      const expr = input.value.trim();
-      if (!expr) continue;
-      try {
-        const c = compile(expr);
-        if (c && !c.error) curves.push({ fn: c.fn, color: "var(--accent)" });
-      } catch (e) {
-        console.error(`Erro: ${expr}`, e);
-      }
-    }
-    plot.setCurves(curves);
-  }
-
-  const addBtn = document.getElementById("btn-add-formula");
-  if (addBtn) addBtn.addEventListener("click", () => addFormula());
-
-  const piToggle = document.getElementById("toggle-pi");
-  if (piToggle) {
-    piToggle.addEventListener("change", (e) => {
-      plot.setPiAxis(e.target.checked);
-      plot.setView(e.target.checked ? {xmin:-2*Math.PI,xmax:2*Math.PI,ymin:-3,ymax:3} : {xmin:-6,xmax:6,ymin:-4,ymax:4});
-      plot.draw();
-    });
-  }
-
-  const resetBtn = document.getElementById("btn-reset");
-  if (resetBtn) {
-    resetBtn.addEventListener("click", () => {
-      const pi = piToggle && piToggle.checked;
-      plot.setView(pi ? {xmin:-2*Math.PI,xmax:2*Math.PI,ymin:-3,ymax:3} : {xmin:-6,xmax:6,ymin:-4,ymax:4});
-      plot.draw();
-    });
-  }
-
-  const circleToggle = document.getElementById("toggle-circle");
-  if (circleToggle) {
-    circleToggle.addEventListener("change", (e) => {
-      plot.showUnitCircle = e.target.checked;
-      plot.draw();
-    });
-  }
-
-  const presetGrid = document.getElementById("presets-grid");
-  if (presetGrid) {
-    presetGrid.innerHTML = PRESETS.map((p, i) => `<button class="preset-btn" data-idx="${i}">${p.label}</button>`).join("");
-    presetGrid.querySelectorAll(".preset-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const p = PRESETS[+btn.dataset.idx];
-        const frows = document.getElementById("formulas-rows");
-        if (frows) frows.innerHTML = "";
-        formulas = [];
-        p.fns.forEach(f => addFormula(f));
-        if (piToggle) piToggle.checked = p.pi;
-        plot.setPiAxis(p.pi);
-        if (circleToggle) circleToggle.checked = p.uc;
-        plot.showUnitCircle = p.uc;
-        plot.setView(p.pi ? {xmin:-2*Math.PI,xmax:2*Math.PI,ymin:-3,ymax:3} : {xmin:-6,xmax:6,ymin:-4,ymax:4});
-        plot.draw();
-      });
-    });
-  }
-
-  addFormula("y=2^x");
-  addFormula("y=(1/2)^x");
-
-} catch (err) {
-  console.error("🔴 ERRO CRÍTICO:", err.message, err.stack);
+  });
+  document.getElementById("formulas-rows").appendChild(row);
+  formulas.push({ inp, color });
+  updatePlot();
 }
+
+function updatePlot() {
+  const curves = formulas.map(({ inp, color }) => {
+    const expr = inp.value.trim();
+    if (!expr) return null;
+    try {
+      const c = compile(expr);
+      return (c && !c.error) ? { fn: c.fn, color } : null;
+    } catch { return null; }
+  }).filter(Boolean);
+  plot.setCurves(curves);
+
+  document.getElementById("prof-labels").innerHTML = formulas
+    .filter(f => f.inp.value.trim())
+    .map(f => `<span class="prof-label" style="color:${f.color}">${f.inp.value.trim()}</span>`)
+    .join("");
+}
+
+function setView(v) {
+  const defV = piActive
+    ? {xmin:-2*Math.PI, xmax:2*Math.PI, ymin:-3, ymax:3}
+    : {xmin:-6, xmax:6, ymin:-4, ymax:4};
+  plot.setView(v || defV);
+}
+
+// Botão + linha
+document.getElementById("btn-add").addEventListener("click", () => addFormula());
+
+// Botão π
+const btnPi = document.getElementById("btn-pi");
+btnPi.addEventListener("click", () => {
+  piActive = !piActive;
+  btnPi.classList.toggle("active", piActive);
+  plot.setPiAxis(piActive);
+  setView(null);
+});
+
+// Botão ⊙ círculo
+const btnCircle = document.getElementById("btn-circle");
+btnCircle.addEventListener("click", () => {
+  circleActive = !circleActive;
+  btnCircle.classList.toggle("active", circleActive);
+  plot.showUnitCircle = circleActive;
+  plot.draw();
+});
+
+// Botão reset
+document.getElementById("btn-reset").addEventListener("click", () => {
+  setView(null);
+  plot.draw();
+});
+
+// Presets
+const presetsEl = document.getElementById("prof-presets");
+presetsEl.innerHTML = PRESET_GROUPS.map(group => `
+  <div class="preset-group">
+    <div class="preset-group-title">${group.title}</div>
+    <div class="preset-btns">
+      ${group.items.map((p, i) => `<button class="preset-btn" data-g="${group.title}" data-label="${p.label}">${p.label}</button>`).join("")}
+    </div>
+  </div>`
+).join("");
+
+const allPresets = PRESET_GROUPS.flatMap(g => g.items.map(p => ({ ...p, group: g.title })));
+
+presetsEl.querySelectorAll(".preset-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    presetsEl.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    const p = allPresets.find(x => x.group === btn.dataset.g && x.label === btn.dataset.label);
+    if (!p) return;
+
+    document.getElementById("formulas-rows").innerHTML = "";
+    formulas = [];
+    p.fns.forEach(f => addFormula(f));
+
+    piActive = p.pi;
+    btnPi.classList.toggle("active", p.pi);
+    plot.setPiAxis(p.pi);
+
+    circleActive = p.uc;
+    btnCircle.classList.toggle("active", p.uc);
+    plot.showUnitCircle = p.uc;
+
+    setView(p.view || null);
+  });
+});
+
+window.addEventListener("themechange", () => plot.draw());
+
+// Init
+addFormula("y=2^x");
+addFormula("y=(1/2)^x");
 </script>
 </body>
 </html>
