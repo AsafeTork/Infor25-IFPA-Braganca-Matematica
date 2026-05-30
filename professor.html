@@ -243,8 +243,12 @@ function ucDraw() {
   const absT    = Math.abs(ucTheta);
   const k       = Math.floor(absT / (2 * Math.PI));  // número de voltas completas
   const partial = absT % (2 * Math.PI);               // ângulo na volta atual
-  const ccw     = isNeg;
   const kColor  = TURN_COLORS[k % TURN_COLORS.length];
+  // Canvas arc convention:
+  //   endAngle = isNeg ? +partial : -partial  (canvas Y é invertido)
+  //   anticlockwise = !isNeg  (positivo em matemática = anti-horário na tela)
+  const arcEnd = isNeg ? partial : -partial;
+  const arcCCW = !isNeg;
 
   // Trilha — círculo completo sempre visível (parte ainda não percorrida da volta atual)
   ctx.strokeStyle = fgMut; ctx.lineWidth = 1.5;
@@ -253,13 +257,13 @@ function ucDraw() {
   // Arco percorrido — mesma trilha, cor da volta atual (k)
   ctx.strokeStyle = kColor + "cc"; ctx.lineWidth = 3.5;
   ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, ccw ? partial : -partial, ccw);
+  ctx.arc(cx, cy, r, 0, arcEnd, arcCCW);
   ctx.stroke();
 
   // Mini arco indicador de ângulo no centro
   ctx.strokeStyle = kColor + "99"; ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.arc(cx, cy, r * .2, 0, ccw ? partial : -partial, ccw);
+  ctx.arc(cx, cy, r * .2, 0, arcEnd, arcCCW);
   ctx.stroke();
 
   /* Tangente */
