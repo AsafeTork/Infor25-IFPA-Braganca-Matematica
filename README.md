@@ -1,7 +1,7 @@
 # Informática 25 · Matemática
 ### IFPA — Campus Bragança · Turma Informática 25
 
-Plataforma web interativa de Matemática desenvolvida para o **3.º ano do Ensino Médio Técnico em Informática**, baseada no conteúdo do livro da professora e inspirada em ferramentas como Brilliant, Desmos e Khan Academy.
+Plataforma web interativa de Matemática desenvolvida para o **2.º e 3.º ano do Ensino Médio Técnico em Informática**, baseada no conteúdo do livro da professora e inspirada em ferramentas como Brilliant, Desmos e Khan Academy.
 
 O foco é **raciocínio, interpretação e comportamento matemático** — não respostas prontas.
 
