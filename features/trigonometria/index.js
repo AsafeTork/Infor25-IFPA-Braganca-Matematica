@@ -48,109 +48,183 @@ export const trigonometriaLessons = [
   },
 
   /* ──────────── Círculo trigonométrico ──────────── */
+  /* ──────────── Círculo trigonométrico ──────────── */
   {
     id: "trig-circulo",
     title: "Círculo trigonométrico",
     render(c) {
-      c.innerHTML = section("Cap 5 · §2", "Círculo trigonométrico",
-          def("Definição", `Círculo de raio 1 centrado na origem. Ponto $P(\\theta)=(\\cos\\theta,\\sin\\theta)$.
-            $$\\cos^2\\theta+\\sin^2\\theta=1 \\quad(\\text{relação fundamental})$$`) +
-          `<div class="lesson-section">
-            <h2 class="lesson-h2">Sinais por quadrante</h2>
-            <table class="vtab mono" style="margin:.75rem 0">
-              <thead><tr><th>Quadrante</th><th>ângulo</th><th>sin</th><th>cos</th><th>tan</th></tr></thead>
-              <tbody>
-                <tr><td>I</td><td>(0, π/2)</td><td>+</td><td>+</td><td>+</td></tr>
-                <tr><td>II</td><td>(π/2, π)</td><td>+</td><td>−</td><td>−</td></tr>
-                <tr><td>III</td><td>(π, 3π/2)</td><td>−</td><td>−</td><td>+</td></tr>
-                <tr><td>IV</td><td>(3π/2, 2π)</td><td>−</td><td>+</td><td>−</td></tr>
-              </tbody>
-            </table>
-          </div>`) +
-          `<div class="lesson-section">
-            <h2 class="lesson-h2">Visualização — círculo unitário interativo</h2>
-            <div id="circ-canvas" style="width:100%;max-width:380px;height:340px;margin:.5rem 0;"></div>
-            <p style="font-size:.85rem;color:var(--text-soft)">Arraste o ponto para ver sin/cos em tempo real.</p>
-          </div>` +
-          think("Por que $\\cos^2\\theta+\\sin^2\\theta=1$ sempre vale? Visualize com Pitágoras no triângulo inscrito.") +
-          quizSlot("quiz-circ");
+      c.innerHTML = `
+<div class="lesson-section">
+  <div class="al-crumb" style="color:var(--accent);font-size:.78rem;font-weight:600">Cap 5 · §2</div>
+  <h1 class="al-title">O que é o círculo trigonométrico?</h1>
+  <p>Imagine um círculo de raio 1 com o centro na origem do plano cartesiano. Esse é o círculo trigonométrico — e é a ferramenta central para entender seno, cosseno e tangente.</p>
+</div>
 
-      // Interactive unit circle
+<div class="def">
+  <div class="def-h">A ideia essencial</div>
+  <p>Coloque um ponto <strong>P</strong> na borda do círculo. Ligue-o à origem com uma reta.</p>
+  <p>Essa reta forma um ângulo <strong>θ</strong> com o eixo x positivo.</p>
+  <p>As coordenadas do ponto <strong>P</strong> têm nomes:</p>
+  <ul>
+    <li><strong>A coordenada horizontal</strong> (o quanto foi para a direita/esquerda) = <strong>cosseno de θ</strong></li>
+    <li><strong>A coordenada vertical</strong> (o quanto foi para cima/baixo) = <strong>seno de θ</strong></li>
+  </ul>
+  <p>Simples assim: $P(\\theta) = (\\cos\\theta,\\ \\sin\\theta)$.</p>
+</div>
+
+<div class="box think">
+  <p><strong>Por que o raio é 1?</strong> Porque assim as coordenadas do ponto caem exatamente entre −1 e 1 — e isso faz seno e cosseno terem sempre esse intervalo. Com raio diferente, seria necessário dividir pelo raio o tempo todo.</p>
+</div>
+
+<div class="lesson-section">
+  <h2 class="lesson-h2">Veja acontecendo</h2>
+  <p>Arraste o ponto no círculo abaixo. Observe como seno (vertical) e cosseno (horizontal) mudam:</p>
+  <div id="circ-canvas" style="width:100%;max-width:380px;height:340px;margin:.5rem auto;display:block;"></div>
+  <p style="font-size:.82rem;color:var(--text-mut)">🟠 Laranja = cosseno (horizontal) · 🟡 Amarelo = seno (vertical)</p>
+</div>
+
+<div class="lesson-section">
+  <h2 class="lesson-h2">Os sinais mudam por quadrante</h2>
+  <p>Quando o ponto está no lado direito do círculo, o cosseno é positivo (x > 0). Quando está no lado esquerdo, é negativo. Da mesma forma para o seno com cima/baixo.</p>
+  <p><strong>Regra prática (TSCS):</strong></p>
+  <table class="vtab mono" style="margin:.75rem 0">
+    <thead><tr><th>Quadrante</th><th>Posição</th><th>sin</th><th>cos</th><th>tan</th></tr></thead>
+    <tbody>
+      <tr><td><strong>I</strong></td><td>Direita, cima</td><td style="color:#34d399">+</td><td style="color:#34d399">+</td><td style="color:#34d399">+</td></tr>
+      <tr><td><strong>II</strong></td><td>Esquerda, cima</td><td style="color:#34d399">+</td><td style="color:#f87171">−</td><td style="color:#f87171">−</td></tr>
+      <tr><td><strong>III</strong></td><td>Esquerda, baixo</td><td style="color:#f87171">−</td><td style="color:#f87171">−</td><td style="color:#34d399">+</td></tr>
+      <tr><td><strong>IV</strong></td><td>Direita, baixo</td><td style="color:#f87171">−</td><td style="color:#34d399">+</td><td style="color:#f87171">−</td></tr>
+    </tbody>
+  </table>
+  <div class="box apply">
+    <p><strong>Mnemônico TSCS:</strong> <em>"Todos os Sinos Cantam Suave"</em> — o que está positivo em cada quadrante: <strong>T</strong>odos (Q1), <strong>S</strong>eno (Q2), <strong>C</strong>osseno (Q4), <strong>T</strong>angente (Q3). Mas na prática é mais fácil pensar geometricamente: cima = sen+, direita = cos+.</p>
+  </div>
+</div>
+
+<div class="def">
+  <div class="def-h">Relação de Pitágoras</div>
+  <p>O ponto P sempre está na borda do círculo de raio 1. Pela fórmula da distância à origem:</p>
+  <p>$$\\cos^2\\theta + \\sin^2\\theta = 1$$</p>
+  <p>Isso vale para qualquer ângulo — é a <strong>relação fundamental</strong> da trigonometria.</p>
+</div>
+
+<div id="quiz-circ"></div>`;
+
+      // Interactive unit circle (kept simple)
       const wrap = c.querySelector("#circ-canvas");
       const cv = document.createElement("canvas");
-      cv.style.cssText = "width:100%;height:100%;display:block;cursor:crosshair;";
+      cv.style.cssText = "width:100%;height:100%;display:block;cursor:crosshair;touch-action:none;";
       wrap.appendChild(cv);
 
       function drawCircle(theta) {
         const W = cv.offsetWidth, H = cv.offsetHeight;
+        if (!W || !H) return;
         const dpr = window.devicePixelRatio || 1;
         cv.width = W * dpr; cv.height = H * dpr;
         const ctx = cv.getContext("2d");
         ctx.scale(dpr, dpr);
-        const cx = W / 2, cy = H / 2, r = Math.min(W, H) * 0.4;
-        const isDark = document.documentElement.getAttribute("data-theme") !== "light";
-        const fg = isDark ? "#f0ebe3" : "#1a1a2e";
-        const acc = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#ff6a1a";
-        const acc2 = getComputedStyle(document.documentElement).getPropertyValue("--accent-2").trim() || "#ffd23f";
+        const cx = W/2, cy = H/2, r = Math.min(W,H)*0.38;
+        const dark = document.documentElement.getAttribute("data-theme") !== "light";
+        const fg   = dark ? "#e8e3da" : "#1a1a2e";
+        const fgm  = dark ? "#6b728088" : "#9ca3af88";
+        const acc  = "#ffa500", acc2 = "#ffd23f", green = dark ? "#4ade80" : "#16a34a";
 
-        ctx.clearRect(0, 0, W, H);
-        // axes
-        ctx.strokeStyle = fg + "44"; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(cx - r*1.2, cy); ctx.lineTo(cx + r*1.2, cy); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(cx, cy - r*1.2); ctx.lineTo(cx, cy + r*1.2); ctx.stroke();
-        // circle
-        ctx.strokeStyle = fg + "66"; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2*Math.PI); ctx.stroke();
-        // cos/sin projections
-        const px = cx + r*Math.cos(theta), py = cy - r*Math.sin(theta);
-        ctx.strokeStyle = acc2 + "cc"; ctx.lineWidth = 2; ctx.setLineDash([4,3]);
-        ctx.beginPath(); ctx.moveTo(px, cy); ctx.lineTo(px, py); ctx.stroke(); // sin
-        ctx.strokeStyle = acc + "cc";
-        ctx.beginPath(); ctx.moveTo(cx, py); ctx.lineTo(px, py); ctx.stroke(); // cos
-        ctx.setLineDash([]);
-        // radius
+        ctx.clearRect(0,0,W,H);
+
+        // Eixos
+        ctx.strokeStyle = fgm; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(cx-r*1.25,cy); ctx.lineTo(cx+r*1.25,cy); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx,cy-r*1.25); ctx.lineTo(cx,cy+r*1.25); ctx.stroke();
+
+        // Círculo
+        ctx.strokeStyle = dark?"rgba(200,190,170,.25)":"rgba(60,60,80,.2)"; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(cx,cy,r,0,2*Math.PI); ctx.stroke();
+
+        // Quadrant labels
+        ctx.fillStyle = dark?"rgba(200,190,170,.18)":"rgba(60,60,80,.15)";
+        ctx.font = `bold ${Math.round(r*.13)}px monospace`; ctx.textAlign="center"; ctx.textBaseline="middle";
+        ctx.fillText("I",  cx+r*.55, cy-r*.55);
+        ctx.fillText("II", cx-r*.55, cy-r*.55);
+        ctx.fillText("III",cx-r*.55, cy+r*.55);
+        ctx.fillText("IV", cx+r*.55, cy+r*.55);
+
+        const px = cx+r*Math.cos(theta), py = cy-r*Math.sin(theta);
+        const cosV = Math.cos(theta), sinV = Math.sin(theta);
+
+        // Triângulo retângulo
+        ctx.strokeStyle = fgm; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,cy); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(px,cy); ctx.lineTo(px,py); ctx.stroke();
+
+        // Projeções destacadas com cor
+        // Cosseno (horizontal) — laranja
+        ctx.strokeStyle = acc; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,cy); ctx.stroke();
+        // Ponto cos no eixo x
+        ctx.fillStyle = acc; ctx.beginPath(); ctx.arc(px,cy,4,0,2*Math.PI); ctx.fill();
+
+        // Seno (vertical) — amarelo
+        ctx.strokeStyle = acc2; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(px,cy); ctx.lineTo(px,py); ctx.stroke();
+        // Ponto sin no eixo y (projeção)
+        ctx.fillStyle = acc2; ctx.beginPath(); ctx.arc(cx,py,4,0,2*Math.PI); ctx.fill();
+
+        // Raio
         ctx.strokeStyle = fg; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke();
-        // point
-        ctx.fillStyle = acc; ctx.beginPath(); ctx.arc(px, py, 6, 0, 2*Math.PI); ctx.fill();
-        // labels
-        ctx.fillStyle = fg; ctx.font = `bold ${Math.round(r*0.13)}px monospace`;
-        const cosV = Math.cos(theta).toFixed(3), sinV = Math.sin(theta).toFixed(3);
-        const deg = ((theta * 180 / Math.PI) % 360 + 360) % 360;
-        ctx.fillStyle = acc; ctx.fillText(`cos = ${cosV}`, 8, H - 28);
-        ctx.fillStyle = acc2; ctx.fillText(`sin = ${sinV}`, 8, H - 12);
-        ctx.fillStyle = fg; ctx.fillText(`θ = ${deg.toFixed(1)}° = ${(theta).toFixed(3)} rad`, cx-30, 18);
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke();
+        ctx.fillStyle = fg; ctx.font=`${Math.round(r*.1)}px monospace`; ctx.textAlign="center"; ctx.textBaseline="middle";
+        ctx.fillText("1", (cx+px)/2 - 6*Math.sin(theta), (cy+py)/2 - 6*Math.cos(theta));
+
+        // Ponto P
+        ctx.fillStyle = cosV >= 0 ? acc : "#f87171";
+        ctx.beginPath(); ctx.arc(px,py,8,0,2*Math.PI); ctx.fill();
+        ctx.strokeStyle = dark?"rgba(8,8,20,.7)":"rgba(255,255,255,.7)"; ctx.lineWidth=2; ctx.stroke();
+
+        // Ângulo arc
+        const tN = ((theta%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
+        ctx.strokeStyle = fg+"99"; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.arc(cx,cy,r*.22,0,-tN,true); ctx.stroke();
+
+        // Labels das projeções
+        const fs = Math.round(r*.12);
+        ctx.font = `bold ${fs}px monospace`;
+        ctx.fillStyle = acc; ctx.textAlign="center"; ctx.textBaseline = sinV>=0?"top":"bottom";
+        ctx.fillText(`cos = ${cosV.toFixed(2)}`, (cx+px)/2, cy + (sinV>=0?6:-6));
+        ctx.fillStyle = acc2; ctx.textAlign = cosV>=0?"left":"right"; ctx.textBaseline="middle";
+        ctx.fillText(`sin = ${sinV.toFixed(2)}`, px+(cosV>=0?7:-7), (cy+py)/2);
+
+        // Ângulo label
+        const deg = (tN*180/Math.PI).toFixed(1);
+        ctx.fillStyle = fg; ctx.font=`bold ${Math.round(r*.1)}px monospace`;
+        ctx.textAlign="center"; ctx.textBaseline="top";
+        ctx.fillText(`θ = ${deg}°`, cx, 6);
       }
 
-      let theta = Math.PI / 4;
-      let dragging = false;
-      drawCircle(theta);
-      window.addEventListener("themechange", () => drawCircle(theta));
+      let theta = Math.PI/4; let dragging=false;
+      requestAnimationFrame(()=>drawCircle(theta));
+      window.addEventListener("themechange", ()=>drawCircle(theta));
 
-      function pointerToTheta(e, el) {
-        const rect = el.getBoundingClientRect();
-        const pt = e.touches ? e.touches[0] : e;
-        const x = (pt.clientX - rect.left) - el.offsetWidth/2;
-        const y = -((pt.clientY - rect.top) - el.offsetHeight/2);
-        return Math.atan2(y, x);
+      function toTheta(e) {
+        const rect=cv.getBoundingClientRect(), pt=e.touches?e.touches[0]:e;
+        const x=(pt.clientX-rect.left)-rect.width/2;
+        const y=-((pt.clientY-rect.top)-rect.height/2);
+        return Math.atan2(y,x);
       }
-      cv.addEventListener("mousedown",  e => { dragging = true; theta = pointerToTheta(e, cv); drawCircle(theta); });
-      cv.addEventListener("mousemove",  e => { if (!dragging) return; theta = pointerToTheta(e, cv); drawCircle(theta); });
-      cv.addEventListener("mouseup",    () => dragging = false);
-      cv.addEventListener("touchstart", e => { e.preventDefault(); theta = pointerToTheta(e, cv); drawCircle(theta); }, { passive: false });
-      cv.addEventListener("touchmove",  e => { e.preventDefault(); theta = pointerToTheta(e, cv); drawCircle(theta); }, { passive: false });
+      cv.addEventListener("pointerdown",e=>{e.preventDefault();cv.setPointerCapture(e.pointerId);dragging=true;theta=toTheta(e);drawCircle(theta);});
+      cv.addEventListener("pointermove",e=>{if(!dragging)return;theta=toTheta(e);drawCircle(theta);});
+      cv.addEventListener("pointerup",  e=>{dragging=false;cv.releasePointerCapture(e.pointerId);});
 
       autoRender(c);
       mountQuizSet(c.querySelector("#quiz-circ"), [
-        { q: "$\\sin(\\pi/6)$?",
-          opts:["$1/2$","$\\sqrt{3}/2$","$\\sqrt{2}/2$","$1$","$0$"], ans:0,
-          expl:"Valor notável: $\\sin(30°)=\\sin(\\pi/6)=1/2$" },
-        { q: "Se $\\cos\\theta < 0$ e $\\sin\\theta > 0$, $\\theta$ está no:",
-          opts:["2.º quadrante","1.º quadrante","3.º quadrante","4.º quadrante","eixo y"], ans:0,
-          expl:"cos− e sin+ → II quadrante (90° a 180°)." },
-        { q: "$\\cos^2(\\pi/3)+\\sin^2(\\pi/3) = $?",
-          opts:["$1$","$1/2$","$3/4$","$\\sqrt{3}$","$2$"], ans:0,
-          expl:"Relação fundamental: sempre 1." },
+        { q: "No círculo trigonométrico, o seno de θ representa:",
+          opts:["A coordenada vertical do ponto P","A coordenada horizontal do ponto P","O comprimento do raio","O ângulo em graus","A área do setor"],
+          ans:0, expl:"Seno = coordenada y (vertical). Cosseno = coordenada x (horizontal)." },
+        { q: "Se o ponto P está no 2º quadrante (esquerda, cima), qual afirmação é VERDADEIRA?",
+          opts:["sin > 0 e cos < 0","sin < 0 e cos > 0","sin > 0 e cos > 0","sin < 0 e cos < 0","sin = 0"],
+          ans:0, expl:"2º quadrante: x negativo (cos < 0), y positivo (sin > 0)." },
+        { q: "Por que cos²θ + sin²θ = 1 sempre?",
+          opts:["P está sempre na borda do círculo de raio 1 (Pitágoras)","É uma coincidência","Só vale para ângulos notáveis","Por causa da calculadora","Não vale sempre"],
+          ans:0, expl:"O ponto P tem coordenadas (cos θ, sin θ) e distância 1 da origem: cos²θ + sin²θ = 1²= 1." },
       ]);
     }
   },
@@ -160,33 +234,90 @@ export const trigonometriaLessons = [
     id: "trig-notaveis",
     title: "Valores notáveis",
     render(c) {
-      c.innerHTML = section("Cap 5 · §3", "Valores notáveis") +
-        `<div class="lesson-section">
-          <table class="vtab mono" style="font-size:.95rem">
-            <thead><tr><th>θ</th><th>0</th><th>π/6</th><th>π/4</th><th>π/3</th><th>π/2</th><th>π</th><th>3π/2</th><th>2π</th></tr></thead>
-            <tbody>
-              <tr><th>sin</th><td>0</td><td>1/2</td><td>√2/2</td><td>√3/2</td><td>1</td><td>0</td><td>−1</td><td>0</td></tr>
-              <tr><th>cos</th><td>1</td><td>√3/2</td><td>√2/2</td><td>1/2</td><td>0</td><td>−1</td><td>0</td><td>1</td></tr>
-              <tr><th>tan</th><td>0</td><td>√3/3</td><td>1</td><td>√3</td><td>∄</td><td>0</td><td>∄</td><td>0</td></tr>
-            </tbody>
-          </table>
-          <p style="margin-top:.75rem">Macete: sin cresce de 0 a 1 em [0, π/2] com os radicais
-          $\\sqrt{0}/2,\\;\\sqrt{1}/2,\\;\\sqrt{2}/2,\\;\\sqrt{3}/2,\\;\\sqrt{4}/2$.</p>
-        </div>` +
-        think("Derive $\\tan(\\pi/3)=\\sqrt{3}$ a partir de $\\sin$ e $\\cos$. Justifique cada passo.") +
-        quizSlot("quiz-not");
+      c.innerHTML = `
+<div class="lesson-section">
+  <div class="al-crumb" style="color:var(--accent);font-size:.78rem;font-weight:600">Cap 5 · §3</div>
+  <h1 class="al-title">Valores notáveis de seno e cosseno</h1>
+  <p>Existem alguns ângulos especiais cujos senos e cossenos têm valores exatos simples — e que aparecem em toda prova e vestibular. Vale a pena saber de cor.</p>
+</div>
+
+<div class="def">
+  <div class="def-h">De onde vêm esses valores?</div>
+  <p>Dois triângulos simples explicam tudo:</p>
+  <ul>
+    <li><strong>30° e 60°:</strong> pegue um triângulo equilátero de lado 2 e corte ao meio. Você obtém um triângulo com ângulos 30°–60°–90° e lados 1, √3, 2.</li>
+    <li><strong>45°:</strong> pegue um quadrado de lado 1 e corte na diagonal. Você obtém um triângulo 45°–45°–90° com lados 1, 1, √2.</li>
+  </ul>
+</div>
+
+<div class="lesson-section">
+  <h2 class="lesson-h2">A tabela completa</h2>
+  <table class="vtab mono" style="font-size:.93rem;margin:.75rem 0;width:100%">
+    <thead><tr><th>θ (graus)</th><th>θ (rad)</th><th>sin θ</th><th>cos θ</th><th>tan θ</th></tr></thead>
+    <tbody>
+      <tr><td>0°</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+      <tr><td>30°</td><td>π/6</td><td>1/2</td><td>√3/2</td><td>√3/3</td></tr>
+      <tr><td>45°</td><td>π/4</td><td>√2/2</td><td>√2/2</td><td>1</td></tr>
+      <tr><td>60°</td><td>π/3</td><td>√3/2</td><td>1/2</td><td>√3</td></tr>
+      <tr><td>90°</td><td>π/2</td><td>1</td><td>0</td><td>∄</td></tr>
+      <tr><td>180°</td><td>π</td><td>0</td><td>−1</td><td>0</td></tr>
+      <tr><td>270°</td><td>3π/2</td><td>−1</td><td>0</td><td>∄</td></tr>
+      <tr><td>360°</td><td>2π</td><td>0</td><td>1</td><td>0</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box apply">
+    <p><strong>Truque da raiz quadrada (para 0° a 90°):</strong></p>
+    <p>O seno de 0°, 30°, 45°, 60°, 90° é: $\\dfrac{\\sqrt{0}}{2},\\ \\dfrac{\\sqrt{1}}{2},\\ \\dfrac{\\sqrt{2}}{2},\\ \\dfrac{\\sqrt{3}}{2},\\ \\dfrac{\\sqrt{4}}{2}$</p>
+    <p>Ou seja: <strong>0, 1/2, √2/2, √3/2, 1</strong> — a sequência cresce com o ângulo.</p>
+    <p>O cosseno é a mesma sequência, mas ao contrário (decresce).</p>
+    <p>Note também: <strong>sin 30° = cos 60°</strong> e <strong>sin 60° = cos 30°</strong> — seno e cosseno são complementares.</p>
+  </div>
+</div>
+
+<div class="lesson-section">
+  <h2 class="lesson-h2">Redução ao 1º quadrante</h2>
+  <p>Para calcular sin ou cos de ângulos do 2º, 3º ou 4º quadrante, usamos simetria:</p>
+  <ol style="line-height:1.9;padding-left:1.3rem">
+    <li><strong>Ache o ângulo de referência</strong> (distância ao eixo x mais próximo)</li>
+    <li><strong>Use o valor notável</strong> do ângulo de referência</li>
+    <li><strong>Aplique o sinal</strong> do quadrante (TSCS)</li>
+  </ol>
+
+  <div class="box solved">
+    <p><strong>Exemplo:</strong> calcular sin(150°) e cos(150°)</p>
+    <p>150° está no <strong>Q2</strong> (entre 90° e 180°).</p>
+    <p>Ângulo de referência = 180° − 150° = <strong>30°</strong></p>
+    <p>Q2: sin é positivo, cos é negativo.</p>
+    <p>$\\sin(150°) = +\\sin(30°) = \\mathbf{\\dfrac{1}{2}}$</p>
+    <p>$\\cos(150°) = -\\cos(30°) = \\mathbf{-\\dfrac{\\sqrt{3}}{2}}$</p>
+  </div>
+
+  <div class="box solved">
+    <p><strong>Exemplo:</strong> calcular sin(315°)</p>
+    <p>315° está no <strong>Q4</strong> (entre 270° e 360°).</p>
+    <p>Ângulo de referência = 360° − 315° = <strong>45°</strong></p>
+    <p>Q4: sin é negativo, cos é positivo.</p>
+    <p>$\\sin(315°) = -\\sin(45°) = \\mathbf{-\\dfrac{\\sqrt{2}}{2}}$</p>
+  </div>
+</div>
+
+<div id="quiz-notaveis"></div>`;
 
       autoRender(c);
-      mountQuizSet(c.querySelector("#quiz-not"), [
-        { q: "$\\tan(\\pi/4)$?",
-          opts:["$1$","$\\sqrt{3}$","$\\sqrt{2}/2$","$1/2$","$\\sqrt{3}/3$"], ans:0,
-          expl:"$\\sin(\\pi/4)=\\cos(\\pi/4)=\\sqrt{2}/2\\Rightarrow\\tan=1$" },
-        { q: "$\\sin(\\pi/3)$?",
-          opts:["$\\sqrt{3}/2$","$1/2$","$\\sqrt{2}/2$","$\\sqrt{3}$","$1$"], ans:0,
-          expl:"Valor notável: $\\sqrt{3}/2\\approx0{,}866$" },
-        { q: "$\\cos(2\\pi/3)$?",
-          opts:["$-1/2$","$1/2$","$-\\sqrt{3}/2$","$\\sqrt{2}/2$","$0$"], ans:0,
-          expl:"$2\\pi/3=\\pi-\\pi/3$. No 2.º quad, cos−: $-\\cos(\\pi/3)=-1/2$" },
+      mountQuizSet(c.querySelector("#quiz-notaveis"), [
+        { q: "Qual é o valor de sin(60°)?",
+          opts:["√3/2","1/2","√2/2","1","0"], ans:0,
+          expl:"sin(60°) = √3/2 ≈ 0,866. Lembre: sin cresce de 0 a 90°, logo sin(60°) > sin(45°) > sin(30°)." },
+        { q: "Qual é o valor de cos(0°)?",
+          opts:["1","0","−1","√2/2","1/2"], ans:0,
+          expl:"cos(0°) = 1. Em θ=0, o ponto P está em (1,0) — exatamente no eixo x positivo." },
+        { q: "Para calcular sin(120°), qual é o ângulo de referência?",
+          opts:["60°","30°","45°","90°","120°"], ans:0,
+          expl:"120° está no Q2. Ângulo de referência = 180° − 120° = 60°. Logo sin(120°) = +sin(60°) = √3/2." },
+        { q: "Qual é o valor de tan(45°)?",
+          opts:["1","√3","√3/3","0","∄"], ans:0,
+          expl:"tan(45°) = sin(45°)/cos(45°) = (√2/2)/(√2/2) = 1." },
       ]);
     }
   },
@@ -196,31 +327,70 @@ export const trigonometriaLessons = [
     id: "trig-seno",
     title: "Função seno",
     render(c) {
-      c.innerHTML = section("Cap 5 · §4", "Função seno",
-          def("Forma geral", `$$f(x) = A\\sin(Bx + C) + D$$`)) +
-        `<div class="lesson-section">` +
-        labSlot("lab-seno") + `</div>` +
-        think("Se $B=2$, o período diminui ou aumenta em relação a $B=1$? Por quê $T=2\\pi/B$?") +
-        quizSlot("quiz-seno");
+      c.innerHTML = `
+<div class="lesson-section">
+  <div class="al-crumb" style="color:var(--accent);font-size:.78rem;font-weight:600">Cap 5 · §4</div>
+  <h1 class="al-title">O que é a função seno?</h1>
+  <p>Imagine o ponto P girando no círculo trigonométrico. À medida que ele gira, sua <strong>altura</strong> (coordenada y = seno) sobe e desce repetidamente. A função seno registra essa altura ao longo do tempo.</p>
+</div>
+
+<div class="def">
+  <div class="def-h">f(x) = sen(x) — características essenciais</div>
+  <ul style="line-height:2">
+    <li><strong>Domínio:</strong> todos os reais (ℝ) — funciona para qualquer ângulo</li>
+    <li><strong>Imagem:</strong> de −1 a 1 — nunca passa desses limites</li>
+    <li><strong>Período:</strong> 2π — se repete a cada volta completa</li>
+    <li><strong>Começa em zero:</strong> f(0) = sin(0) = 0</li>
+    <li><strong>Máximo = 1</strong> em x = π/2 · <strong>Mínimo = −1</strong> em x = 3π/2</li>
+  </ul>
+</div>
+
+<div class="lesson-section">
+  <h2 class="lesson-h2">Os 5 pontos-chave (método rápido para o simulado)</h2>
+  <p>Qualquer gráfico de seno pode ser esboçado com apenas 5 pontos — um a cada quarto de período:</p>
+  <table class="vtab mono" style="margin:.5rem 0;width:100%">
+    <thead><tr><th>x</th><th>0</th><th>π/2</th><th>π</th><th>3π/2</th><th>2π</th></tr></thead>
+    <tbody><tr><th>sin(x)</th><td>0</td><td>1</td><td>0</td><td>−1</td><td>0</td></tr></tbody>
+  </table>
+  <p>Ligue esses pontos com uma curva suave — isso é o gráfico do seno.</p>
+  <div class="box think">
+    <p><strong>Padrão dos 5 pontos:</strong> zero → máximo → zero → mínimo → zero. Memorize esse ritmo.</p>
+  </div>
+</div>
+
+<div class="lesson-section">
+  <h2 class="lesson-h2">Crescimento e decrescimento</h2>
+  <ul style="line-height:1.9;padding-left:1.3rem">
+    <li><strong>Crescente</strong> de −π/2 a π/2 (subindo do mínimo ao máximo)</li>
+    <li><strong>Decrescente</strong> de π/2 a 3π/2 (descendo do máximo ao mínimo)</li>
+  </ul>
+  <p>A função é <strong>ímpar</strong>: sin(−x) = −sin(x). O gráfico tem simetria de ponto em relação à origem.</p>
+</div>
+
+<div class="lesson-section">
+  <h2 class="lesson-h2">Explore no laboratório</h2>` +
+        labSlot("lab-seno") + `
+</div>` +
+        `<div id="quiz-seno"></div>`;
 
       autoRender(c);
 
       mountLab(c.querySelector("#lab-seno"), {
-        base: "f(x) = A\\sin(Bx+C)+D",
+        base: "f(x) = A·sin(Bx+C)+D",
         vars: [
           { sym: "A", papel: "amplitude", limites: "A > 0",
             efeito: "escala vertical — máx = D+A, mín = D−A" },
           { sym: "B", papel: "frequência angular", limites: "B > 0",
             efeito: "período T = 2π/B · B>1 comprime · B<1 estica" },
           { sym: "C", papel: "fase inicial", limites: "∈ ℝ",
-            efeito: "desloca horizontalmente o gráfico (C/B para a esquerda)" },
+            efeito: "desloca horizontalmente (C/B para a esquerda)" },
           { sym: "D", papel: "deslocamento vertical", limites: "∈ ℝ",
-            efeito: "translada o eixo de equilíbrio da oscilação" },
+            efeito: "translada o eixo de equilíbrio" },
         ],
         piAxis: true,
         start: "y = sin(x)",
         view: { xmin: -2*Math.PI, xmax: 2*Math.PI, ymin: -2.5, ymax: 2.5 },
-        examples: ["y = sin(x)", "y = 2·sin(x)", "y = sin(2·x)", "y = sin(x + π/2)", "y = sin(x) + 1"],
+        examples: ["y = sin(x)", "y = 2*sin(x)", "y = sin(2*x)", "y = sin(x + π/2)", "y = sin(x) + 1"],
         desafios: [
           { ordem: "Faça o gráfico ter amplitude 2 (máximo = 2, mínimo = −2).",
             checa: f => { let mx=-Infinity, mn=Infinity; for(let x=-Math.PI*2;x<=Math.PI*2;x+=0.1){const v=f(x);if(isFinite(v)){mx=Math.max(mx,v);mn=Math.min(mn,v);}} return Math.abs(mx-2)<0.2&&Math.abs(mn+2)<0.2; },
@@ -228,22 +398,22 @@ export const trigonometriaLessons = [
           { ordem: "Reduza o período à metade (T = π em vez de 2π).",
             checa: f => Math.abs(f(Math.PI/2) - f(-Math.PI/2)) < 0.2 && Math.abs(f(0))<0.1,
             dica: "y = sin(2·x) — período = 2π/2 = π" },
-          { ordem: "Desloque o gráfico π/2 para a esquerda (fase C = π/2).",
-            checa: f => Math.abs(f(0) - 1) < 0.15,
-            dica: "y = sin(x + π/2) — em x=0 vale sin(π/2)=1" },
         ],
       });
 
       mountQuizSet(c.querySelector("#quiz-seno"), [
-        { q: "Período de $f(x)=\\sin(3x)$?",
-          opts:["$2\\pi/3$","$2\\pi$","$\\pi$","$3\\pi$","$6\\pi$"], ans:0,
-          expl:"$T=2\\pi/B=2\\pi/3$" },
-        { q: "Amplitude de $f(x)=4\\sin(x)-1$?",
-          opts:["$4$","$1$","$3$","$5$","$2$"], ans:0,
-          expl:"Amplitude = |A| = 4. O −1 é deslocamento vertical, não afeta amplitude." },
-        { q: "(ENEM) $f(x)=\\sin(2x)$. Menor período positivo?",
-          opts:["$\\pi$","$2\\pi$","$\\pi/2$","$4\\pi$","$\\pi/4$"], ans:0,
-          expl:"$T=2\\pi/2=\\pi$" },
+        { q: "Qual é o valor máximo de f(x) = sin(x)?",
+          opts:["1","2","π","∞","√2"], ans:0,
+          expl:"O seno nunca passa de 1. Isso ocorre em x = π/2 + 2kπ." },
+        { q: "Em quantos pontos f(x) = sin(x) = 0 no intervalo [0, 2π]?",
+          opts:["3","2","1","4","0"], ans:0,
+          expl:"f(x) = 0 em x = 0, x = π e x = 2π. São 3 pontos." },
+        { q: "Período de f(x) = sin(3x)?",
+          opts:["2π/3","2π","π","3π","6π"], ans:0,
+          expl:"T = 2π/B = 2π/3. Com B=3, o gráfico 'cabe' 3 períodos no espaço de um." },
+        { q: "A função sin(x) é crescente no intervalo:",
+          opts:["[−π/2, π/2]","[0, π]","[π/2, 3π/2]","[π, 2π]","[0, 2π]"], ans:0,
+          expl:"O seno sobe do mínimo (−π/2) ao máximo (π/2). Nos outros intervalos está descendo." },
       ]);
     }
   },
@@ -253,45 +423,80 @@ export const trigonometriaLessons = [
     id: "trig-cosseno",
     title: "Função cosseno",
     render(c) {
-      c.innerHTML = section("Cap 5 · §5", "Função cosseno",
-          def("Relação com o seno", `$$\\cos(x)=\\sin\\!\\left(x+\\dfrac{\\pi}{2}\\right)$$
-            Forma geral: $f(x)=A\\cos(Bx+C)+D$ — mesmos parâmetros do seno.`)) +
-        `<div class="lesson-section">` +
-        labSlot("lab-cos") + `</div>` +
-        think("Em que $x$ o cosseno atinge máximo? Mínimo? Compare com o seno — onde está a diferença?") +
-        quizSlot("quiz-cos");
+      c.innerHTML = `
+<div class="lesson-section">
+  <div class="al-crumb" style="color:var(--accent);font-size:.78rem;font-weight:600">Cap 5 · §5</div>
+  <h1 class="al-title">O que é a função cosseno?</h1>
+  <p>Enquanto o seno registra a <strong>altura</strong> do ponto P girando no círculo, o cosseno registra sua <strong>posição horizontal</strong> — o quanto está para a direita ou para a esquerda.</p>
+</div>
+
+<div class="def">
+  <div class="def-h">f(x) = cos(x) — a diferença crucial em relação ao seno</div>
+  <p>O cosseno tem as <strong>mesmas propriedades gerais</strong> que o seno (domínio ℝ, imagem [−1,1], período 2π) — mas começa em um lugar diferente:</p>
+  <ul style="line-height:2">
+    <li><strong>Começa no máximo:</strong> f(0) = cos(0) = 1 (enquanto sin(0) = 0)</li>
+    <li><strong>Máximo = 1</strong> em x = 0, 2π, 4π… · <strong>Mínimo = −1</strong> em x = π, 3π…</li>
+    <li><strong>Decrescente</strong> de 0 a π · <strong>Crescente</strong> de π a 2π</li>
+    <li>Função <strong>par</strong>: cos(−x) = cos(x) — simétrica em relação ao eixo y</li>
+  </ul>
+</div>
+
+<div class="lesson-section">
+  <h2 class="lesson-h2">Os 5 pontos-chave do cosseno</h2>
+  <p><strong>Mnemônico:</strong> "Cosseno começa no máximo." Compare:</p>
+  <table class="vtab mono" style="margin:.5rem 0;width:100%">
+    <thead><tr><th>x</th><th>0</th><th>π/2</th><th>π</th><th>3π/2</th><th>2π</th></tr></thead>
+    <tbody>
+      <tr><th>cos(x)</th><td><strong>1</strong></td><td>0</td><td><strong>−1</strong></td><td>0</td><td><strong>1</strong></td></tr>
+      <tr><th>sin(x)</th><td>0</td><td><strong>1</strong></td><td>0</td><td><strong>−1</strong></td><td>0</td></tr>
+    </tbody>
+  </table>
+  <div class="box think">
+    <p>Note que os padrões de sin e cos são idênticos, mas <strong>defasados de π/2</strong>. De fato: $\\cos(x) = \\sin\\!\\left(x + \\dfrac{\\pi}{2}\\right)$.</p>
+    <p>O cosseno "chega antes" — seu máximo aparece π/2 mais cedo que o do seno.</p>
+  </div>
+</div>
+
+<div class="lesson-section">
+  <h2 class="lesson-h2">Explore no laboratório</h2>` +
+        labSlot("lab-cos") + `
+</div>` +
+        `<div id="quiz-cos"></div>`;
 
       autoRender(c);
 
       mountLab(c.querySelector("#lab-cos"), {
-        base: "f(x) = A\\cos(Bx+C)+D",
+        base: "f(x) = A·cos(Bx+C)+D",
         vars: [
-          { sym: "A", papel: "amplitude", limites: "A > 0", efeito: "mesma interpretação do seno" },
-          { sym: "B", papel: "frequência angular", limites: "B > 0", efeito: "T = 2π/B" },
-          { sym: "C", papel: "fase", limites: "∈ ℝ", efeito: "deslocamento horizontal" },
-          { sym: "D", papel: "eixo de equilíbrio", limites: "∈ ℝ", efeito: "translação vertical" },
+          { sym: "A", papel: "amplitude",           limites: "A > 0", efeito: "máx = D+A, mín = D−A" },
+          { sym: "B", papel: "frequência angular",   limites: "B > 0", efeito: "período T = 2π/B" },
+          { sym: "C", papel: "fase",                 limites: "∈ ℝ",   efeito: "deslocamento horizontal" },
+          { sym: "D", papel: "eixo de equilíbrio",   limites: "∈ ℝ",   efeito: "translação vertical" },
         ],
         piAxis: true,
         start: "y = cos(x)",
         view: { xmin: -2*Math.PI, xmax: 2*Math.PI, ymin: -2.5, ymax: 2.5 },
-        examples: ["y = cos(x)", "y = 2·cos(x)", "y = cos(2·x)", "y = cos(x - π/3)", "y = cos(x) - 1"],
+        examples: ["y = cos(x)", "y = 2*cos(x)", "y = cos(2*x)", "y = cos(x - π/3)", "y = cos(x) - 1"],
         desafios: [
-          { ordem: "Converta cos(x) em seno com a mesma curva.",
-            checa: f => Math.abs(f(0) - 1) < 0.15 && Math.abs(f(Math.PI/2)) < 0.15,
-            dica: "cos(x) = sin(x + π/2)" },
-          { ordem: "Faça o cosseno ter amplitude 3 e eixo em y = 2.",
-            checa: f => { let mx=-Infinity; for(let x=0;x<=2*Math.PI;x+=0.1){const v=f(x);if(isFinite(v))mx=Math.max(mx,v);} return Math.abs(mx - 5) < 0.3; },
-            dica: "y = 3·cos(x) + 2 — máximo = 3+2 = 5" },
+          { ordem: "Converta cos(x) em seno usando a defasagem de π/2.",
+            checa: f => Math.abs(f(0)-1)<0.15 && Math.abs(f(Math.PI/2))<0.15,
+            dica: "y = sin(x + π/2) — em x=0 vale sin(π/2)=1 ✓" },
         ],
       });
 
       mountQuizSet(c.querySelector("#quiz-cos"), [
-        { q: "$\\cos(0)$?",
-          opts:["$1$","$0$","$-1$","$1/2$","$\\sqrt{2}/2$"], ans:0,
-          expl:"$\\cos(0)=1$ — máximo do cosseno." },
-        { q: "Para qual $x\\in[0,2\\pi]$ vale $\\cos x = -1$?",
-          opts:["$\\pi$","$\\pi/2$","$3\\pi/2$","$2\\pi$","$0$"], ans:0,
-          expl:"Mínimo do cosseno ocorre em $x=\\pi$." },
+        { q: "Qual é o valor de cos(0)?",
+          opts:["1","0","−1","1/2","√2/2"], ans:0,
+          expl:"cos(0) = 1. Em x=0, o ponto está em (1,0) — máximo do cosseno." },
+        { q: "Para qual x ∈ [0, 2π] vale cos(x) = −1?",
+          opts:["π","π/2","3π/2","2π","0"], ans:0,
+          expl:"O mínimo do cosseno ocorre em x = π (ponto (−1, 0) no círculo)." },
+        { q: "O cosseno é uma função:",
+          opts:["Par — cos(−x) = cos(x)","Ímpar — cos(−x) = −cos(x)","Nem par nem ímpar","Sempre positiva","Sempre decrescente"], ans:0,
+          expl:"cos(−x) = cos(x) — simétrico em relação ao eixo y. Verifique: cos(−60°) = cos(60°) = 1/2." },
+        { q: "Qual é o período de f(x) = cos(2x)?",
+          opts:["π","2π","π/2","4π","1"], ans:0,
+          expl:"T = 2π/B = 2π/2 = π. Com B=2, completa um ciclo em π." },
       ]);
     }
   },
@@ -301,51 +506,79 @@ export const trigonometriaLessons = [
     id: "trig-tangente",
     title: "Função tangente",
     render(c) {
-      c.innerHTML = section("Cap 5 · §6", "Função tangente",
-          def("Definição", `$$\\tan x = \\dfrac{\\sin x}{\\cos x}$$
-            Não definida quando $\\cos x=0$, ou seja, em $x=\\dfrac{\\pi}{2}+k\\pi,\\ k\\in\\mathbb{Z}$.
-            Período: $T=\\pi$.`)) +
-        `<div class="lesson-section">` +
-        labSlot("lab-tan") + `</div>` +
-        think("A tangente não tem amplitude. Por quê? O que isso significa sobre a imagem da função?") +
-        quizSlot("quiz-tan");
+      c.innerHTML = `
+<div class="lesson-section">
+  <div class="al-crumb" style="color:var(--accent);font-size:.78rem;font-weight:600">Cap 5 · §6</div>
+  <h1 class="al-title">O que é a função tangente?</h1>
+  <p>A tangente combina seno e cosseno numa só relação: $\\tan(x) = \\dfrac{\\sin(x)}{\\cos(x)}$.</p>
+  <p>Pense geometricamente: no círculo unitário, a tangente é o comprimento do segmento vertical na reta x = 1 que vai até a linha da hipotenusa.</p>
+</div>
+
+<div class="def">
+  <div class="def-h">Por que a tangente "explode"?</div>
+  <p>Quando cos(x) = 0 (em x = π/2, 3π/2, …), a divisão $\\dfrac{\\sin x}{\\cos x}$ não existe (divisão por zero). Nesses pontos a tangente tem <strong>assíntotas verticais</strong> — o gráfico vai ao infinito.</p>
+  <p>Fora disso, a tangente pode assumir <strong>qualquer valor real</strong> (imagem = ℝ).</p>
+</div>
+
+<div class="lesson-section">
+  <h2 class="lesson-h2">Características da tangente</h2>
+  <ul style="line-height:2;padding-left:1.3rem">
+    <li><strong>Domínio:</strong> $\\mathbb{R}\\setminus\\left\\{\\dfrac{\\pi}{2}+k\\pi\\right\\}$ — todos os reais exceto onde cos = 0</li>
+    <li><strong>Imagem:</strong> ℝ — não tem máximo nem mínimo</li>
+    <li><strong>Período:</strong> π — metade do período do seno e cosseno</li>
+    <li><strong>Função ímpar:</strong> tan(−x) = −tan(x)</li>
+    <li><strong>Sempre crescente</strong> em cada ramo (entre assíntotas consecutivas)</li>
+  </ul>
+
+  <div class="box apply">
+    <p><strong>Valores notáveis da tangente:</strong></p>
+    <table class="vtab mono" style="margin:.4rem 0">
+      <thead><tr><th>θ</th><th>0°</th><th>30°</th><th>45°</th><th>60°</th><th>90°</th></tr></thead>
+      <tbody><tr><th>tan θ</th><td>0</td><td>√3/3</td><td>1</td><td>√3</td><td>∄</td></tr></tbody>
+    </table>
+    <p>Note: tan(45°) = 1 porque sin(45°) = cos(45°). E tan(90°) não existe porque cos(90°) = 0.</p>
+  </div>
+</div>
+
+<div class="lesson-section">
+  <h2 class="lesson-h2">Explore no laboratório</h2>` +
+        labSlot("lab-tan") + `
+</div>` +
+        `<div id="quiz-tan"></div>`;
 
       autoRender(c);
 
       mountLab(c.querySelector("#lab-tan"), {
-        base: "f(x) = A\\tan(Bx+C)+D",
+        base: "f(x) = A·tan(Bx+C)+D",
         vars: [
-          { sym: "A", papel: "escala vertical", limites: "A ≠ 0", efeito: "\"estica\" a curva — não é amplitude pois tan tem imagem ℝ" },
-          { sym: "B", papel: "frequência", limites: "B > 0", efeito: "período T = π/B" },
-          { sym: "C", papel: "fase", limites: "∈ ℝ", efeito: "translação horizontal" },
+          { sym: "A", papel: "escala vertical",  limites: "A ≠ 0", efeito: "estica/comprime — não é 'amplitude' pois imagem é ℝ" },
+          { sym: "B", papel: "frequência",        limites: "B > 0", efeito: "período T = π/B" },
+          { sym: "C", papel: "fase",              limites: "∈ ℝ",   efeito: "translação horizontal" },
         ],
         piAxis: true,
         start: "y = tan(x)",
         view: { xmin: -Math.PI, xmax: Math.PI, ymin: -4, ymax: 4 },
-        examples: ["y = tan(x)", "y = 2·tan(x)", "y = tan(2·x)", "y = tan(x - π/4)"],
+        examples: ["y = tan(x)", "y = 2*tan(x)", "y = tan(2*x)", "y = tan(x - π/4)"],
         desafios: [
-          { ordem: "Faça uma tangente com período π/2.",
+          { ordem: "Faça uma tangente com período π/2 (duas vezes mais rápida).",
             checa: f => { const v1=f(Math.PI/8), v2=f(Math.PI/8+Math.PI/2); return isFinite(v1)&&isFinite(v2)&&Math.abs(v1-v2)<0.3; },
             dica: "y = tan(2·x) — período = π/2" },
         ],
       });
 
       mountQuizSet(c.querySelector("#quiz-tan"), [
-        { q: "Período de $f(x)=\\tan(x)$?",
-          opts:["$\\pi$","$2\\pi$","$\\pi/2$","$2$","$4\\pi$"], ans:0,
-          expl:"Período da tangente é sempre $\\pi$." },
-        { q: "$\\tan(\\pi/4)$?",
-          opts:["$1$","$\\sqrt{3}$","$\\sqrt{3}/3$","$0$","$\\sqrt{2}$"], ans:0,
-          expl:"$\\tan(\\pi/4)=\\sin/\\cos=\\frac{\\sqrt{2}/2}{\\sqrt{2}/2}=1$" },
-        { q: "(ENEM) Domínio natural de $f(x)=\\tan x$?",
-          opts:[
-            "$\\mathbb{R}\\setminus\\{\\frac{\\pi}{2}+k\\pi,\\ k\\in\\mathbb{Z}\\}$",
-            "$\\mathbb{R}$",
-            "$(0,\\infty)$",
-            "$[-1,1]$",
-            "$\\mathbb{R}\\setminus\\{k\\pi\\}$"
-          ], ans:0,
-          expl:"Excluem-se os zeros do cosseno: $x=\\pi/2+k\\pi$." },
+        { q: "Por que tan(π/2) não existe?",
+          opts:["Porque cos(π/2) = 0 (divisão por zero)","Porque sin(π/2) = 0","Porque o ângulo é muito grande","É um erro de calculadora","Existe sim, vale 1"], ans:0,
+          expl:"tan = sin/cos. Em π/2, cos = 0, então a divisão não está definida." },
+        { q: "Qual é o período de f(x) = tan(x)?",
+          opts:["π","2π","π/2","2","4π"], ans:0,
+          expl:"Diferente de sin e cos (período 2π), a tangente tem período π." },
+        { q: "Qual é o valor de tan(45°)?",
+          opts:["1","√3","√3/3","0","∄"], ans:0,
+          expl:"tan(45°) = sin(45°)/cos(45°) = (√2/2)/(√2/2) = 1." },
+        { q: "A tangente é crescente ou decrescente em cada ramo?",
+          opts:["Sempre crescente","Sempre decrescente","Ora crescente, ora decrescente","Constante","Não tem ramos"], ans:0,
+          expl:"A tangente é estritamente crescente em cada intervalo entre assíntotas: (−π/2, π/2), (π/2, 3π/2), etc." },
       ]);
     }
   },
