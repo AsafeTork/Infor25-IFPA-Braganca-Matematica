@@ -56,180 +56,322 @@ export const trigonometriaLessons = [
       c.innerHTML = `
 <div class="lesson-section">
   <div class="al-crumb" style="color:var(--accent);font-size:.78rem;font-weight:600">Cap 5 · §2</div>
-  <h1 class="al-title">O que é o círculo trigonométrico?</h1>
-  <p>Imagine um círculo de raio 1 com o centro na origem do plano cartesiano. Esse é o círculo trigonométrico — e é a ferramenta central para entender seno, cosseno e tangente.</p>
+  <h1 class="al-title">O círculo trigonométrico</h1>
+  <p>Antes de seno e cosseno, precisamos construir a ferramenta que explica os dois: o círculo trigonométrico.</p>
 </div>
 
 <div class="def">
-  <div class="def-h">A ideia essencial</div>
-  <p>Coloque um ponto <strong>P</strong> na borda do círculo. Ligue-o à origem com uma reta.</p>
-  <p>Essa reta forma um ângulo <strong>θ</strong> com o eixo x positivo.</p>
-  <p>As coordenadas do ponto <strong>P</strong> têm nomes:</p>
-  <ul>
-    <li><strong>A coordenada horizontal</strong> (o quanto foi para a direita/esquerda) = <strong>cosseno de θ</strong></li>
-    <li><strong>A coordenada vertical</strong> (o quanto foi para cima/baixo) = <strong>seno de θ</strong></li>
+  <div class="def-h">Construção passo a passo</div>
+  <p><strong>Passo 1 —</strong> Desenhe um plano cartesiano normal (eixo x e eixo y).</p>
+  <p><strong>Passo 2 —</strong> Desenhe um círculo de raio <strong>1</strong> centrado na origem. Esse é o círculo trigonométrico.</p>
+  <p><strong>Passo 3 —</strong> Marque um ponto <strong>P</strong> em qualquer lugar na borda do círculo.</p>
+  <p><strong>Passo 4 —</strong> Trace uma reta da origem até P. Essa reta forma um ângulo <strong>θ</strong> com o eixo x positivo.</p>
+  <p><strong>Resultado:</strong> As coordenadas de P têm nomes especiais:</p>
+  <ul style="line-height:2;margin:.5rem 0">
+    <li>A coordenada <strong>x</strong> de P (horizontal) = <strong>cosseno de θ</strong></li>
+    <li>A coordenada <strong>y</strong> de P (vertical) = <strong>seno de θ</strong></li>
   </ul>
-  <p>Simples assim: $P(\\theta) = (\\cos\\theta,\\ \\sin\\theta)$.</p>
+  <p>Escrevemos: $P(\\theta) = (\\cos\\theta,\\ \\sin\\theta)$</p>
 </div>
 
-<div class="box think">
-  <p><strong>Por que o raio é 1?</strong> Porque assim as coordenadas do ponto caem exatamente entre −1 e 1 — e isso faz seno e cosseno terem sempre esse intervalo. Com raio diferente, seria necessário dividir pelo raio o tempo todo.</p>
-</div>
-
+<!-- CÍRCULO 1: só o ponto e o ângulo -->
 <div class="lesson-section">
-  <h2 class="lesson-h2">Veja acontecendo</h2>
-  <p>Arraste o ponto no círculo abaixo. Observe como seno (vertical) e cosseno (horizontal) mudam:</p>
-  <div id="circ-canvas" style="width:100%;max-width:380px;height:340px;margin:.5rem auto;display:block;"></div>
-  <p style="font-size:.82rem;color:var(--text-mut)">🟠 Laranja = cosseno (horizontal) · 🟡 Amarelo = seno (vertical)</p>
+  <h2 class="lesson-h2">① Só o ângulo</h2>
+  <p>Veja o ponto P no círculo. O ângulo θ é medido a partir do eixo x positivo, no sentido anti-horário.</p>
+  <div id="cv1" style="width:100%;max-width:320px;height:280px;margin:.5rem auto;display:block;"></div>
+  <p style="font-size:.8rem;color:var(--text-mut);text-align:center">Arraste o ponto para mudar o ângulo.</p>
 </div>
 
+<!-- CÍRCULO 2: mostrando o cosseno -->
 <div class="lesson-section">
-  <h2 class="lesson-h2">Os sinais mudam por quadrante</h2>
-  <p>Quando o ponto está no lado direito do círculo, o cosseno é positivo (x > 0). Quando está no lado esquerdo, é negativo. Da mesma forma para o seno com cima/baixo.</p>
-  <p><strong>Regra prática (TSCS):</strong></p>
-  <table class="vtab mono" style="margin:.75rem 0">
-    <thead><tr><th>Quadrante</th><th>Posição</th><th>sin</th><th>cos</th><th>tan</th></tr></thead>
-    <tbody>
-      <tr><td><strong>I</strong></td><td>Direita, cima</td><td style="color:#34d399">+</td><td style="color:#34d399">+</td><td style="color:#34d399">+</td></tr>
-      <tr><td><strong>II</strong></td><td>Esquerda, cima</td><td style="color:#34d399">+</td><td style="color:#f87171">−</td><td style="color:#f87171">−</td></tr>
-      <tr><td><strong>III</strong></td><td>Esquerda, baixo</td><td style="color:#f87171">−</td><td style="color:#f87171">−</td><td style="color:#34d399">+</td></tr>
-      <tr><td><strong>IV</strong></td><td>Direita, baixo</td><td style="color:#f87171">−</td><td style="color:#34d399">+</td><td style="color:#f87171">−</td></tr>
-    </tbody>
-  </table>
-  <div class="box apply">
-    <p><strong>Mnemônico TSCS:</strong> <em>"Todos os Sinos Cantam Suave"</em> — o que está positivo em cada quadrante: <strong>T</strong>odos (Q1), <strong>S</strong>eno (Q2), <strong>C</strong>osseno (Q4), <strong>T</strong>angente (Q3). Mas na prática é mais fácil pensar geometricamente: cima = sen+, direita = cos+.</p>
-  </div>
+  <h2 class="lesson-h2">② O cosseno — posição horizontal</h2>
+  <p>Projete o ponto P no eixo x (trace uma linha vertical para baixo até o eixo). O ponto onde essa linha toca o eixo x é exatamente o <strong>cosseno</strong>.</p>
+  <p>Quanto mais à direita P está, maior o cosseno. Quando P passa para o lado esquerdo, o cosseno se torna negativo.</p>
+  <div id="cv2" style="width:100%;max-width:320px;height:280px;margin:.5rem auto;display:block;"></div>
+  <p style="font-size:.8rem;color:var(--text-mut);text-align:center">🟠 Laranja = cosseno</p>
+</div>
+
+<!-- CÍRCULO 3: mostrando o seno -->
+<div class="lesson-section">
+  <h2 class="lesson-h2">③ O seno — posição vertical</h2>
+  <p>Projete o ponto P no eixo y (trace uma linha horizontal até o eixo). O ponto onde toca é o <strong>seno</strong>.</p>
+  <p>Quando P está acima do eixo x, o seno é positivo. Abaixo, é negativo.</p>
+  <div id="cv3" style="width:100%;max-width:320px;height:280px;margin:.5rem auto;display:block;"></div>
+  <p style="font-size:.8rem;color:var(--text-mut);text-align:center">🟡 Amarelo = seno</p>
+</div>
+
+<!-- CÍRCULO 4: os dois juntos com tangente -->
+<div class="lesson-section">
+  <h2 class="lesson-h2">④ Seno e cosseno juntos + tangente</h2>
+  <p>Agora veja os dois ao mesmo tempo. Note que seno e cosseno são simplesmente as <strong>coordenadas do ponto P</strong>.</p>
+  <p>A <strong>tangente</strong> aparece como a linha vertical em x = 1 — ela mostra a "inclinação" da hipotenusa.</p>
+  <div id="cv4" style="width:100%;max-width:320px;height:280px;margin:.5rem auto;display:block;"></div>
+  <p style="font-size:.8rem;color:var(--text-mut);text-align:center">🟠 cos · 🟡 sin · 🟢 tan</p>
 </div>
 
 <div class="def">
   <div class="def-h">Relação de Pitágoras</div>
-  <p>O ponto P sempre está na borda do círculo de raio 1. Pela fórmula da distância à origem:</p>
+  <p>O ponto P está sempre na borda do círculo de raio 1. Pelo teorema de Pitágoras aplicado ao triângulo retângulo que ele forma:</p>
   <p>$$\\cos^2\\theta + \\sin^2\\theta = 1$$</p>
-  <p>Isso vale para qualquer ângulo — é a <strong>relação fundamental</strong> da trigonometria.</p>
+  <p>Isso é sempre verdade, para qualquer ângulo — é a <strong>relação fundamental</strong> da trigonometria.</p>
+</div>
+
+<div class="lesson-section">
+  <h2 class="lesson-h2">Os sinais por quadrante</h2>
+  <p>O círculo está dividido em 4 quadrantes. O sinal de seno e cosseno depende de onde P está:</p>
+  <ul style="line-height:2;padding-left:1.3rem">
+    <li><strong>Q1</strong> (direita, cima) → P tem x > 0 e y > 0 → <strong>cos +, sin +</strong></li>
+    <li><strong>Q2</strong> (esquerda, cima) → P tem x < 0 e y > 0 → <strong>cos −, sin +</strong></li>
+    <li><strong>Q3</strong> (esquerda, baixo) → P tem x < 0 e y < 0 → <strong>cos −, sin −</strong></li>
+    <li><strong>Q4</strong> (direita, baixo) → P tem x > 0 e y < 0 → <strong>cos +, sin −</strong></li>
+  </ul>
+  <div class="box think">
+    <p><strong>Regra simples:</strong> cosseno segue o eixo x (positivo à direita), seno segue o eixo y (positivo acima). Não precisa memorizar uma tabela — basta lembrar onde P está.</p>
+  </div>
 </div>
 
 <div id="quiz-circ"></div>`;
 
-      // Interactive unit circle (kept simple)
-      const wrap = c.querySelector("#circ-canvas");
-      const cv = document.createElement("canvas");
-      cv.style.cssText = "width:100%;height:100%;display:block;cursor:crosshair;touch-action:none;";
-      wrap.appendChild(cv);
+      // ── Fábrica de canvas simples ──
+      function makeCanvas(id) {
+        const wrap = c.querySelector("#" + id);
+        const cv   = document.createElement("canvas");
+        cv.style.cssText = "width:100%;height:100%;display:block;cursor:crosshair;touch-action:none;";
+        wrap.appendChild(cv);
+        return cv;
+      }
 
-      function drawCircle(theta) {
+      function base(ctx, cv, theta, { circle=true, axes=true, quadrants=false }={}) {
         const W = cv.offsetWidth, H = cv.offsetHeight;
-        if (!W || !H) return;
+        if (!W) return { cx:0, cy:0, r:0 };
         const dpr = window.devicePixelRatio || 1;
-        cv.width = W * dpr; cv.height = H * dpr;
-        const ctx = cv.getContext("2d");
-        ctx.scale(dpr, dpr);
-        const cx = W/2, cy = H/2, r = Math.min(W,H)*0.38;
+        cv.width  = Math.round(W * dpr);
+        cv.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, W, H);
         const dark = document.documentElement.getAttribute("data-theme") !== "light";
         const fg   = dark ? "#e8e3da" : "#1a1a2e";
-        const fgm  = dark ? "#6b728088" : "#9ca3af88";
-        const acc  = "#ffa500", acc2 = "#ffd23f", green = dark ? "#4ade80" : "#16a34a";
+        const fgm  = dark ? "rgba(220,210,190,.3)" : "rgba(60,60,80,.25)";
+        const cx = W/2, cy = H/2, r = Math.min(W,H)*0.36;
 
-        ctx.clearRect(0,0,W,H);
+        if (axes) {
+          ctx.strokeStyle = fgm; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(cx-r*1.3,cy); ctx.lineTo(cx+r*1.3,cy); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(cx,cy-r*1.3); ctx.lineTo(cx,cy+r*1.3); ctx.stroke();
+          // Ticks ±1
+          ctx.fillStyle = dark?"rgba(220,210,190,.4)":"rgba(60,60,80,.4)";
+          ctx.font = `${Math.round(r*.1)}px monospace`;
+          ctx.textAlign="center"; ctx.textBaseline="top";
+          ctx.fillText("1",cx+r,cy+4); ctx.fillText("-1",cx-r,cy+4);
+          ctx.textAlign="right"; ctx.textBaseline="middle";
+          ctx.fillText("1",cx-4,cy-r); ctx.fillText("-1",cx-4,cy+r);
+        }
+        if (circle) {
+          ctx.strokeStyle = fgm; ctx.lineWidth = 1.5;
+          ctx.beginPath(); ctx.arc(cx,cy,r,0,2*Math.PI); ctx.stroke();
+        }
+        if (quadrants) {
+          ctx.fillStyle = dark?"rgba(220,210,190,.15)":"rgba(60,60,80,.12)";
+          ctx.font = `bold ${Math.round(r*.13)}px monospace`;
+          ctx.textAlign="center"; ctx.textBaseline="middle";
+          for (const [l,sx,sy] of [["I",1,1],["II",-1,1],["III",-1,-1],["IV",1,-1]])
+            ctx.fillText(l, cx+sx*r*.55, cy-sy*r*.55);
+        }
+        return { cx, cy, r, W, H, fg, fgm, dark };
+      }
 
-        // Eixos
-        ctx.strokeStyle = fgm; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(cx-r*1.25,cy); ctx.lineTo(cx+r*1.25,cy); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(cx,cy-r*1.25); ctx.lineTo(cx,cy+r*1.25); ctx.stroke();
+      function drawPoint(ctx, cx, cy, r, theta, color) {
+        const px = cx + r*Math.cos(theta), py = cy - r*Math.sin(theta);
+        ctx.fillStyle = color;
+        ctx.beginPath(); ctx.arc(px,py,7,0,2*Math.PI); ctx.fill();
+        ctx.strokeStyle = "rgba(0,0,0,.4)"; ctx.lineWidth = 1.5; ctx.stroke();
+        return { px, py };
+      }
 
-        // Círculo
-        ctx.strokeStyle = dark?"rgba(200,190,170,.25)":"rgba(60,60,80,.2)"; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.arc(cx,cy,r,0,2*Math.PI); ctx.stroke();
-
-        // Quadrant labels
-        ctx.fillStyle = dark?"rgba(200,190,170,.18)":"rgba(60,60,80,.15)";
-        ctx.font = `bold ${Math.round(r*.13)}px monospace`; ctx.textAlign="center"; ctx.textBaseline="middle";
-        ctx.fillText("I",  cx+r*.55, cy-r*.55);
-        ctx.fillText("II", cx-r*.55, cy-r*.55);
-        ctx.fillText("III",cx-r*.55, cy+r*.55);
-        ctx.fillText("IV", cx+r*.55, cy+r*.55);
-
-        const px = cx+r*Math.cos(theta), py = cy-r*Math.sin(theta);
-        const cosV = Math.cos(theta), sinV = Math.sin(theta);
-
-        // Triângulo retângulo
-        ctx.strokeStyle = fgm; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,cy); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(px,cy); ctx.lineTo(px,py); ctx.stroke();
-
-        // Projeções destacadas com cor
-        // Cosseno (horizontal) — laranja
-        ctx.strokeStyle = acc; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,cy); ctx.stroke();
-        // Ponto cos no eixo x
-        ctx.fillStyle = acc; ctx.beginPath(); ctx.arc(px,cy,4,0,2*Math.PI); ctx.fill();
-
-        // Seno (vertical) — amarelo
-        ctx.strokeStyle = acc2; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.moveTo(px,cy); ctx.lineTo(px,py); ctx.stroke();
-        // Ponto sin no eixo y (projeção)
-        ctx.fillStyle = acc2; ctx.beginPath(); ctx.arc(cx,py,4,0,2*Math.PI); ctx.fill();
-
-        // Raio
-        ctx.strokeStyle = fg; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke();
-        ctx.fillStyle = fg; ctx.font=`${Math.round(r*.1)}px monospace`; ctx.textAlign="center"; ctx.textBaseline="middle";
-        ctx.fillText("1", (cx+px)/2 - 6*Math.sin(theta), (cy+py)/2 - 6*Math.cos(theta));
-
-        // Ponto P
-        ctx.fillStyle = cosV >= 0 ? acc : "#f87171";
-        ctx.beginPath(); ctx.arc(px,py,8,0,2*Math.PI); ctx.fill();
-        ctx.strokeStyle = dark?"rgba(8,8,20,.7)":"rgba(255,255,255,.7)"; ctx.lineWidth=2; ctx.stroke();
-
-        // Ângulo arc
+      // ── Canvas 1: só ângulo e ponto ──
+      const c1  = makeCanvas("cv1");
+      const ctx1 = c1.getContext("2d");
+      function draw1(theta) {
+        const { cx, cy, r, fg, dark } = base(ctx1, c1, theta, { quadrants:true });
+        if (!r) return;
         const tN = ((theta%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
-        ctx.strokeStyle = fg+"99"; ctx.lineWidth=1.5;
-        ctx.beginPath(); ctx.arc(cx,cy,r*.22,0,-tN,true); ctx.stroke();
-
-        // Labels das projeções
-        const fs = Math.round(r*.12);
-        ctx.font = `bold ${fs}px monospace`;
-        ctx.fillStyle = acc; ctx.textAlign="center"; ctx.textBaseline = sinV>=0?"top":"bottom";
-        ctx.fillText(`cos = ${cosV.toFixed(2)}`, (cx+px)/2, cy + (sinV>=0?6:-6));
-        ctx.fillStyle = acc2; ctx.textAlign = cosV>=0?"left":"right"; ctx.textBaseline="middle";
-        ctx.fillText(`sin = ${sinV.toFixed(2)}`, px+(cosV>=0?7:-7), (cy+py)/2);
-
-        // Ângulo label
-        const deg = (tN*180/Math.PI).toFixed(1);
-        ctx.fillStyle = fg; ctx.font=`bold ${Math.round(r*.1)}px monospace`;
-        ctx.textAlign="center"; ctx.textBaseline="top";
-        ctx.fillText(`θ = ${deg}°`, cx, 6);
+        const px = cx+r*Math.cos(theta), py = cy-r*Math.sin(theta);
+        // Raio
+        ctx1.strokeStyle = fg; ctx1.lineWidth = 2;
+        ctx1.beginPath(); ctx1.moveTo(cx,cy); ctx1.lineTo(px,py); ctx1.stroke();
+        // Label "1"
+        ctx1.fillStyle = fg; ctx1.font=`${Math.round(r*.1)}px monospace`;
+        ctx1.textAlign="center"; ctx1.textBaseline="middle";
+        ctx1.fillText("1", (cx+px)/2-5*Math.sin(theta), (cy+py)/2-5*Math.cos(theta));
+        // Arco ângulo
+        ctx1.strokeStyle = "#ffa500aa"; ctx1.lineWidth = 2;
+        ctx1.beginPath(); ctx1.arc(cx,cy,r*.22,0,-tN,true); ctx1.stroke();
+        // Label θ
+        const la=tN/2;
+        ctx1.fillStyle="#ffa500"; ctx1.font=`bold ${Math.round(r*.11)}px monospace`;
+        ctx1.textAlign="left"; ctx1.textBaseline="middle";
+        ctx1.fillText(`θ=${(tN*180/Math.PI).toFixed(0)}°`, cx+r*.3*Math.cos(la)+4, cy-r*.3*Math.sin(la));
+        // Label P
+        ctx1.fillStyle = fg; ctx1.font=`bold ${Math.round(r*.12)}px monospace`;
+        ctx1.textAlign = Math.cos(theta)>=0?"left":"right";
+        ctx1.textBaseline = Math.sin(theta)>=0?"bottom":"top";
+        ctx1.fillText("P", px+(Math.cos(theta)>=0?8:-8), py-(Math.sin(theta)>=0?8:-8));
+        // Ponto
+        drawPoint(ctx1, cx, cy, r, theta, "#ffa500");
       }
 
-      let theta = Math.PI/4; let dragging=false;
-      requestAnimationFrame(()=>drawCircle(theta));
-      window.addEventListener("themechange", ()=>drawCircle(theta));
-
-      function toTheta(e) {
-        const rect=cv.getBoundingClientRect(), pt=e.touches?e.touches[0]:e;
-        const x=(pt.clientX-rect.left)-rect.width/2;
-        const y=-((pt.clientY-rect.top)-rect.height/2);
-        return Math.atan2(y,x);
+      // ── Canvas 2: só cosseno ──
+      const c2  = makeCanvas("cv2");
+      const ctx2 = c2.getContext("2d");
+      function draw2(theta) {
+        const { cx, cy, r, fg, dark, fgm } = base(ctx2, c2, theta);
+        if (!r) return;
+        const px = cx+r*Math.cos(theta), py = cy-r*Math.sin(theta);
+        // Raio (fino, de fundo)
+        ctx2.strokeStyle = fgm; ctx2.lineWidth = 1.5;
+        ctx2.beginPath(); ctx2.moveTo(cx,cy); ctx2.lineTo(px,py); ctx2.stroke();
+        // Linha de projeção (tracejada para baixo até o eixo x)
+        ctx2.strokeStyle = "#ffa50055"; ctx2.lineWidth = 1.5; ctx2.setLineDash([4,4]);
+        ctx2.beginPath(); ctx2.moveTo(px,py); ctx2.lineTo(px,cy); ctx2.stroke();
+        ctx2.setLineDash([]);
+        // Segmento cosseno no eixo x (destaque)
+        ctx2.strokeStyle = "#ffa500"; ctx2.lineWidth = 4;
+        ctx2.beginPath(); ctx2.moveTo(cx,cy); ctx2.lineTo(px,cy); ctx2.stroke();
+        // Ponto no eixo x
+        ctx2.fillStyle = "#ffa500";
+        ctx2.beginPath(); ctx2.arc(px,cy,5,0,2*Math.PI); ctx2.fill();
+        // Label cos
+        ctx2.fillStyle = "#ffa500"; ctx2.font=`bold ${Math.round(r*.13)}px monospace`;
+        ctx2.textAlign="center"; ctx2.textBaseline = Math.sin(theta)>=0?"top":"bottom";
+        ctx2.fillText(`cos θ = ${Math.cos(theta).toFixed(2)}`, (cx+px)/2, cy+(Math.sin(theta)>=0?8:-8));
+        // Ponto P
+        drawPoint(ctx2, cx, cy, r, theta, "#ffa500");
       }
-      cv.addEventListener("pointerdown",e=>{e.preventDefault();cv.setPointerCapture(e.pointerId);dragging=true;theta=toTheta(e);drawCircle(theta);});
-      cv.addEventListener("pointermove",e=>{if(!dragging)return;theta=toTheta(e);drawCircle(theta);});
-      cv.addEventListener("pointerup",  e=>{dragging=false;cv.releasePointerCapture(e.pointerId);});
+
+      // ── Canvas 3: só seno ──
+      const c3  = makeCanvas("cv3");
+      const ctx3 = c3.getContext("2d");
+      function draw3(theta) {
+        const { cx, cy, r, fg, dark, fgm } = base(ctx3, c3, theta);
+        if (!r) return;
+        const px = cx+r*Math.cos(theta), py = cy-r*Math.sin(theta);
+        // Raio (fino, de fundo)
+        ctx3.strokeStyle = fgm; ctx3.lineWidth = 1.5;
+        ctx3.beginPath(); ctx3.moveTo(cx,cy); ctx3.lineTo(px,py); ctx3.stroke();
+        // Linha de projeção (tracejada para o eixo y)
+        ctx3.strokeStyle = "#ffd23f55"; ctx3.lineWidth = 1.5; ctx3.setLineDash([4,4]);
+        ctx3.beginPath(); ctx3.moveTo(px,py); ctx3.lineTo(cx,py); ctx3.stroke();
+        ctx3.setLineDash([]);
+        // Segmento seno no eixo y (destaque)
+        ctx3.strokeStyle = "#ffd23f"; ctx3.lineWidth = 4;
+        ctx3.beginPath(); ctx3.moveTo(cx,cy); ctx3.lineTo(cx,py); ctx3.stroke();
+        // Ponto no eixo y
+        ctx3.fillStyle = "#ffd23f";
+        ctx3.beginPath(); ctx3.arc(cx,py,5,0,2*Math.PI); ctx3.fill();
+        // Label sin
+        ctx3.fillStyle = "#ffd23f"; ctx3.font=`bold ${Math.round(r*.13)}px monospace`;
+        ctx3.textAlign = Math.cos(theta)>=0?"left":"right"; ctx3.textBaseline="middle";
+        ctx3.fillText(`sin θ = ${Math.sin(theta).toFixed(2)}`, cx+(Math.cos(theta)>=0?8:-8), (cy+py)/2);
+        // Ponto P
+        drawPoint(ctx3, cx, cy, r, theta, "#ffd23f");
+      }
+
+      // ── Canvas 4: completo com tan ──
+      const c4  = makeCanvas("cv4");
+      const ctx4 = c4.getContext("2d");
+      function draw4(theta) {
+        const { cx, cy, r, fg, dark, fgm, W, H } = base(ctx4, c4, theta, { quadrants:true });
+        if (!r) return;
+        const co = Math.cos(theta), si = Math.sin(theta);
+        const px = cx+r*co, py = cy-r*si;
+        // Tangente (linha verde em x=1)
+        if (Math.abs(co) > 0.08) {
+          const tn = si/co, tx = cx+r, ty = cy-r*tn;
+          ctx4.strokeStyle = "#4ade8030"; ctx4.lineWidth = 1; ctx4.setLineDash([3,3]);
+          ctx4.beginPath(); ctx4.moveTo(tx,0); ctx4.lineTo(tx,H); ctx4.stroke();
+          ctx4.setLineDash([]);
+          ctx4.strokeStyle = "#4ade80bb"; ctx4.lineWidth = 3;
+          ctx4.beginPath(); ctx4.moveTo(tx,cy); ctx4.lineTo(tx,ty); ctx4.stroke();
+          if (ty > 4 && ty < H-4) {
+            ctx4.fillStyle = "#4ade80";
+            ctx4.beginPath(); ctx4.arc(tx,ty,4,0,2*Math.PI); ctx4.fill();
+          }
+        }
+        // Projeções tracejadas
+        ctx4.strokeStyle = "#ffa50050"; ctx4.lineWidth = 1.5; ctx4.setLineDash([4,3]);
+        ctx4.beginPath(); ctx4.moveTo(px,py); ctx4.lineTo(px,cy); ctx4.stroke();
+        ctx4.strokeStyle = "#ffd23f50";
+        ctx4.beginPath(); ctx4.moveTo(px,py); ctx4.lineTo(cx,py); ctx4.stroke();
+        ctx4.setLineDash([]);
+        // cos no eixo x
+        ctx4.strokeStyle = "#ffa500"; ctx4.lineWidth = 3;
+        ctx4.beginPath(); ctx4.moveTo(cx,cy); ctx4.lineTo(px,cy); ctx4.stroke();
+        ctx4.fillStyle = "#ffa500"; ctx4.beginPath(); ctx4.arc(px,cy,4,0,2*Math.PI); ctx4.fill();
+        // sin no eixo y
+        ctx4.strokeStyle = "#ffd23f"; ctx4.lineWidth = 3;
+        ctx4.beginPath(); ctx4.moveTo(cx,cy); ctx4.lineTo(cx,py); ctx4.stroke();
+        ctx4.fillStyle = "#ffd23f"; ctx4.beginPath(); ctx4.arc(cx,py,4,0,2*Math.PI); ctx4.fill();
+        // Raio
+        ctx4.strokeStyle = fg; ctx4.lineWidth = 2;
+        ctx4.beginPath(); ctx4.moveTo(cx,cy); ctx4.lineTo(px,py); ctx4.stroke();
+        // Ponto P
+        drawPoint(ctx4, cx, cy, r, theta, "#ffa500");
+        // Labels
+        const fs = Math.round(r*.1);
+        ctx4.font = `bold ${fs}px monospace`;
+        ctx4.fillStyle="#ffa500"; ctx4.textAlign="center";
+        ctx4.textBaseline = si>=0?"top":"bottom";
+        ctx4.fillText(`cos=${co.toFixed(2)}`, (cx+px)/2, cy+(si>=0?5:-5));
+        ctx4.fillStyle="#ffd23f"; ctx4.textAlign=co>=0?"left":"right"; ctx4.textBaseline="middle";
+        ctx4.fillText(`sin=${si.toFixed(2)}`, cx+(co>=0?5:-5), (cy+py)/2);
+      }
+
+      // Estado compartilhado entre os 4 círculos
+      let theta = Math.PI/4;
+      function redrawAll() { draw1(theta); draw2(theta); draw3(theta); draw4(theta); }
+      requestAnimationFrame(redrawAll);
+      window.addEventListener("themechange", redrawAll);
+      window.addEventListener("resize", redrawAll);
+
+      // Drag em qualquer canvas atualiza todos
+      function bindDrag(cv, getTheta) {
+        let dragging = false;
+        cv.addEventListener("pointerdown", e => {
+          e.preventDefault(); cv.setPointerCapture(e.pointerId); dragging = true;
+          const rect=cv.getBoundingClientRect(), pt=e;
+          theta = Math.atan2(-((pt.clientY-rect.top)-rect.height/2), (pt.clientX-rect.left)-rect.width/2);
+          redrawAll();
+        });
+        cv.addEventListener("pointermove", e => {
+          if (!dragging) return;
+          const rect=cv.getBoundingClientRect(), pt=e;
+          theta = Math.atan2(-((pt.clientY-rect.top)-rect.height/2), (pt.clientX-rect.left)-rect.width/2);
+          redrawAll();
+        });
+        cv.addEventListener("pointerup",     e => { dragging=false; cv.releasePointerCapture(e.pointerId); });
+        cv.addEventListener("pointercancel", e => { dragging=false; cv.releasePointerCapture(e.pointerId); });
+      }
+
+      bindDrag(c1); bindDrag(c2); bindDrag(c3); bindDrag(c4);
 
       autoRender(c);
       mountQuizSet(c.querySelector("#quiz-circ"), [
-        { q: "No círculo trigonométrico, o seno de θ representa:",
-          opts:["A coordenada vertical do ponto P","A coordenada horizontal do ponto P","O comprimento do raio","O ângulo em graus","A área do setor"],
-          ans:0, expl:"Seno = coordenada y (vertical). Cosseno = coordenada x (horizontal)." },
-        { q: "Se o ponto P está no 2º quadrante (esquerda, cima), qual afirmação é VERDADEIRA?",
-          opts:["sin > 0 e cos < 0","sin < 0 e cos > 0","sin > 0 e cos > 0","sin < 0 e cos < 0","sin = 0"],
-          ans:0, expl:"2º quadrante: x negativo (cos < 0), y positivo (sin > 0)." },
+        { q: "No círculo trigonométrico, o seno de θ é a coordenada:",
+          opts:["Vertical (y) do ponto P","Horizontal (x) do ponto P","O ângulo θ em graus","O comprimento da hipotenusa","Nenhuma das anteriores"],
+          ans:0, expl:"Seno = coordenada y. Cosseno = coordenada x." },
+        { q: "O cosseno de θ é negativo quando:",
+          opts:["P está no lado esquerdo (x < 0)","P está no lado direito (x > 0)","P está acima do eixo x","P está abaixo do eixo x","O ângulo é maior que 90°"],
+          ans:0, expl:"Cosseno = coordenada x. Negativo quando x < 0, ou seja, 2º e 3º quadrantes." },
         { q: "Por que cos²θ + sin²θ = 1 sempre?",
-          opts:["P está sempre na borda do círculo de raio 1 (Pitágoras)","É uma coincidência","Só vale para ângulos notáveis","Por causa da calculadora","Não vale sempre"],
-          ans:0, expl:"O ponto P tem coordenadas (cos θ, sin θ) e distância 1 da origem: cos²θ + sin²θ = 1²= 1." },
+          opts:["P está sempre na borda do círculo de raio 1 — Pitágoras","É uma definição arbitrária","Só vale no 1º quadrante","Porque 0² + 1² = 1","Não vale sempre"],
+          ans:0, expl:"P(cosθ, sinθ) está no círculo de raio 1. Pela distância à origem: cos²θ + sin²θ = 1." },
+        { q: "No 3º quadrante (esquerda, baixo), o seno é:",
+          opts:["Negativo — P está abaixo do eixo x","Positivo","Zero","Igual ao cosseno","Não definido"],
+          ans:0, expl:"No 3º quadrante: x < 0 e y < 0, então cos < 0 E sin < 0." },
       ]);
     }
   },
 
-  /* ──────────── Valores notáveis ──────────── */
   {
     id: "trig-notaveis",
     title: "Valores notáveis",
