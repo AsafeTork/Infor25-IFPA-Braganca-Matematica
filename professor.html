@@ -45,7 +45,8 @@
 .ctrl-btn{height:30px;padding:0 .6rem;border-radius:6px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-soft);cursor:pointer;font-size:.8rem;transition:all .15s;white-space:nowrap;}
 .ctrl-btn:hover{border-color:var(--accent);color:var(--accent);}
 .ctrl-btn.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
-.prof-presets{flex:1;overflow-y:auto;padding:.5rem;}
+.prof-presets-wrap{flex:1;overflow-y:auto;min-height:0;padding:.5rem;}
+.tools-details{margin-bottom:.5rem;}
 .preset-group{margin-bottom:.6rem;}
 .preset-group-title{font-family:var(--font-mono);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-mut);padding:.2rem .25rem;margin-bottom:.25rem;}
 .preset-btns{display:flex;flex-direction:column;gap:.2rem;}
@@ -139,49 +140,37 @@
         </div>
       </div>
     </div>
-    <!-- ── Ferramentas Pedagógicas ── -->
-    <div class="prof-section" id="tools-section">
-      <div class="prof-section-title">Ferramentas</div>
-
-      <div class="sect-title">Destaques no gráfico</div>
-      <div class="tools-grid">
-        <button class="tool-btn" id="tool-marker" title="Marcar ponto específico">
-          <span class="tool-icon">📍</span> Marcar ponto
-        </button>
-        <button class="tool-btn" id="tool-vline" title="Linha vertical de destaque">
-          <span class="tool-icon">|</span> Linha vertical
-        </button>
-        <button class="tool-btn" id="tool-area" title="Sombrear área sob a curva">
-          <span class="tool-icon">▓</span> Sombrear área
-        </button>
-        <button class="tool-btn" id="tool-triangle" title="Triângulo retângulo colorido">
-          <span class="tool-icon">△</span> Triângulo
-        </button>
-      </div>
-
-      <div class="sect-title">Cor do destaque</div>
-      <div class="color-row" id="tool-colors">
-        <div class="color-dot active" data-c="#ffa500" style="background:#ffa500" title="Laranja"></div>
-        <div class="color-dot" data-c="#ffd23f" style="background:#ffd23f" title="Amarelo"></div>
-        <div class="color-dot" data-c="#60a5fa" style="background:#60a5fa" title="Azul"></div>
-        <div class="color-dot" data-c="#34d399" style="background:#34d399" title="Verde"></div>
-        <div class="color-dot" data-c="#f472b6" style="background:#f472b6" title="Rosa"></div>
-        <div class="color-dot" data-c="#f87171" style="background:#f87171" title="Vermelho"></div>
-        <div class="color-dot" data-c="#e2e8f0" style="background:#e2e8f0" title="Branco"></div>
-      </div>
-
-      <div class="sect-title">Opacidade da área</div>
-      <div class="opacity-row">
-        <input type="range" id="area-opacity" min="5" max="60" value="25">
-        <span id="area-opacity-val">25%</span>
-      </div>
-
-      <button class="tool-btn" id="tool-clear" style="margin-top:.4rem;width:100%;justify-content:center">
-        <span class="tool-icon">🗑</span> Limpar destaques
-      </button>
+    <div class="prof-presets" id="prof-presets-wrap" style="flex:1;overflow-y:auto;min-height:0">
+      <!-- Ferramentas colapsáveis -->
+      <details class="tools-details" id="tools-section" open>
+        <summary class="preset-group-title" style="cursor:pointer;padding:.3rem .25rem;list-style:none;display:flex;justify-content:space-between">
+          ✏️ Ferramentas <span style="opacity:.5">▾</span>
+        </summary>
+        <div style="padding:.25rem 0">
+          <div class="tools-grid">
+            <button class="tool-btn" id="tool-marker">📍 Marcar ponto</button>
+            <button class="tool-btn" id="tool-vline">| Linha vertical</button>
+            <button class="tool-btn" id="tool-area">▓ Sombrear área</button>
+            <button class="tool-btn" id="tool-triangle">△ Triângulo</button>
+          </div>
+          <div class="color-row" id="tool-colors" style="margin:.35rem 0">
+            <div class="color-dot active" data-c="#ffa500" style="background:#ffa500"></div>
+            <div class="color-dot" data-c="#ffd23f" style="background:#ffd23f"></div>
+            <div class="color-dot" data-c="#60a5fa" style="background:#60a5fa"></div>
+            <div class="color-dot" data-c="#34d399" style="background:#34d399"></div>
+            <div class="color-dot" data-c="#f472b6" style="background:#f472b6"></div>
+            <div class="color-dot" data-c="#f87171" style="background:#f87171"></div>
+            <div class="color-dot" data-c="#e2e8f0" style="background:#e2e8f0"></div>
+          </div>
+          <div class="opacity-row">
+            <input type="range" id="area-opacity" min="5" max="60" value="25">
+            <span id="area-opacity-val">25%</span>
+          </div>
+          <button class="tool-btn" id="tool-clear" style="margin-top:.3rem;width:100%;justify-content:center">🗑 Limpar destaques</button>
+        </div>
+      </details>
+      <div id="prof-presets"></div>
     </div>
-
-    <div class="prof-presets" id="prof-presets"></div>
     <div class="prof-readout" id="readout">x = —   y = —</div>
   </div>
 </div>
