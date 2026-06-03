@@ -191,4 +191,4 @@ const pratica = {
 };
 
 export const exponencialLessons = [conceito, grafico, comparacao, aplicacoes, equacoes, pratica];
-export const exponencialMeta = { num: "01§2", title: "Função exponencial", chapter: "Capítulo 1 · §2" };
+export const exponencialMeta = { num: "1.2", title: "Função exponencial", chapter: "Cap. 1 — Exponencial" };
