@@ -109,7 +109,6 @@ body::before {
 .section-eyebrow { font-family: var(--font-mono); font-size: .78rem; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); }
 
 /* ---------- Math callouts (mirror the book's pedagogical boxes) ---------- */
-}
 
 /* scrollbars */
 ::-webkit-scrollbar { width: 11px; height: 11px; }

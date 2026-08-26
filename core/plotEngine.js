@@ -187,20 +187,47 @@ export class Plot {
   _bind() {
     let dragging = false, lx = 0, ly = 0;
     this.cv.style.cursor = "crosshair";
-    this.cv.addEventListener("mousedown", (e) => { dragging = true; lx = e.offsetX; ly = e.offsetY; this.cv.style.cursor = "grabbing"; });
-    window.addEventListener("mouseup", () => { dragging = false; this.cv.style.cursor = "crosshair"; });
-    this.cv.addEventListener("mousemove", (e) => {
-      if (dragging) {
-        const dx = (e.offsetX - lx), dy = (e.offsetY - ly);
-        const { xmin, xmax, ymin, ymax } = this.view;
-        const sx = (xmax - xmin) / this.W, sy = (ymax - ymin) / this.H;
-        this.view.xmin -= dx * sx; this.view.xmax -= dx * sx;
-        this.view.ymin += dy * sy; this.view.ymax += dy * sy;
-        lx = e.offsetX; ly = e.offsetY; this.draw();
+
+    this.cv.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      dragging = true;
+      const rect = this.cv.getBoundingClientRect();
+      lx = e.clientX - rect.left;
+      ly = e.clientY - rect.top;
+      this.cv.style.cursor = "grabbing";
+      this.cv.setPointerCapture(e.pointerId);
+    });
+
+    this.cv.addEventListener("pointermove", (e) => {
+      const rect = this.cv.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      if (this.cv.hasPointerCapture(e.pointerId)) {
+        if (dragging) {
+          const dx = mx - lx, dy = my - ly;
+          const { xmin, xmax, ymin, ymax } = this.view;
+          const sx = (xmax - xmin) / this.W, sy = (ymax - ymin) / this.H;
+          this.view.xmin -= dx * sx; this.view.xmax -= dx * sx;
+          this.view.ymin += dy * sy; this.view.ymax += dy * sy;
+          lx = mx; ly = my; this.draw();
+        }
       } else if (this.onProbe) {
-        this.onProbe(this.invX(e.offsetX), this.invY(e.offsetY));
+        this.onProbe(this.invX(mx), this.invY(my));
       }
     });
+
+    this.cv.addEventListener("pointerup", (e) => {
+      dragging = false;
+      this.cv.style.cursor = "crosshair";
+      this.cv.releasePointerCapture(e.pointerId);
+    });
+
+    this.cv.addEventListener("pointercancel", (e) => {
+      dragging = false;
+      this.cv.style.cursor = "crosshair";
+      this.cv.releasePointerCapture(e.pointerId);
+    });
+
     this.cv.addEventListener("wheel", (e) => {
       e.preventDefault();
       const f = e.deltaY > 0 ? 1.12 : 0.89;

@@ -1,0 +1,521 @@
+/* ============================================================
+   styles/trigVisuals.css
+   Estilos para os 5 componentes de visualização trigonométrica
+   do Capítulo 5 — Motor Visual de Trigonometria.
+   
+   Componentes:
+   1. TrigCircle       — Círculo trigonométrico interativo
+   2. CircleToGraph    — Conexão CT → gráfico (split screen)
+   3. TrigParamExplorer — Explorador de parâmetros sin/cos/tan
+   4. TangentVis       — Visualização da tangente na CT
+   5. PeriodicVis      — Fenômenos periódicos
+
+   Integrado com tokens de tokens.css.
+   ============================================================ */
+
+/* ── TrigCircle ── */
+.trig-circle-root {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-width: 400px;
+  max-height: 400px;
+  margin: 0 auto;
+  position: relative;
+  touch-action: none;
+}
+
+.trig-circle-root canvas {
+  border-radius: var(--radius-sm, 8px);
+  background: var(--plot-bg, #0b0c10);
+}
+
+.uc-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.15rem 0;
+  font-size: 0.82rem;
+}
+
+.uc-k {
+  min-width: 2.2rem;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+}
+
+.uc-exact {
+  font-weight: 600;
+  font-family: var(--font-mono, monospace);
+}
+
+.uc-dec {
+  color: var(--text-mut, #9aa0b4);
+  font-size: 0.75rem;
+  font-family: var(--font-mono, monospace);
+}
+
+.uc-snap {
+  font-size: 0.72rem;
+  color: var(--accent, #ffa500);
+  padding-top: 0.2rem;
+  font-weight: 600;
+}
+
+
+/* ── CircleToGraph ── */
+.ctg-container {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 1rem;
+  min-height: 280px;
+}
+
+@media (max-width: 640px) {
+  .ctg-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+}
+
+.ctg-left,
+.ctg-right {
+  position: relative;
+  min-height: 240px;
+}
+
+.ctg-label {
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-mut, #9aa0b4);
+  margin-bottom: 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ctg-cv-wrap {
+  width: 100%;
+  height: 240px;
+  position: relative;
+}
+
+.ctg-cv-wrap canvas {
+  border-radius: var(--radius-sm, 8px);
+  background: var(--plot-bg, #0b0c10);
+}
+
+.ctg-circle-readout {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  background: rgba(12, 13, 16, 0.85);
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+}
+
+.ctg-graph {
+  width: 100%;
+  height: 240px;
+  border-radius: var(--radius-sm, 8px);
+  background: var(--plot-bg, #0b0c10);
+}
+
+.ctg-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.ctg-btn {
+  padding: 0.35rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid var(--border, rgba(255,255,255,.07));
+  background: var(--surface-2, #181a20);
+  color: var(--text, #f3f1ea);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.ctg-btn:hover {
+  background: var(--surface-3, #232631);
+  border-color: var(--border-strong, rgba(255,160,60,.28));
+}
+
+.ctg-btn.ctg-active {
+  background: var(--accent, #ffa500);
+  color: #000;
+  border-color: var(--accent, #ffa500);
+}
+
+.ctg-speed-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ctg-speed-label {
+  font-size: 0.78rem;
+  color: var(--text-mut, #9aa0b4);
+}
+
+.ctg-slider {
+  width: 100px;
+  accent-color: var(--accent, #ffa500);
+}
+
+.ctg-speed-val {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  color: var(--text, #f3f1ea);
+  min-width: 2.5rem;
+}
+
+.ctg-func-toggle {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.ctg-readout {
+  font-size: 0.75rem;
+  color: var(--text-mut, #9aa0b4);
+  margin-top: 0.4rem;
+  padding: 0.3rem 0.5rem;
+  background: var(--surface, #121318);
+  border-radius: 6px;
+}
+
+
+/* ── TrigParamExplorer ── */
+.tpe-container {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 1rem;
+  min-height: 360px;
+}
+
+@media (max-width: 640px) {
+  .tpe-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tpe-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.tpe-func-toggle {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.tpe-btn {
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid var(--border, rgba(255,255,255,.07));
+  background: var(--surface-2, #181a20);
+  color: var(--text, #f3f1ea);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tpe-btn:hover {
+  background: var(--surface-3, #232631);
+}
+
+.tpe-btn.tpe-active {
+  background: var(--accent, #ffa500);
+  color: #000;
+  border-color: var(--accent, #ffa500);
+}
+
+.tpe-slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.tpe-label {
+  font-size: 0.78rem;
+  color: var(--text-soft, #c3c6d2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tpe-param {
+  display: inline-block;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 4px;
+  background: var(--accent, #ffa500);
+  color: #000;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  text-align: center;
+  line-height: 1.2rem;
+  margin-right: 0.3rem;
+}
+
+.tpe-val {
+  font-size: 0.78rem;
+  color: var(--text, #f3f1ea);
+}
+
+.tpe-slider {
+  width: 100%;
+  accent-color: var(--accent, #ffa500);
+  cursor: pointer;
+}
+
+.tpe-info {
+  background: var(--surface, #121318);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.78rem;
+}
+
+.tpe-info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.15rem 0;
+  color: var(--text-soft, #c3c6d2);
+}
+
+.tpe-compare-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--text-soft, #c3c6d2);
+  cursor: pointer;
+}
+
+.tpe-compare-label input {
+  accent-color: var(--accent, #ffa500);
+}
+
+.tpe-graph {
+  position: relative;
+  min-height: 300px;
+}
+
+.tpe-graph canvas {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-sm, 8px);
+  background: var(--plot-bg, #0b0c10);
+}
+
+
+/* ── TangentVis ── */
+.tv-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  min-height: 280px;
+}
+
+@media (max-width: 640px) {
+  .tv-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tv-circle-wrap,
+.tv-graph-wrap {
+  position: relative;
+  min-height: 260px;
+}
+
+.tv-label {
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-mut, #9aa0b4);
+  margin-bottom: 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tv-cv-wrap {
+  width: 100%;
+  height: 260px;
+}
+
+.tv-cv-wrap canvas {
+  border-radius: var(--radius-sm, 8px);
+  background: var(--plot-bg, #0b0c10);
+}
+
+.tv-graph {
+  width: 100%;
+  height: 260px;
+  border-radius: var(--radius-sm, 8px);
+  background: var(--plot-bg, #0b0c10);
+}
+
+.tv-readout {
+  font-size: 0.75rem;
+  color: var(--text-mut, #9aa0b4);
+  margin-top: 0.4rem;
+  padding: 0.3rem 0.5rem;
+  background: var(--surface, #121318);
+  border-radius: 6px;
+}
+
+
+/* ── PeriodicVis ── */
+.pv-container {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 1rem;
+  min-height: 280px;
+}
+
+@media (max-width: 640px) {
+  .pv-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pv-anim-wrap {
+  position: relative;
+  min-height: 220px;
+}
+
+.pv-title {
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text, #f3f1ea);
+}
+
+.pv-subtitle {
+  font-size: 0.72rem;
+  color: var(--text-mut, #9aa0b4);
+  margin-bottom: 0.3rem;
+}
+
+.pv-anim {
+  width: 100%;
+  height: 200px;
+  border-radius: var(--radius-sm, 8px);
+  background: var(--surface, #121318);
+}
+
+.pv-readout {
+  font-size: 0.72rem;
+  color: var(--text-mut, #9aa0b4);
+  margin-top: 0.3rem;
+}
+
+.pv-graph-wrap {
+  min-height: 200px;
+}
+
+.pv-label {
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-mut, #9aa0b4);
+  margin-bottom: 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pv-graph {
+  width: 100%;
+  height: 200px;
+  border-radius: var(--radius-sm, 8px);
+  background: var(--plot-bg, #0b0c10);
+}
+
+.pv-controls {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-top: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.pv-slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 120px;
+}
+
+.pv-label {
+  font-size: 0.75rem;
+  color: var(--text-soft, #c3c6d2);
+  display: flex;
+  justify-content: space-between;
+}
+
+.pv-val {
+  font-size: 0.75rem;
+  color: var(--text, #f3f1ea);
+}
+
+.pv-slider {
+  width: 100%;
+  accent-color: var(--accent, #ffa500);
+}
+
+.pv-btn-group {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.pv-btn {
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--border, rgba(255,255,255,.07));
+  background: var(--surface-2, #181a20);
+  color: var(--text, #f3f1ea);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.pv-btn:hover {
+  background: var(--surface-3, #232631);
+  border-color: var(--border-strong, rgba(255,160,60,.28));
+}
+
+
+/* ── Dark/Light theme support ── */
+[data-theme="light"] .trig-circle-root canvas,
+[data-theme="light"] .ctg-graph,
+[data-theme="light"] .ctg-cv-wrap canvas,
+[data-theme="light"] .tpe-graph canvas,
+[data-theme="light"] .tv-graph,
+[data-theme="light"] .tv-cv-wrap canvas,
+[data-theme="light"] .pv-anim,
+[data-theme="light"] .pv-graph {
+  background: var(--plot-bg, #fffdf6);
+}
+
+[data-theme="light"] .ctg-circle-readout {
+  background: rgba(255, 253, 246, 0.9);
+  color: var(--text, #211c14);
+}
+
+[data-theme="light"] .ctg-readout,
+[data-theme="light"] .tv-readout {
+  background: var(--surface, #fffdf8);
+}
