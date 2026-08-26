@@ -21,6 +21,7 @@
    ============================================================ */
 
 import { Plot } from "./plotEngine.js";
+import { NOTABLE, NOTABLE_NEG, trySnap } from "./trigData.js";
 
 /* ── Helpers globais ────────────────────────────────────── */
 const css = (v) =>
@@ -45,34 +46,6 @@ const COLORS = {
   get gridAxis()  { return css("--grid-axis")|| "rgba(255,226,107,.55)"; },
   get isDark()    { return document.documentElement.getAttribute("data-theme") !== "light"; },
 };
-
-/* Notáveis (reaproveita do unitCircle.js existente) */
-const NOTABLE = [
-  { a:0,           label:"0",      sin:"0",     cos:"1",     tan:"0"     },
-  { a:PI/6,        label:"π/6",    sin:"1/2",   cos:"√3/2",  tan:"√3/3"  },
-  { a:PI/4,        label:"π/4",    sin:"√2/2",  cos:"√2/2",  tan:"1"     },
-  { a:PI/3,        label:"π/3",    sin:"√3/2",  cos:"1/2",   tan:"√3"    },
-  { a:PI/2,        label:"π/2",    sin:"1",     cos:"0",     tan:"∄"     },
-  { a:2*PI/3,      label:"2π/3",   sin:"√3/2",  cos:"-1/2",  tan:"-√3"   },
-  { a:3*PI/4,      label:"3π/4",   sin:"√2/2",  cos:"-√2/2", tan:"-1"    },
-  { a:5*PI/6,      label:"5π/6",   sin:"1/2",   cos:"-√3/2", tan:"-√3/3" },
-  { a:PI,          label:"π",      sin:"0",     cos:"-1",    tan:"0"     },
-  { a:7*PI/6,      label:"7π/6",   sin:"-1/2",  cos:"-√3/2", tan:"√3/3"  },
-  { a:5*PI/4,      label:"5π/4",   sin:"-√2/2", cos:"-√2/2", tan:"1"     },
-  { a:4*PI/3,      label:"4π/3",   sin:"-√3/2", cos:"-1/2",  tan:"√3"    },
-  { a:3*PI/2,      label:"3π/2",   sin:"-1",    cos:"0",     tan:"∄"     },
-  { a:5*PI/3,      label:"5π/3",   sin:"-√3/2", cos:"1/2",   tan:"-√3"   },
-  { a:7*PI/4,      label:"7π/4",   sin:"-√2/2", cos:"√2/2",  tan:"-1"    },
-  { a:11*PI/6,     label:"11π/6",  sin:"-1/2",  cos:"√3/2",  tan:"-√3/3" },
-];
-
-function trySnap(t) {
-  const n = ((t % TWO_PI) + TWO_PI) % TWO_PI;
-  for (const k of NOTABLE) {
-    if (Math.abs(n - k.a) < 0.1) return k;
-  }
-  return null;
-}
 
 /* Formatador de número → string compacta */
 function fmt(v, digits = 4) {
@@ -148,6 +121,7 @@ export function mountTrigCircle(root, opts = {}) {
   let raf = null;
   let _cx, _cy, _r; // geometria do círculo
   let _drawing = false;
+  let _overlays = [];
 
   function notify() {
     const data = getData();
@@ -350,6 +324,11 @@ export function mountTrigCircle(root, opts = {}) {
     ctx.textAlign = "center"; ctx.textBaseline = "top";
     ctx.fillText(`(${fmt(co, 3)}, ${fmt(si, 3)})`, px, py + (si >= 0 ? 14 : -20));
 
+    /* ── Overlays ── */
+    for (const ov of _overlays) {
+      if (typeof ov === "function") ov(ctx, { cx: _cx, cy: _cy, r: _r, W, H, theta, cos: Math.cos(theta), sin: Math.sin(theta) });
+    }
+
     _drawing = false;
   }
 
@@ -467,6 +446,7 @@ export function mountTrigCircle(root, opts = {}) {
     getData,
     on(fn)       { listeners.push(fn); },
     off(fn)      { listeners = listeners.filter((f) => f !== fn); },
+    setOverlays(list) { _overlays = list; draw(); },
     destroy()    {
       if (raf) cancelAnimationFrame(raf);
       ro.disconnect();

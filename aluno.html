@@ -76,6 +76,8 @@ import { potenciacaoLessons, potenciacaoMeta } from "./features/potenciacao/inde
 import { exponencialLessons, exponencialMeta } from "./features/exponencial/index.js";
 import { sequenciasLessons, sequenciasMeta } from "./features/sequencias/index.js";
 import { trigonometriaLessons, trigonometriaMeta } from "./features/trigonometria/index.js";
+import { OverlayManager } from "./core/overlays.js";
+import { renderOverlaysOnTrigCircle } from "./core/overlayRenderers.js";
 
 initTheme();
 mountThemeToggle(document.getElementById("tg"));
@@ -213,6 +215,43 @@ const crumbEl = document.getElementById("crumb");
 const titleEl = document.getElementById("title");
 const lessonEl = document.getElementById("lesson");
 
+/* ── Student OverlayManager (read-only) ── */
+const overlayMgr = new OverlayManager();
+overlayMgr.registerTarget("trig-canvas", "trigCircle", null);
+window.__alunoOverlayMgr = overlayMgr;
+
+function syncTrigOverlays() {
+  const allOverlays = overlayMgr.getAll();
+  const canvases = lessonEl.querySelectorAll("canvas");
+  for (const cv of canvases) {
+    const ucRoot = cv.closest(".uc-root");
+    if (!ucRoot) continue;
+    let ovc = ucRoot.querySelector(".al-overlay-canvas");
+    if (!ovc) {
+      ovc = document.createElement("canvas");
+      ovc.className = "al-overlay-canvas";
+      ovc.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;border-radius:8px;";
+      ucRoot.style.position = "relative";
+      ucRoot.appendChild(ovc);
+    }
+    const W = cv.clientWidth || cv.offsetWidth || 300;
+    const H = cv.clientHeight || cv.offsetHeight || 300;
+    const dpr = window.devicePixelRatio || 1;
+    ovc.width = W * dpr;
+    ovc.height = H * dpr;
+    const ctx = ovc.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    if (allOverlays.length === 0) continue;
+    const pad = 40;
+    const circleInfo = { cx: W / 2, cy: H / 2, r: Math.min(W, H) / 2 - pad, W, H };
+    for (const ov of allOverlays) {
+      renderOverlaysOnTrigCircle(ctx, circleInfo, [{ ...ov.props, type: ov.type }]);
+    }
+  }
+}
+overlayMgr.onChange(syncTrigOverlays);
+
 function go(id) {
   const idx = ALL.findIndex(l => l.id === id);
   if (idx < 0) return;
@@ -231,6 +270,7 @@ function go(id) {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         l.render(lessonEl);
+        syncTrigOverlays();
       });
     });
   };

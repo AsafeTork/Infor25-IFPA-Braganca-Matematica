@@ -167,6 +167,10 @@
             <span id="area-opacity-val">25%</span>
           </div>
           <button class="tool-btn" id="tool-clear" style="margin-top:.3rem;width:100%;justify-content:center">🗑 Limpar destaques</button>
+          <div style="display:flex;gap:.3rem;margin-top:.3rem">
+            <button class="tool-btn" id="tool-undo" style="flex:1;justify-content:center">↩ Desfazer</button>
+            <button class="tool-btn" id="tool-redo" style="flex:1;justify-content:center">↪ Refazer</button>
+          </div>
         </div>
       </details>
       <div id="prof-presets"></div>
@@ -180,6 +184,8 @@ import { initTheme, mountThemeToggle } from "./core/theme.js";
 import { compile } from "./core/mathEngine.js";
 import { Plot, formatExactValue } from "./core/plotEngine.js";
 import { mountFloatingKeypad } from "./components/keypad.js";
+import { OverlayManager, OverlayType } from "./core/overlays.js";
+import { renderOverlaysOnPlot } from "./core/overlayRenderers.js";
 
 initTheme();
 mountThemeToggle(document.getElementById("theme-btn"));
@@ -220,6 +226,10 @@ plot.onProbe = (x, y) => {
   document.getElementById("readout").textContent =
     `x = ${formatExactValue(x)}   y = ${formatExactValue(y)}`;
 };
+
+/* ──────────── OVERLAY MANAGER ──────────── */
+const overlayMgr = new OverlayManager();
+overlayMgr.registerTarget("plot-main", "plot", plot);
 
 /* ──────────── CÍRCULO UNITÁRIO — desenhado direto no canvas do plot ──────────── */
 const NOTABLE = [
@@ -619,8 +629,7 @@ let toolColor = "#ffa500";
 let toolMode  = null; // 'marker' | 'vline' | 'area' | 'triangle'
 let areaOpacity = 0.25;
 
-// Overlays persistentes
-const overlays = []; // { type, x, x2, color, opacity, label }
+// Overlays managed by OverlayManager (undo/redo supported)
 
 // Cor ativa
 document.querySelectorAll(".color-dot").forEach(dot => {
@@ -652,7 +661,7 @@ document.getElementById("tool-vline").addEventListener("click", e => setTool("vl
 document.getElementById("tool-area").addEventListener("click",  e => setTool("area",   e.currentTarget));
 document.getElementById("tool-triangle").addEventListener("click", e => setTool("triangle", e.currentTarget));
 document.getElementById("tool-clear").addEventListener("click", () => {
-  overlays.length = 0;
+  overlayMgr.clear();
   areaStart = null;
   plot.draw();
 });
@@ -669,110 +678,57 @@ canvas.addEventListener("click", e => {
   const y  = plot.invY(my);
 
   if (toolMode === "marker") {
-    overlays.push({ type: "marker", x, y, color: toolColor, label: formatExactValue(x) });
+    overlayMgr.add(OverlayType.MARKER, "plot-main", { x, y, color: toolColor, radius: 7, label: formatExactValue(x) });
     plot.draw();
   } else if (toolMode === "vline") {
-    overlays.push({ type: "vline", x, color: toolColor });
+    overlayMgr.add(OverlayType.VLINE, "plot-main", { x, color: toolColor, width: 2 });
     plot.draw();
   } else if (toolMode === "area") {
     if (areaStart === null) {
       areaStart = x;
     } else {
-      overlays.push({ type: "area", x: Math.min(areaStart, x), x2: Math.max(areaStart, x), color: toolColor, opacity: areaOpacity });
+      overlayMgr.add(OverlayType.AREA, "plot-main", { color: toolColor, opacity: areaOpacity, x: Math.min(areaStart, x), x2: Math.max(areaStart, x) });
       areaStart = null;
       setTool(null, null);
       plot.draw();
     }
   } else if (toolMode === "triangle") {
-    overlays.push({ type: "triangle", x, y, color: toolColor });
+    overlayMgr.add(OverlayType.TRIANGLE, "plot-main", {
+      color: toolColor,
+      opacity: 0.25,
+      points: [
+        { x: 0, y: 0 },
+        { x: x, y: 0 },
+        { x: x, y: y },
+      ],
+    });
     setTool(null, null);
     plot.draw();
   }
 });
 
-/* Desenhar overlays dentro do plot.onDraw */
+/* Desenhar overlays dentro do plot.onDraw — usa OverlayManager + renderOverlaysOnPlot */
 function drawOverlays() {
-  const ctx = plot.ctx, dpr = window.devicePixelRatio || 1;
+  const ctx = plot.ctx;
+  const dpr = window.devicePixelRatio || 1;
   ctx.save();
   ctx.scale(dpr, dpr);
 
-  for (const ov of overlays) {
-    if (ov.type === "marker") {
-      const px = plot.X(ov.x), py = plot.Y(ov.y);
-      // Ponto
-      ctx.fillStyle = ov.color;
-      ctx.beginPath(); ctx.arc(px, py, 7, 0, 2*Math.PI); ctx.fill();
-      ctx.strokeStyle = "rgba(0,0,0,.5)"; ctx.lineWidth = 1.5; ctx.stroke();
-      // Linhas tracejadas até os eixos
-      ctx.strokeStyle = ov.color + "88"; ctx.lineWidth = 1.2; ctx.setLineDash([5,4]);
-      ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, plot.Y(0)); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(plot.X(0), py); ctx.stroke();
-      ctx.setLineDash([]);
-      // Label
-      ctx.fillStyle = ov.color; ctx.font = "bold 11px monospace";
-      ctx.textAlign = "center"; ctx.textBaseline = "bottom";
-      ctx.fillText(ov.label, px, py - 10);
-
-    } else if (ov.type === "vline") {
-      const px = plot.X(ov.x);
-      ctx.strokeStyle = ov.color + "cc"; ctx.lineWidth = 2; ctx.setLineDash([6,4]);
-      ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, plot.H); ctx.stroke();
-      ctx.setLineDash([]);
-      // Label
-      ctx.fillStyle = ov.color; ctx.font = "bold 11px monospace";
-      ctx.textAlign = "center"; ctx.textBaseline = "top";
-      ctx.fillText(formatExactValue(ov.x), px, 6);
-
-    } else if (ov.type === "area") {
-      const px1 = plot.X(ov.x), px2 = plot.X(ov.x2);
-      const py0 = plot.Y(0);
-      ctx.fillStyle = ov.color + Math.round(ov.opacity * 255).toString(16).padStart(2,"0");
-      // Sombrear área sob cada curva
-      for (const cv of formulas) {
-        const expr = cv.inp.value.trim(); if (!expr) continue;
-        const cmp = compile(expr); if (!cmp || cmp.error) continue;
-        ctx.beginPath(); ctx.moveTo(px1, py0);
-        for (let X = ov.x; X <= ov.x2; X += (ov.x2 - ov.x) / 200) {
-          try {
-            const Y = cmp.fn(X);
-            if (!isFinite(Y)) continue;
-            ctx.lineTo(plot.X(X), plot.Y(Y));
-          } catch {}
-        }
-        ctx.lineTo(px2, py0); ctx.closePath(); ctx.fill();
+  const allOverlays = overlayMgr.getAll();
+  for (const ov of allOverlays) {
+    if (ov.type === OverlayType.TRIANGLE) {
+      const pts = ov.props.points;
+      if (Array.isArray(pts) && pts.length >= 3) {
+        const ovFlat = { ...ov.props, type: "triangle" };
+        renderOverlaysOnPlot(ctx, plot, [ovFlat], formatExactValue);
       }
-      // Bordas
-      ctx.strokeStyle = ov.color + "99"; ctx.lineWidth = 1.5; ctx.setLineDash([4,3]);
-      ctx.beginPath(); ctx.moveTo(px1, 0); ctx.lineTo(px1, plot.H); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(px2, 0); ctx.lineTo(px2, plot.H); ctx.stroke();
-      ctx.setLineDash([]);
-
-    } else if (ov.type === "triangle") {
-      const cx = plot.X(0), cy = plot.Y(0);
-      const px = plot.X(ov.x), py = plot.Y(ov.y);
-      // Cateto horizontal (cosseno) — azul
-      ctx.strokeStyle = "#60a5fa"; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, cy); ctx.stroke();
-      // Cateto vertical (seno) — verde
-      ctx.strokeStyle = "#34d399"; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.moveTo(px, cy); ctx.lineTo(px, py); ctx.stroke();
-      // Hipotenusa — cor do usuário
-      ctx.strokeStyle = ov.color; ctx.lineWidth = 2.5; ctx.setLineDash([6,3]);
-      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke();
-      ctx.setLineDash([]);
-      // Labels
-      ctx.font = "bold 11px monospace";
-      ctx.fillStyle = "#60a5fa"; ctx.textAlign = "center"; ctx.textBaseline = "top";
-      ctx.fillText("cos", (cx+px)/2, cy+5);
-      ctx.fillStyle = "#34d399"; ctx.textAlign = "left"; ctx.textBaseline = "middle";
-      ctx.fillText("sin", px+5, (cy+py)/2);
-      ctx.fillStyle = ov.color; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.fillText("r=1", (cx+px)/2 - 10*Math.sin(Math.atan2(cy-py, px-cx)),
-                           (cy+py)/2 - 10*Math.cos(Math.atan2(cy-py, px-cx)));
+    } else {
+      const ovFlat = { ...ov.props, type: ov.type };
+      renderOverlaysOnPlot(ctx, plot, [ovFlat], formatExactValue);
     }
   }
 
-  // Indicador de area em andamento
+  /* Indicador de area em andamento */
   if (areaStart !== null) {
     const px = plot.X(areaStart);
     ctx.strokeStyle = toolColor + "bb"; ctx.lineWidth = 2; ctx.setLineDash([4,3]);
@@ -921,6 +877,17 @@ presetsEl.querySelectorAll(".preset-btn").forEach(btn=>{
 });
 
 window.addEventListener("themechange", ()=>{ plot.draw(); });
+
+/* Overlay manager: redraw on change + undo/redo buttons */
+overlayMgr.onChange(() => plot.draw());
+document.getElementById("tool-undo").addEventListener("click", () => { overlayMgr.undo(); plot.draw(); });
+document.getElementById("tool-redo").addEventListener("click", () => { overlayMgr.redo(); plot.draw(); });
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+  if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) { e.preventDefault(); overlayMgr.undo(); plot.draw(); }
+  if ((e.ctrlKey || e.metaKey) && (e.key === "y" || (e.key === "z" && e.shiftKey))) { e.preventDefault(); overlayMgr.redo(); plot.draw(); }
+});
+
 addFormula("y=2^x"); addFormula("y=(1/2)^x");
 </script>
 

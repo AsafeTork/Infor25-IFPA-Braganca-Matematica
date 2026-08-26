@@ -14,6 +14,7 @@ export class Plot {
     this.curves = [];                 // { fn, params, color, label }
     this.markers = [];                // { x, y, label }
     this.asymptotes = [];             // { y } horizontais
+    this._overlays = [];              // [{ draw(ctx, plot) }]
     this.piAxis = opts.piAxis || false;
     this.view = {
       xmin: opts.xmin ?? -5, xmax: opts.xmax ?? 5,
@@ -32,6 +33,7 @@ export class Plot {
   setCurves(list) { this.curves = list; this.draw(); }
   setMarkers(list) { this.markers = list || []; this.draw(); }
   setAsymptotes(list) { this.asymptotes = list || []; this.draw(); }
+  setOverlays(list) { this._overlays = list || []; this.draw(); }
 
   resize() {
     const dpr = window.devicePixelRatio || 1;
@@ -151,6 +153,9 @@ export class Plot {
         ctx.fillText(m.label, px + 9, py - 6);
       }
     });
+    // overlays
+    this._overlays.forEach((o) => o.draw(ctx, this));
+
     this._afterDraw();
   }
 
