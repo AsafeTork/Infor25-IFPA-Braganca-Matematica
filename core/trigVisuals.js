@@ -990,7 +990,14 @@ export function mountTrigParamExplorer(root, opts = {}) {
   });
 
   /* ── Resize ── */
-  const ro = new ResizeObserver(() => { plot.resize(); update(); });
+  let _lastW = 0, _lastH = 0;
+  const ro = new ResizeObserver(() => {
+    const { width, height } = canvas.getBoundingClientRect();
+    if (width === _lastW && height === _lastH) return;
+    _lastW = width; _lastH = height;
+    plot.resize();
+    update();
+  });
   ro.observe(canvas);
 
   /* ── Theme ── */
@@ -1004,7 +1011,7 @@ export function mountTrigParamExplorer(root, opts = {}) {
     getParams()   { return { ...params }; },
     setFuncType(t){ funcType = t; update(); },
     setCompare(v) { compare = v; compareCb.checked = v; update(); },
-    destroy()     { ro.disconnect(); root.innerHTML = ""; },
+    destroy()     { ro.disconnect(); plot.destroy?.(); root.innerHTML = ""; },
   };
 }
 
@@ -1382,7 +1389,7 @@ export function mountPeriodicVis(root, type, opts = {}) {
       subtitle: "Tensão da rede elétrica",
       unit: "V",
       timeUnit: "ms",
-      fn: (t, A, w, phi) => A * Math.sin(w * t + phi),
+      fn: (t, A, w, phi) => A * 170 * Math.sin(w * t + phi),
       color: COLORS.accent,
       rangeY: [-170, 170],
       rangeTime: [0, 0.04], // 2 períodos de 60Hz ≈ 33ms
@@ -1614,18 +1621,14 @@ export function mountPeriodicVis(root, type, opts = {}) {
 
   /* ── Atualizar gráfico ── */
   function updateGraph() {
-    plot.setCurves([
+    plot.curves = [
       { fn: (x) => T.fn(x, params.amplitude, params.frequency * omega, params.phase), color: T.color, width: 2.5 },
-    ]);
+    ];
 
     // Marcador na posição atual
     const val = T.fn(t, params.amplitude, params.frequency * omega, params.phase);
     const tMod = t % T.rangeTime[1];
-    if (tMod >= T.rangeTime[0] && tMod <= T.rangeTime[1]) {
-      plot.setMarkers([{ x: tMod, y: val, label: `${val.toFixed(2)} ${T.unit}` }]);
-    } else {
-      plot.setMarkers([]);
-    }
+    plot.markers = (tMod >= T.rangeTime[0] && tMod <= T.rangeTime[1]) ? [{ x: tMod, y: val, label: `${val.toFixed(2)} ${T.unit}` }] : [];
 
     plot.draw();
 
@@ -1657,7 +1660,7 @@ export function mountPeriodicVis(root, type, opts = {}) {
     lastTime = ts;
 
     t += dt;
-    if (t > T.rangeTime[1]) t -= T.rangeTime[1];
+    if (t > T.rangeTime[1]) t = t % T.rangeTime[1];
 
     drawAnim();
     updateGraph();

@@ -18,6 +18,8 @@ let _activeControllers = [];
 function cleanupLesson() {
   _activeControllers.forEach(c => c?.destroy?.());
   _activeControllers = [];
+  // Reset quiz trackers when navigating away
+  import("../../components/quiz.js").then(({ resetQuizTrackers }) => resetQuizTrackers());
 }
 
 export const trigonometriaLessons = [
@@ -120,19 +122,19 @@ export const trigonometriaLessons = [
         opts: ["360° e 2π rad", "180° e π rad", "90° e π/2 rad", "720° e π rad", "360° e π rad"],
         ans: 0,
         expl: "Uma volta = 360° = 2π rad. Essa é a relação fundamental: 180° = π rad." },
-      { q: "Se um ponteiro de relógio gira 90°, quantos radianos ele percorreu?",
-        opts: ["π/2 rad", "π rad", "2π rad", "π/4 rad", "3π/2 rad"],
-        ans: 0,
-        expl: "90° = 90 × π/180 = π/2 rad ≈ 1,571 rad." },
+      { q: "Quantos radianos tem uma volta completa?",
+        type: "text",
+        answer: ["2pi", "2π", "6.28", "6,28"],
+        expl: "Uma volta completa = 360° = 2π rad ≈ 6,28 rad." },
       { q: "Um satélite percorre 3 voltas completas. Quantos radianos ele percorreu no total?",
         opts: ["6π rad", "3π rad", "2π rad", "π rad", "12π rad"],
         ans: 0,
         expl: "1 volta = 2π rad. 3 voltas = 3 × 2π = 6π rad." },
-      { q: "Em movimento circular uniforme, o que se repete a cada volta?",
-        opts: ["A posição angular completa (ângulo += 2π)", "A velocidade linear", "A aceleração centrípeta", "A energia cinética", "O comprimento do arco"],
-        ans: 0,
-        expl: "Após uma volta de 2π rad, o ponto retorna à mesma posição angular e tudo se repete — esse é o ciclo periódico." },
-    ]);
+      { q: "Qual é a relação entre graus e radianos?",
+        type: "text",
+        answer: ["180° = π rad", "180 = π", "pi rad = 180°"],
+        expl: "180° = π rad. Essa é a relação fundamental para conversão entre graus e radianos." },
+    ], "trig-movimento-circular");
   }
 },
 
@@ -211,10 +213,10 @@ export const trigonometriaLessons = [
     _activeControllers.push(circ);
 
     mountQuizSet(c.querySelector("#quiz-ct"), [
-      { q: "As coordenadas do ponto P no círculo trigonométrico são:",
-        opts: ["(cos θ, sin θ)", "(sin θ, cos θ)", "(tan θ, 1)", "(1, tan θ)", "(cos θ, tan θ)"],
-        ans: 0,
-        expl: "P = (cos θ, sin θ). A posição horizontal é o cosseno, a vertical é o seno." },
+      { q: "Quais são as coordenadas de P quando θ = 0?",
+        type: "text",
+        answer: ["(1, 0)", "(1,0)"],
+        expl: "Quando θ = 0, o ponto P está no eixo x positivo: (cos 0, sin 0) = (1, 0)." },
       { q: "Se o ponto P está no 2º quadrante (esquerda, cima), qual é verdade?",
         opts: ["cos < 0 e sin > 0", "cos > 0 e sin > 0", "cos < 0 e sin < 0", "cos > 0 e sin < 0", "cos = 0"],
         ans: 0,
@@ -223,7 +225,7 @@ export const trigonometriaLessons = [
         opts: ["Teorema de Pitágoras aplicado ao raio unitário", "Definição de tangente", "Propriedade de radianos", "Lei dos cossenos", "Somente vale para 45°"],
         ans: 0,
         expl: "O raio = 1 é a hipotenusa. cos θ e sin θ são os catetos. Pitágoras: cos² + sin² = 1² = 1." },
-    ]);
+    ], "trig-circulo-trig");
   }
 },
 
@@ -301,12 +303,12 @@ export const trigonometriaLessons = [
 
     mountQuizSet(c.querySelector("#quiz-angulos"), [
       { q: "Qual é o menor ângulo positivo cotermial com 500°?",
-        opts: ["140°", "200°", "320°", "500°", "100°"],
-        ans: 0,
+        type: "text",
+        answer: ["140"],
         expl: "500° − 360° = 140°. Está no 2º quadrante." },
       { q: "Em que quadrante está o ângulo −45°?",
-        opts: ["4º quadrante", "1º quadrante", "2º quadrante", "3º quadrante", "Eixo positivo de y"],
-        ans: 0,
+        type: "text",
+        answer: ["4", "4º", "4°", "quarto", "quarto quadrante"],
         expl: "−45° gira no sentido horário. Equivale a 315° = 360° − 45°. Está no Q4." },
       { q: "Qual é a expressão geral para todos os ângulos cotermiais com 120°?",
         opts: ["120° + 360°k, k ∈ ℤ", "120° + 180°k, k ∈ ℤ", "120° + 90°k, k ∈ ℤ", "120° + 2πk, k ∈ ℤ", "120° · k, k ∈ ℤ"],
@@ -316,7 +318,7 @@ export const trigonometriaLessons = [
         opts: ["cos(θ)", "−cos(θ)", "sin(θ)", "−sin(θ)", "tan(θ)"],
         ans: 0,
         expl: "O cosseno é função par: cos(−θ) = cos(θ). Espelhar horizontalmente não muda a posição x." },
-    ]);
+    ], "trig-angulos-qualquer");
   }
 },
 
@@ -414,15 +416,15 @@ export const trigonometriaLessons = [
         opts: ["2π/3", "3π", "2π", "π/3", "6π"],
         ans: 0,
         expl: "T = 2π/B = 2π/3. Com B = 3, o gráfico se repete 3 vezes mais rápido." },
-      { q: "A função seno é:",
-        opts: ["Ímpar — sin(−x) = −sin(x)", "Par — sin(−x) = sin(x)", "Nem par nem ímpar", "Constante", "Não periódica"],
-        ans: 0,
-        expl: "O seno é função ímpar: o gráfico é simétrico em relação à origem." },
+      { q: "Qual é o período de sin(x)?",
+        type: "text",
+        answer: ["2pi", "2π", "6.28", "6,28"],
+        expl: "O período de sin(x) é 2π. Após uma volta completa no círculo, tudo se repete." },
       { q: "No intervalo [0, 2π], em quais valores o seno vale zero?",
-        opts: ["x = 0, π e 2π", "x = 0 e π/2", "x = π/2 e 3π/2", "x = π apenas", "x = 0 e 3π/2"],
-        ans: 0,
+        type: "text",
+        answer: ["0, pi, 2pi", "0, π, 2π", "0, 3.14, 6.28", "0, pi e 2pi"],
         expl: "O seno é zero quando P está nos eixos: início (0), metade (π) e volta (2π)." },
-    ]);
+    ], "trig-funcao-seno");
   }
 },
 
@@ -511,22 +513,22 @@ export const trigonometriaLessons = [
 
     mountQuizSet(c.querySelector("#quiz-cos"), [
       { q: "Qual é o valor de cos(0)?",
-        opts: ["1", "0", "−1", "√2/2", "1/2"],
-        ans: 0,
+        type: "text",
+        answer: ["1"],
         expl: "Em x = 0, P está no ponto (1, 0) — posição horizontal máxima. cos(0) = 1." },
       { q: "A relação entre seno e cosseno é:",
         opts: ["cos(x) = sin(x + π/2)", "sin(x) = cos(x + π/2)", "cos(x) = sin(x − π)", "sin(x) = cos(x − π/4)", "São independentes"],
         ans: 0,
         expl: "O cosseno é o seno adiantado em π/2. Começa π/2 antes no ciclo." },
-      { q: "A função cosseno é:",
-        opts: ["Par — cos(−x) = cos(x)", "Ímpar — cos(−x) = −cos(x)", "Nem par nem ímpar", "Periódica com período π", "Não periódica"],
-        ans: 0,
-        expl: "O cosseno é função par: simétrica em relação ao eixo y." },
+      { q: "A função cosseno é par ou ímpar?",
+        type: "text",
+        answer: ["par", "par", "função par"],
+        expl: "O cosseno é função par: cos(−x) = cos(x). O gráfico é simétrico em relação ao eixo y." },
       { q: "Em que x ∈ [0, 2π] o cosseno atinge o valor mínimo −1?",
         opts: ["x = π", "x = 0", "x = π/2", "x = 3π/2", "x = 2π"],
         ans: 0,
         expl: "cos(π) = −1. P está no ponto (−1, 0) — posição mais à esquerda." },
-    ]);
+    ], "trig-funcao-cosseno");
   }
 },
 
@@ -618,18 +620,18 @@ export const trigonometriaLessons = [
         ans: 0,
         expl: "tan = sin/cos. Em π/2, cos = 0 → divisão impossível → assíntota vertical." },
       { q: "Qual é o período de tan(x)?",
-        opts: ["π", "2π", "π/2", "2", "4π"],
-        ans: 0,
+        type: "text",
+        answer: ["pi", "π", "3.14", "3,14"],
         expl: "Diferente do seno e cosseno (2π), a tangente tem período π. Cada ramo cabe em π." },
-      { q: "A imagem (conjunto de valores) da tangente é:",
-        opts: ["ℝ — qualquer número real", "[−1, 1]", "[0, ∞)", "(−∞, 0)", "Não tem imagem"],
-        ans: 0,
+      { q: "Qual é o conjunto imagem da tangente?",
+        type: "text",
+        answer: ["R", "ℝ", "-infinito a +infinito", "-∞ a +∞", "todos os reais"],
         expl: "Ao contrário do seno e cosseno, a tangente não tem limite: vai de −∞ a +∞." },
       { q: "Em que ângulo a tangente vale exatamente 1?",
         opts: ["π/4 (45°)", "π/6 (30°)", "π/3 (60°)", "π/2 (90°)", "0°"],
         ans: 0,
         expl: "tan(π/4) = sin(π/4)/cos(π/4) = (√2/2)/(√2/2) = 1." },
-    ]);
+    ], "trig-funcao-tangente");
   }
 },
 
@@ -716,22 +718,22 @@ export const trigonometriaLessons = [
 
     mountQuizSet(c.querySelector("#quiz-perio"), [
       { q: "Se f(x) = sin(2x), qual é o período?",
-        opts: ["π", "2π", "π/2", "4π", "1"],
-        ans: 0,
+        type: "text",
+        answer: ["pi", "π", "3.14", "3,14"],
         expl: "T = 2π/B = 2π/2 = π. O gráfico se repete a cada π unidades." },
       { q: "A amplitude de f(x) = −3cos(x) + 2 é:",
         opts: ["3", "−3", "2", "5", "−2"],
         ans: 0,
         expl: "A amplitude é |A| = |−3| = 3. O sinal negativo espelha o gráfico, mas a amplitude é sempre positiva." },
-      { q: "Qual parâmetro controla a horizontal shift (deslocamento horizontal)?",
-        opts: ["C (fase)", "A (amplitude)", "B (frequência)", "D (deslocamento vertical)", "Nenhum"],
-        ans: 0,
+      { q: "Qual parâmetro controla o deslocamento horizontal e qual é a fórmula?",
+        type: "text",
+        answer: ["C (fase), deslocamento = -C/B", "-C/B", "C, -C/B"],
         expl: "C controla a fase. O deslocamento horizontal é −C/B. Aumentar C desloca a onda para a esquerda." },
       { q: "O período da função tan(3x) é:",
         opts: ["π/3", "π", "3π", "2π/3", "π/6"],
         ans: 0,
         expl: "O período base da tangente é π. Com B = 3: T = π/B = π/3." },
-    ]);
+    ], "trig-periocidade");
   }
 },
 
@@ -843,10 +845,10 @@ export const trigonometriaLessons = [
         ans: 0,
         expl: "Amplitude → intensidade → volume. Frequência → tom (grave/agudo)." },
       { q: "A temperatura diária pode ser modelada por uma função:",
-        opts: ["Cossenoidal — mínima ao amanhecer, máxima no início da tarde", "Linear — sempre crescendo", "Exponencial — cresce sem limite", "Constante — não muda", "Logarítmica — cresce devagar"],
-        ans: 0,
+        type: "text",
+        answer: ["cos", "cosseno", "cossenoidal", "cossenoidal"],
         expl: "A temperatura segue um ciclo aproximadamente cossenoidal: mínima antes do sol nascer, máxima por volta das 14h." },
-    ]);
+    ], "trig-aplicacoes");
   }
 },
 

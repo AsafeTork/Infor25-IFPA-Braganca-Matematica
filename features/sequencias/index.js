@@ -60,7 +60,7 @@ export const sequenciasLessons = [
         { q: "Entre 5 e 29 inserem-se 3 meios aritméticos. Razão?",
           opts:["$6$","$8$","$4$","$5$","$7$"], ans:0,
           expl:"5 termos: $29=5+4r\\Rightarrow r=6$" },
-      ]);
+      ], "pa-conceito");
     }
   },
 
@@ -120,7 +120,7 @@ export const sequenciasLessons = [
         { q: "(ENEM) Epidemia dobra a cada 3 dias. De 100 casos, após 9 dias:",
           opts:["$800$","$400$","$1600$","$200$","$1200$"], ans:0,
           expl:"3 duplicações: $100\\cdot2^3=800$" },
-      ]);
+      ], "pg-conceito");
     }
   },
 
@@ -159,7 +159,7 @@ export const sequenciasLessons = [
         { q: "Juros compostos modelam PA ou PG?",
           opts:["PG","PA","Depende","Nenhuma","Ambas"], ans:0,
           expl:"Juros compostos: capital multiplica por $(1+i)$ a cada período → PG." },
-      ]);
+      ], "seq-vs");
     }
   },
 ];

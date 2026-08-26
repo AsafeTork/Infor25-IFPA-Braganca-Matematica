@@ -198,11 +198,16 @@
   grid-template-columns: 240px 1fr;
   gap: 1rem;
   min-height: 360px;
+  height: 100%;
 }
 
 @media (max-width: 640px) {
   .tpe-container {
     grid-template-columns: 1fr;
+    height: auto;
+  }
+  .tpe-graph {
+    height: 300px;
   }
 }
 
@@ -310,6 +315,8 @@
 .tpe-graph {
   position: relative;
   min-height: 300px;
+  height: 100%;
+  overflow: hidden;
 }
 
 .tpe-graph canvas {

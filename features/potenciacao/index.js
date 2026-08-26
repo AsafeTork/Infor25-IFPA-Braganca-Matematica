@@ -201,7 +201,7 @@ const pratica = {
         answer: 3,
         explain: "$4^{18}=2^{36}$, então $x=2^{36}\\cdot5^{27}=2^{9}\\cdot(2\\cdot5)^{27}=512\\cdot10^{27}$. São os $3$ dígitos de $512$ seguidos de $27$ zeros: $30$ algarismos.",
       },
-    ]);
+    ], "pot-pratica");
   },
 };
 

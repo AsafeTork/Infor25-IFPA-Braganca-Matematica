@@ -186,7 +186,7 @@ const pratica = {
         answer: 2,
         explain: "$f(1)=\\tfrac34,\\ f(2)=\\tfrac3{16},\\ f(3)=\\tfrac3{64}$. A razão entre termos consecutivos é $\\tfrac14$ — uma progressão geométrica decrescente.",
       },
-    ]);
+    ], "exp-pratica");
   },
 };
 

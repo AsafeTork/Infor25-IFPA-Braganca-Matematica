@@ -71,6 +71,11 @@
   --code-bg: #0d0e13;
   --shadow: 0 24px 60px -28px rgba(0, 0, 0, .8);
   --glow: 0 0 0 1px rgba(255,106,26,.25), 0 18px 50px -20px rgba(255,106,26,.35);
+
+  --color-correct: #4ade80;
+  --color-correct-bg: #14532d22;
+  --color-wrong: #f87171;
+  --color-wrong-bg: #7f1d1d22;
 }
 
 /* ===================== LIGHT ===================== */
@@ -95,4 +100,9 @@
   --code-bg: #f4eede;
   --shadow: 0 22px 50px -30px rgba(80, 50, 10, .5);
   --glow: 0 0 0 1px rgba(226,80,15,.2), 0 16px 40px -22px rgba(226,80,15,.3);
+
+  --color-correct: #16a34a;
+  --color-correct-bg: #14532d18;
+  --color-wrong: #dc2626;
+  --color-wrong-bg: #7f1d1d18;
 }

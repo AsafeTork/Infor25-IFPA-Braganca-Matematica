@@ -24,7 +24,8 @@ export class Plot {
     this.onDraw  = null;
     this._bind();
     this.resize();
-    window.addEventListener("resize", () => this.resize());
+    this._onResize = () => this.resize();
+    window.addEventListener("resize", this._onResize);
   }
 
   setPiAxis(v) { this.piAxis = v; this.draw(); }
@@ -245,6 +246,10 @@ export class Plot {
   }
 
   reset(v) { this.setView(v); }
+
+  destroy() {
+    window.removeEventListener("resize", this._onResize);
+  }
 
   _afterDraw() {
     if (this.onDraw) this.onDraw();

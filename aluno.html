@@ -18,7 +18,38 @@
 <link rel="stylesheet" href="styles/trigVisuals.css">
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
 <style>
-
+.al-lesson-btn.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.al-ch-btn .lock-icon {
+  margin-left: auto;
+  font-size: .8rem;
+  opacity: 0.6;
+}
+.al-module-score {
+  font-family: var(--font-mono);
+  font-size: .6rem;
+  color: var(--text-mut);
+  margin-left: .3rem;
+}
+.al-unlock-btn {
+  width: 100%;
+  padding: .4rem .75rem;
+  border: none;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: .75rem;
+  cursor: pointer;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.al-unlock-btn:hover {
+  background: var(--accent);
+  color: white;
+}
 </style>
 </head>
 <body>
@@ -129,6 +160,46 @@ const MODULES = [
 ];
 const ALL = MODULES.flatMap(m => m.lessons.map(l => ({ ...l, meta: m.meta })));
 
+/* ── Progress Tracking ── */
+function saveLessonScore(lessonId, correct, total) {
+  const scores = JSON.parse(localStorage.getItem('quizScores') || '{}');
+  scores[lessonId] = { correct, total, score: Math.round(correct / total * 100) };
+  localStorage.setItem('quizScores', JSON.stringify(scores));
+}
+
+function getLessonScore(lessonId) {
+  const scores = JSON.parse(localStorage.getItem('quizScores') || '{}');
+  return scores[lessonId] || null;
+}
+
+function getModuleScore(moduleIndex) {
+  const moduleLessons = MODULES[moduleIndex].lessons;
+  const scores = moduleLessons.map(l => getLessonScore(l.id)).filter(Boolean);
+  if (scores.length === 0) return 0;
+  const avg = scores.reduce((sum, s) => sum + s.score, 0) / scores.length;
+  return Math.round(avg);
+}
+
+function isModuleUnlocked(moduleIndex) {
+  if (moduleIndex === 0) return true; // First module always unlocked
+  if (sessionStorage.getItem('adminAccess') === 'true') return true;
+  const prevScore = getModuleScore(moduleIndex - 1);
+  return prevScore >= 75;
+}
+
+function checkAdminPassword() {
+  const pwd = prompt('Senha do professor:');
+  if (pwd === 'admin' || pwd === 'prof2025') {
+    sessionStorage.setItem('adminAccess', 'true');
+    buildSidebar(currentLessonId);
+    return true;
+  }
+  return false;
+}
+
+// Track current lesson for admin unlock refresh
+let currentLessonId = null;
+
 /* ── Build collapsible sidebar ── */
 const sidebarInner = document.getElementById("sidebar-inner");
 
@@ -138,22 +209,30 @@ const openState = MODULES.map((_, i) => i === 0);
 let sidebarBuilt = false;
 
 function buildSidebar(currentId) {
+  currentLessonId = currentId;
+  
   // Build once — depois só atualiza o item ativo
   if (!sidebarBuilt) {
     sidebarInner.innerHTML = MODULES.map((m, mi) => {
       const isOpen = openState[mi];
+      const unlocked = isModuleUnlocked(mi);
+      const moduleScore = getModuleScore(mi);
+      const scoreDisplay = moduleScore > 0 ? ` <span class="al-module-score">${moduleScore}%</span>` : '';
+      
       return `
       <div class="al-chapter" data-mi="${mi}">
         <button class="al-ch-btn ${isOpen ? 'open' : ''}" data-mi="${mi}">
           <span class="al-ch-num">${m.meta.num}</span>
-          <span class="al-ch-title">${m.meta.title}</span>
+          <span class="al-ch-title">${m.meta.title}${scoreDisplay}</span>
+          ${!unlocked ? '<span class="lock-icon">🔒</span>' : ''}
           <svg class="al-ch-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
         </button>
         <div class="al-ch-lessons ${isOpen ? 'open' : ''}" id="ch-lessons-${mi}">
           ${m.lessons.map(l => `
-            <button class="al-lesson-btn" data-id="${l.id}">
+            <button class="al-lesson-btn ${!unlocked ? 'locked' : ''}" data-id="${l.id}" ${!unlocked ? 'disabled' : ''}>
               ${l.title}
             </button>`).join("")}
+          ${!unlocked ? `<button class="al-unlock-btn" data-unlock="${mi}">🔑 Desbloquear módulo</button>` : ''}
         </div>
       </div>`;
     }).join("");
@@ -171,7 +250,19 @@ function buildSidebar(currentId) {
     // Lesson click — bind uma vez com delegação
     sidebarInner.addEventListener("click", e => {
       const btn = e.target.closest(".al-lesson-btn");
-      if (btn) { go(btn.dataset.id); closeSidebar(); }
+      if (btn && !btn.classList.contains("locked")) { 
+        go(btn.dataset.id); 
+        closeSidebar(); 
+      }
+      
+      // Unlock button
+      const unlockBtn = e.target.closest(".al-unlock-btn");
+      if (unlockBtn) {
+        const mi = +unlockBtn.dataset.unlock;
+        if (checkAdminPassword()) {
+          buildSidebar(currentLessonId);
+        }
+      }
     });
 
     sidebarBuilt = true;
@@ -215,6 +306,14 @@ const crumbEl = document.getElementById("crumb");
 const titleEl = document.getElementById("title");
 const lessonEl = document.getElementById("lesson");
 
+/* ── Quiz Score Tracking ── */
+document.addEventListener("quizComplete", (e) => {
+  const { lessonId, correct, total } = e.detail;
+  saveLessonScore(lessonId, correct, total);
+  // Rebuild sidebar to show updated scores
+  buildSidebar(currentLessonId);
+});
+
 /* ── Student OverlayManager (read-only) ── */
 const overlayMgr = new OverlayManager();
 overlayMgr.registerTarget("trig-canvas", "trigCircle", null);
@@ -255,11 +354,18 @@ overlayMgr.onChange(syncTrigOverlays);
 function go(id) {
   const idx = ALL.findIndex(l => l.id === id);
   if (idx < 0) return;
+  
+  // Check if lesson is in a locked module
+  const mi = MODULES.findIndex(m => m.lessons.some(le => le.id === id));
+  if (mi >= 0 && !isModuleUnlocked(mi)) {
+    alert('Este módulo está bloqueado. Complete o módulo anterior com pelo menos 75% para desbloquear.');
+    return;
+  }
+  
   cur = idx;
   const l = ALL[cur];
 
   // Open that chapter if collapsed
-  const mi = MODULES.findIndex(m => m.lessons.some(le => le.id === id));
   if (mi >= 0 && !openState[mi]) { openState[mi] = true; }
 
   crumbEl.textContent = `${l.meta.chapter}`;
