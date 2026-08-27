@@ -7,7 +7,7 @@
 import { autoRender } from "../../components/katex.js";
 import { section, def, think, explore, solved, apply, labSlot } from "../../utils/content.js";
 import { mountLab } from "../../components/formulaLab.js";
-import { mountQuizSet } from "../../components/quiz.js";
+
 import { Plot } from "../../core/plotEngine.js";
 
 /* ---------- 2.1 Conceito ---------- */
@@ -155,38 +155,8 @@ const pratica = {
   id: "exp-pratica",
   title: "Prática · vestibular & Enem",
   render(c) {
-    c.innerHTML = section("2 · Função exponencial", "Questões para raciocinar", `<div id="q-exp"></div>`);
+    c.innerHTML = section("2 · Função exponencial", "Questões para raciocinar", "");
     autoRender(c);
-    mountQuizSet(c.querySelector("#q-exp"), [
-      {
-        source: "Enem",
-        stem: "O piso salarial é R\\$\\,1\\,800 com aumento fixo por ano: $s(t)=1800\\cdot(1{,}03)^{t}$. Com $2$ anos de serviço, o salário será, em reais, aproximadamente:",
-        options: ["$7\\,416{,}00$", "$3\\,819{,}24$", "$3\\,709{,}62$", "$3\\,708{,}00$", "$1\\,909{,}62$"],
-        answer: 4,
-        explain: "$s(2)=1800\\cdot(1{,}03)^{2}=1800\\cdot1{,}0609=1909{,}62$. Cuidado: o expoente $2$ não multiplica, ele aparece como potência.",
-      },
-      {
-        source: "Ulbra-RS",
-        stem: "Sobreviventes seguem $N(t)=C\\cdot A^{t}$. Havia $400$ no dia $0$ e $50$ no dia $3$. Quantos no dia $4$?",
-        options: ["$40$", "$30$", "$25$", "$20$", "$10$"],
-        answer: 2,
-        explain: "De $400=C$ e $50=400\\,A^{3}$ vem $A^{3}=\\tfrac18\\Rightarrow A=\\tfrac12$. Então $N(4)=400\\cdot(\\tfrac12)^{4}=400\\cdot\\tfrac1{16}=25$.",
-      },
-      {
-        source: "Livro",
-        stem: "Para $f(x)=2\\cdot5^{x}$, vale $f(m+n)=f(m)\\cdot f(n)$ para todos $m,n$?",
-        options: ["Sim, sempre", "Não — aparece um fator extra", "Só se $m=n$", "Só se $m+n=0$", "Só se $x>0$"],
-        answer: 1,
-        explain: "$f(m+n)=2\\cdot5^{m+n}$, mas $f(m)\\cdot f(n)=(2\\cdot5^{m})(2\\cdot5^{n})=4\\cdot5^{m+n}$. Há um fator $2$ a mais, então não vale.",
-      },
-      {
-        source: "Desafio",
-        stem: "Na sequência gerada por $f(x)=3\\cdot4^{-x}$, cada termo (a partir do 2º) é o anterior multiplicado por:",
-        options: ["$4$", "$3$", "$\\tfrac14$", "$-4$", "$\\tfrac13$"],
-        answer: 2,
-        explain: "$f(1)=\\tfrac34,\\ f(2)=\\tfrac3{16},\\ f(3)=\\tfrac3{64}$. A razão entre termos consecutivos é $\\tfrac14$ — uma progressão geométrica decrescente.",
-      },
-    ], "exp-pratica");
   },
 };
 

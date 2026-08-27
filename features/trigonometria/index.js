@@ -8,7 +8,7 @@
 import { autoRender } from "../../components/katex.js";
 import { labSlot } from "../../utils/content.js";
 import { mountLab } from "../../components/formulaLab.js";
-import { mountQuizSet } from "../../components/quiz.js";
+
 import { mountTrigCircle, mountCircleToGraph, mountTrigParamExplorer, mountTangentVis, mountPeriodicVis } from "../../core/trigVisuals.js";
 
 export const trigonometriaMeta = { num: "05", title: "O Círculo e as Ondas", subtitle: "Funções Trigonométricas", chapter: "Funções Trigonométricas" };
@@ -18,8 +18,6 @@ let _activeControllers = [];
 function cleanupLesson() {
   _activeControllers.forEach(c => c?.destroy?.());
   _activeControllers = [];
-  // Reset quiz trackers when navigating away
-  import("../../components/quiz.js").then(({ resetQuizTrackers }) => resetQuizTrackers());
 }
 
 export const trigonometriaLessons = [
@@ -105,36 +103,7 @@ export const trigonometriaLessons = [
   <p>A circunferência de um círculo de raio r é 2πr. Se "dobrarmos" o raio sobre a borda, cada 1 radiano cobre um arco de comprimento r. Uma volta inteira (circunferência) tem 2π raios — daí 2π rad = 360°, ou seja, π rad = 180°.</p>
 </div>
 
-<div id="quiz-movimento"></div>`;
-
-    autoRender(c);
-    const visRoot = c.querySelector("#vis-mov-circular");
-    const circ = mountTrigCircle(visRoot, {
-      initialTheta: Math.PI / 4,
-      showTan: false,
-      showProj: true,
-      showQuadrants: true,
-    });
-    _activeControllers.push(circ);
-
-    mountQuizSet(c.querySelector("#quiz-movimento"), [
-      { q: "Uma volta completa equivale a:",
-        opts: ["360° e 2π rad", "180° e π rad", "90° e π/2 rad", "720° e π rad", "360° e π rad"],
-        ans: 0,
-        expl: "Uma volta = 360° = 2π rad. Essa é a relação fundamental: 180° = π rad." },
-      { q: "Quantos radianos tem uma volta completa?",
-        type: "text",
-        answer: ["2pi", "2π", "6.28", "6,28"],
-        expl: "Uma volta completa = 360° = 2π rad ≈ 6,28 rad." },
-      { q: "Um satélite percorre 3 voltas completas. Quantos radianos ele percorreu no total?",
-        opts: ["6π rad", "3π rad", "2π rad", "π rad", "12π rad"],
-        ans: 0,
-        expl: "1 volta = 2π rad. 3 voltas = 3 × 2π = 6π rad." },
-      { q: "Qual é a relação entre graus e radianos?",
-        type: "text",
-        answer: ["180° = π rad", "180 = π", "pi rad = 180°"],
-        expl: "180° = π rad. Essa é a relação fundamental para conversão entre graus e radianos." },
-    ], "trig-movimento-circular");
+`;
   }
 },
 
@@ -199,8 +168,7 @@ export const trigonometriaLessons = [
   </table>
 </section>
 
-<div id="quiz-ct"></div>`;
-
+`;
     autoRender(c);
     const visRoot = c.querySelector("#vis-ct-geral");
     const circ = mountTrigCircle(visRoot, {
@@ -211,21 +179,6 @@ export const trigonometriaLessons = [
       showNotable: true,
     });
     _activeControllers.push(circ);
-
-    mountQuizSet(c.querySelector("#quiz-ct"), [
-      { q: "Quais são as coordenadas de P quando θ = 0?",
-        type: "text",
-        answer: ["(1, 0)", "(1,0)"],
-        expl: "Quando θ = 0, o ponto P está no eixo x positivo: (cos 0, sin 0) = (1, 0)." },
-      { q: "Se o ponto P está no 2º quadrante (esquerda, cima), qual é verdade?",
-        opts: ["cos < 0 e sin > 0", "cos > 0 e sin > 0", "cos < 0 e sin < 0", "cos > 0 e sin < 0", "cos = 0"],
-        ans: 0,
-        expl: "Q2: x < 0 (esquerda) → cos negativo; y > 0 (cima) → seno positivo." },
-      { q: "A identidade cos²θ + sin²θ = 1 é consequência de:",
-        opts: ["Teorema de Pitágoras aplicado ao raio unitário", "Definição de tangente", "Propriedade de radianos", "Lei dos cossenos", "Somente vale para 45°"],
-        ans: 0,
-        expl: "O raio = 1 é a hipotenusa. cos θ e sin θ são os catetos. Pitágoras: cos² + sin² = 1² = 1." },
-    ], "trig-circulo-trig");
   }
 },
 
@@ -288,8 +241,7 @@ export const trigonometriaLessons = [
   </div>
 </section>
 
-<div id="quiz-angulos"></div>`;
-
+`;
     autoRender(c);
     const visRoot = c.querySelector("#vis-angulos");
     const circ = mountTrigCircle(visRoot, {
@@ -300,25 +252,6 @@ export const trigonometriaLessons = [
       showNotable: true,
     });
     _activeControllers.push(circ);
-
-    mountQuizSet(c.querySelector("#quiz-angulos"), [
-      { q: "Qual é o menor ângulo positivo cotermial com 500°?",
-        type: "text",
-        answer: ["140"],
-        expl: "500° − 360° = 140°. Está no 2º quadrante." },
-      { q: "Em que quadrante está o ângulo −45°?",
-        type: "text",
-        answer: ["4", "4º", "4°", "quarto", "quarto quadrante"],
-        expl: "−45° gira no sentido horário. Equivale a 315° = 360° − 45°. Está no Q4." },
-      { q: "Qual é a expressão geral para todos os ângulos cotermiais com 120°?",
-        opts: ["120° + 360°k, k ∈ ℤ", "120° + 180°k, k ∈ ℤ", "120° + 90°k, k ∈ ℤ", "120° + 2πk, k ∈ ℤ", "120° · k, k ∈ ℤ"],
-        ans: 0,
-        expl: "Ângulos cotermiais diferem por voltas inteiras: 360°k. Em radianos: 2πk." },
-      { q: "cos(−θ) é igual a:",
-        opts: ["cos(θ)", "−cos(θ)", "sin(θ)", "−sin(θ)", "tan(θ)"],
-        ans: 0,
-        expl: "O cosseno é função par: cos(−θ) = cos(θ). Espelhar horizontalmente não muda a posição x." },
-    ], "trig-angulos-qualquer");
   }
 },
 
@@ -383,8 +316,7 @@ export const trigonometriaLessons = [
   ${labSlot("lab-seno")}
 </section>
 
-<div id="quiz-seno"></div>`;
-
+`;
     autoRender(c);
     const ctgSin = mountCircleToGraph(c.querySelector("#vis-c2g-seno"), {
       functions: ["sin"],
@@ -406,25 +338,6 @@ export const trigonometriaLessons = [
       view: { xmin: -2 * Math.PI, xmax: 2 * Math.PI, ymin: -2.5, ymax: 2.5 },
       examples: ["y = sin(x)", "y = 2*sin(x)", "y = sin(2*x)", "y = sin(x + π/2)", "y = sin(x) + 1"],
     });
-
-    mountQuizSet(c.querySelector("#quiz-seno"), [
-      { q: "Em que x ∈ [0, 2π] o seno atinge o valor máximo 1?",
-        opts: ["x = π/2", "x = 0", "x = π", "x = 3π/2", "x = 2π"],
-        ans: 0,
-        expl: "sin(π/2) = 1. P está no topo do círculo (coordenada y máxima)." },
-      { q: "O período da função f(x) = sin(3x) é:",
-        opts: ["2π/3", "3π", "2π", "π/3", "6π"],
-        ans: 0,
-        expl: "T = 2π/B = 2π/3. Com B = 3, o gráfico se repete 3 vezes mais rápido." },
-      { q: "Qual é o período de sin(x)?",
-        type: "text",
-        answer: ["2pi", "2π", "6.28", "6,28"],
-        expl: "O período de sin(x) é 2π. Após uma volta completa no círculo, tudo se repete." },
-      { q: "No intervalo [0, 2π], em quais valores o seno vale zero?",
-        type: "text",
-        answer: ["0, pi, 2pi", "0, π, 2π", "0, 3.14, 6.28", "0, pi e 2pi"],
-        expl: "O seno é zero quando P está nos eixos: início (0), metade (π) e volta (2π)." },
-    ], "trig-funcao-seno");
   }
 },
 
@@ -487,8 +400,7 @@ export const trigonometriaLessons = [
   ${labSlot("lab-cos")}
 </section>
 
-<div id="quiz-cos"></div>`;
-
+`;
     autoRender(c);
     const ctgCos = mountCircleToGraph(c.querySelector("#vis-c2g-cos"), {
       functions: ["cos"],
@@ -510,25 +422,6 @@ export const trigonometriaLessons = [
       view: { xmin: -2 * Math.PI, xmax: 2 * Math.PI, ymin: -2.5, ymax: 2.5 },
       examples: ["y = cos(x)", "y = 2*cos(x)", "y = cos(2*x)", "y = cos(x - π/3)", "y = cos(x) - 1"],
     });
-
-    mountQuizSet(c.querySelector("#quiz-cos"), [
-      { q: "Qual é o valor de cos(0)?",
-        type: "text",
-        answer: ["1"],
-        expl: "Em x = 0, P está no ponto (1, 0) — posição horizontal máxima. cos(0) = 1." },
-      { q: "A relação entre seno e cosseno é:",
-        opts: ["cos(x) = sin(x + π/2)", "sin(x) = cos(x + π/2)", "cos(x) = sin(x − π)", "sin(x) = cos(x − π/4)", "São independentes"],
-        ans: 0,
-        expl: "O cosseno é o seno adiantado em π/2. Começa π/2 antes no ciclo." },
-      { q: "A função cosseno é par ou ímpar?",
-        type: "text",
-        answer: ["par", "par", "função par"],
-        expl: "O cosseno é função par: cos(−x) = cos(x). O gráfico é simétrico em relação ao eixo y." },
-      { q: "Em que x ∈ [0, 2π] o cosseno atinge o valor mínimo −1?",
-        opts: ["x = π", "x = 0", "x = π/2", "x = 3π/2", "x = 2π"],
-        ans: 0,
-        expl: "cos(π) = −1. P está no ponto (−1, 0) — posição mais à esquerda." },
-    ], "trig-funcao-cosseno");
   }
 },
 
@@ -592,8 +485,7 @@ export const trigonometriaLessons = [
   ${labSlot("lab-tan")}
 </section>
 
-<div id="quiz-tan"></div>`;
-
+`;
     autoRender(c);
     const tv = mountTangentVis(c.querySelector("#vis-tangente"), {
       initialTheta: Math.PI / 4,
@@ -613,25 +505,6 @@ export const trigonometriaLessons = [
       view: { xmin: -Math.PI, xmax: Math.PI, ymin: -4, ymax: 4 },
       examples: ["y = tan(x)", "y = 2*tan(x)", "y = tan(2*x)", "y = tan(x - π/4)"],
     });
-
-    mountQuizSet(c.querySelector("#quiz-tan"), [
-      { q: "Por que tan(π/2) não existe?",
-        opts: ["cos(π/2) = 0 — divisão por zero", "sin(π/2) = 0", "O ângulo é muito grande", "É um erro de cálculo", "Existe e vale 1"],
-        ans: 0,
-        expl: "tan = sin/cos. Em π/2, cos = 0 → divisão impossível → assíntota vertical." },
-      { q: "Qual é o período de tan(x)?",
-        type: "text",
-        answer: ["pi", "π", "3.14", "3,14"],
-        expl: "Diferente do seno e cosseno (2π), a tangente tem período π. Cada ramo cabe em π." },
-      { q: "Qual é o conjunto imagem da tangente?",
-        type: "text",
-        answer: ["R", "ℝ", "-infinito a +infinito", "-∞ a +∞", "todos os reais"],
-        expl: "Ao contrário do seno e cosseno, a tangente não tem limite: vai de −∞ a +∞." },
-      { q: "Em que ângulo a tangente vale exatamente 1?",
-        opts: ["π/4 (45°)", "π/6 (30°)", "π/3 (60°)", "π/2 (90°)", "0°"],
-        ans: 0,
-        expl: "tan(π/4) = sin(π/4)/cos(π/4) = (√2/2)/(√2/2) = 1." },
-    ], "trig-funcao-tangente");
   }
 },
 
@@ -701,8 +574,7 @@ export const trigonometriaLessons = [
   </div>
 </section>
 
-<div id="quiz-perio"></div>`;
-
+`;
     autoRender(c);
     const tpe = mountTrigParamExplorer(c.querySelector("#vis-param-seno"), {
       funcType: "sin",
@@ -715,25 +587,6 @@ export const trigonometriaLessons = [
       showRange: true,
     });
     _activeControllers.push(tpe);
-
-    mountQuizSet(c.querySelector("#quiz-perio"), [
-      { q: "Se f(x) = sin(2x), qual é o período?",
-        type: "text",
-        answer: ["pi", "π", "3.14", "3,14"],
-        expl: "T = 2π/B = 2π/2 = π. O gráfico se repete a cada π unidades." },
-      { q: "A amplitude de f(x) = −3cos(x) + 2 é:",
-        opts: ["3", "−3", "2", "5", "−2"],
-        ans: 0,
-        expl: "A amplitude é |A| = |−3| = 3. O sinal negativo espelha o gráfico, mas a amplitude é sempre positiva." },
-      { q: "Qual parâmetro controla o deslocamento horizontal e qual é a fórmula?",
-        type: "text",
-        answer: ["C (fase), deslocamento = -C/B", "-C/B", "C, -C/B"],
-        expl: "C controla a fase. O deslocamento horizontal é −C/B. Aumentar C desloca a onda para a esquerda." },
-      { q: "O período da função tan(3x) é:",
-        opts: ["π/3", "π", "3π", "2π/3", "π/6"],
-        ans: 0,
-        expl: "O período base da tangente é π. Com B = 3: T = π/B = π/3." },
-    ], "trig-periocidade");
   }
 },
 
@@ -810,8 +663,7 @@ export const trigonometriaLessons = [
   <p><strong>A unificadora:</strong> Em todos esses exemplos — mola, corrente, temperatura, som — a mesma função seno/cosseno descreve o fenômeno. O que muda são os <strong>parâmetros</strong>: amplitude, frequência, fase. Essa é a poder da trigonometria: uma única ferramenta para infinitos fenômenos periódicos.</p>
 </div>
 
-<div id="quiz-app"></div>`;
-
+`;
     autoRender(c);
 
     const pvSho = mountPeriodicVis(c.querySelector("#vis-sho"), "sho", {
@@ -830,25 +682,6 @@ export const trigonometriaLessons = [
       phase: 0,
     });
     _activeControllers.push(pvSho, pvAc, pvTemp);
-
-    mountQuizSet(c.querySelector("#quiz-app"), [
-      { q: "A nota Lá (la) tem frequência de 440 Hz. Qual é o período dessa onda?",
-        opts: ["1/440 s ≈ 0,00227 s", "440 s", "1/220 s", "220 s", "1/880 s"],
-        ans: 0,
-        expl: "T = 1/f = 1/440 s ≈ 2,27 ms. Cada oscilação completa dura isso." },
-      { q: "A corrente alternada brasileira tem frequência 60 Hz. Quantas oscilações completas ocorrem em 5 segundos?",
-        opts: ["300", "60", "120", "5", "3000"],
-        ans: 0,
-        expl: "60 oscilações/segundo × 5 segundos = 300 oscilações completas." },
-      { q: "Em uma onda sonora, o que a AMPLITUDE controla?",
-        opts: ["Volume (intensidade do som)", "Tom (grave ou agudo)", "Velocidade do som", "Direção da propagação", "Comprimento de onda"],
-        ans: 0,
-        expl: "Amplitude → intensidade → volume. Frequência → tom (grave/agudo)." },
-      { q: "A temperatura diária pode ser modelada por uma função:",
-        type: "text",
-        answer: ["cos", "cosseno", "cossenoidal", "cossenoidal"],
-        expl: "A temperatura segue um ciclo aproximadamente cossenoidal: mínima antes do sol nascer, máxima por volta das 14h." },
-    ], "trig-aplicacoes");
   }
 },
 

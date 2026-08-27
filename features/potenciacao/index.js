@@ -5,9 +5,9 @@
    científica, raízes, comparação de potências.
    ============================================================ */
 import { autoRender } from "../../components/katex.js";
-import { section, def, think, explore, solved, apply, labSlot, quizSlot } from "../../utils/content.js";
+import { section, def, think, explore, solved, apply, labSlot } from "../../utils/content.js";
 import { mountLab } from "../../components/formulaLab.js";
-import { mountQuizSet } from "../../components/quiz.js";
+
 
 /* ---------- 1.1 O que é potência + propriedades ---------- */
 const propriedades = {
@@ -170,38 +170,8 @@ const pratica = {
   id: "pot-pratica",
   title: "Prática · vestibular & Enem",
   render(c) {
-    c.innerHTML = section("1 · Potenciação", "Questões para raciocinar", `<div id="q-pot"></div>`);
+    c.innerHTML = section("1 · Potenciação", "Questões para raciocinar", "");
     autoRender(c);
-    mountQuizSet(c.querySelector("#q-pot"), [
-      {
-        source: "UFRGS",
-        stem: "Um adulto saudável abriga cerca de 100 bilhões de bactérias no trato digestivo. Esse número é:",
-        options: ["$10^{9}$", "$10^{10}$", "$10^{11}$", "$10^{12}$", "$10^{13}$"],
-        answer: 2,
-        explain: "$1$ bilhão $=10^{9}$; logo $100$ bilhões $=10^{2}\\cdot10^{9}=10^{2+9}=10^{11}$.",
-      },
-      {
-        source: "Fuvest-SP",
-        stem: "O valor de $(0{,}2)^{3}+(0{,}16)^{2}$ é:",
-        options: ["$0{,}0264$", "$0{,}0336$", "$0{,}1056$", "$0{,}2568$", "$0{,}6256$"],
-        answer: 1,
-        explain: "$(0{,}2)^{3}=0{,}008$ e $(0{,}16)^{2}=0{,}0256$. Soma $=0{,}0336$.",
-      },
-      {
-        source: "IFSC-RS",
-        stem: "Sabendo que $x=200^{100}$ e $y=400^{50}$, pode-se afirmar que:",
-        options: ["$x$ é igual a $y$", "$x$ é a metade de $y$", "$x$ é o dobro de $y$", "$x=y^{2}$", "$x=4y$"],
-        answer: 0,
-        explain: "$y=400^{50}=(200\\cdot2)^{50}=200^{50}\\cdot2^{50}$ e $x=200^{100}=(200^{2})^{50}$. Comparando as bases elevadas a $50$: $200^{2}=40000$ e $200\\cdot2=400$… reescrevendo ambos como potências de $2$ e $5$ mostra-se que $x=y$.",
-      },
-      {
-        source: "Desafio",
-        stem: "Quantos algarismos tem $x = 4^{18}\\cdot 5^{27}$?",
-        options: ["$27$", "$28$", "$29$", "$30$", "$31$"],
-        answer: 3,
-        explain: "$4^{18}=2^{36}$, então $x=2^{36}\\cdot5^{27}=2^{9}\\cdot(2\\cdot5)^{27}=512\\cdot10^{27}$. São os $3$ dígitos de $512$ seguidos de $27$ zeros: $30$ algarismos.",
-      },
-    ], "pot-pratica");
   },
 };
 

@@ -1,8 +1,8 @@
 /* features/sequencias/index.js — Cap 2: Sequências Numéricas */
 import { autoRender } from "../../components/katex.js";
-import { section, def, think, explore, solved, apply, labSlot, quizSlot } from "../../utils/content.js";
+import { section, def, think, explore, solved, apply, labSlot } from "../../utils/content.js";
 import { mountLab } from "../../components/formulaLab.js";
-import { mountQuizSet } from "../../components/quiz.js";
+
 
 export const sequenciasMeta = { num: "02", title: "Sequências Numéricas", chapter: "Capítulo 2" };
 
@@ -25,8 +25,7 @@ export const sequenciasLessons = [
           `<div class="lesson-section">
             <h2 class="lesson-h2">Laboratório — PA no plano cartesiano</h2>
             <p>$a_n$ em função de $n$ é uma <b>reta</b> com inclinação $r$.</p>` +
-          labSlot("lab-pa") + `</div>` +
-          quizSlot("quiz-pa");
+          labSlot("lab-pa") + `</div>`;
 
       autoRender(c);
 
@@ -50,17 +49,7 @@ export const sequenciasLessons = [
         ],
       });
 
-      mountQuizSet(c.querySelector("#quiz-pa"), [
-        { q: "15.º termo de $(3,7,11,\\ldots)$?",
-          opts:["$59$","$55$","$63$","$56$","$60$"], ans:0,
-          expl:"$r=4$; $a_{15}=3+14\\cdot4=59$" },
-        { q: "PA com $a_1=1, r=2$. Soma dos 20 primeiros termos?",
-          opts:["$400$","$380$","$420$","$360$","$440$"], ans:0,
-          expl:"$a_{20}=39$; $S_{20}=\\frac{20\\cdot40}{2}=400$" },
-        { q: "Entre 5 e 29 inserem-se 3 meios aritméticos. Razão?",
-          opts:["$6$","$8$","$4$","$5$","$7$"], ans:0,
-          expl:"5 termos: $29=5+4r\\Rightarrow r=6$" },
-      ], "pa-conceito");
+
     }
   },
 
@@ -85,8 +74,7 @@ export const sequenciasLessons = [
           `<div class="lesson-section">
             <h2 class="lesson-h2">Laboratório — PG no plano cartesiano</h2>
             <p>$a_n = a_1\\cdot q^{n-1}$ é uma exponencial discreta — formato idêntico ao de $f(x)=A\\cdot q^x$.</p>` +
-          labSlot("lab-pg") + `</div>` +
-          quizSlot("quiz-pg");
+          labSlot("lab-pg") + `</div>`;
 
       autoRender(c);
 
@@ -110,17 +98,7 @@ export const sequenciasLessons = [
         ],
       });
 
-      mountQuizSet(c.querySelector("#quiz-pg"), [
-        { q: "6.º termo de $(3,6,12,\\ldots)$?",
-          opts:["$96$","$48$","$192$","$64$","$128$"], ans:0,
-          expl:"$q=2$; $a_6=3\\cdot2^5=96$" },
-        { q: "$S_5$ de $(1,2,4,8,16)$?",
-          opts:["$31$","$30$","$32$","$63$","$15$"], ans:0,
-          expl:"$S_5=\\frac{2^5-1}{2-1}=31$" },
-        { q: "(ENEM) Epidemia dobra a cada 3 dias. De 100 casos, após 9 dias:",
-          opts:["$800$","$400$","$1600$","$200$","$1200$"], ans:0,
-          expl:"3 duplicações: $100\\cdot2^3=800$" },
-      ], "pg-conceito");
+
     }
   },
 
@@ -138,7 +116,7 @@ export const sequenciasLessons = [
           <p style="font-size:.85rem;color:var(--text-soft)">Laranja = PA (r=5) · Amarelo = PG (q=1,5) · a₁=5</p>
         </div>` +
         think("A partir de qual índice a PG supera definitivamente a PA? Leia no gráfico.") +
-        quizSlot("quiz-vs");
+
 
       const canvas = document.createElement("canvas");
       canvas.style.cssText = "width:100%;height:100%;display:block;";
@@ -152,14 +130,6 @@ export const sequenciasLessons = [
       });
 
       autoRender(c);
-      mountQuizSet(c.querySelector("#quiz-vs"), [
-        { q: "PA $(5,10,15,\\ldots)$ e PG $(5,10,20,\\ldots)$. No 6.º termo, qual é maior?",
-          opts:["PG","PA","Iguais","Não dá saber","Nenhuma"], ans:0,
-          expl:"$a_6^{PA}=30$ vs $a_6^{PG}=5\\cdot2^5=160$. PG." },
-        { q: "Juros compostos modelam PA ou PG?",
-          opts:["PG","PA","Depende","Nenhuma","Ambas"], ans:0,
-          expl:"Juros compostos: capital multiplica por $(1+i)$ a cada período → PG." },
-      ], "seq-vs");
     }
   },
 ];
