@@ -4,6 +4,8 @@ import { section, def, think, explore, solved, apply, labSlot } from "../../util
 import { mountLab } from "../../components/formulaLab.js";
 
 
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
 export const sequenciasMeta = { num: "02", title: "Sequências Numéricas", chapter: "Capítulo 2" };
 
 export const sequenciasLessons = [
@@ -124,8 +126,8 @@ export const sequenciasLessons = [
       import("../../core/plotEngine.js").then(({ Plot }) => {
         const p = new Plot(canvas, { xmin:0, xmax:15, ymin:-5, ymax:120 });
         p.setCurves([
-          { fn: x => 5+(x-1)*5, color: "var(--accent)" },
-          { fn: x => 5*Math.pow(1.5,x-1), color: "var(--accent-2)" },
+          { fn: x => 5+(x-1)*5, color: css("--accent") },
+          { fn: x => 5*Math.pow(1.5,x-1), color: css("--accent-2") },
         ]);
       });
 

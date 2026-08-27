@@ -510,6 +510,18 @@
     grid-template-rows: 1fr auto;
     padding-bottom: 56px; /* space for toolbar */
   }
+
+  .prof-readout {
+    position: fixed;
+    bottom: 56px;
+    left: 0;
+    right: 0;
+    z-index: 42;
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: blur(6px);
+    border-top: 1px solid var(--border);
+    padding: .4rem .8rem;
+  }
 }
 
 /* ============================================================

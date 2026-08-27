@@ -55,12 +55,15 @@ export class Plot {
   invY(py) { const { ymin, ymax } = this.view; return ymin + ((this.H - py) / this.H) * (ymax - ymin); }
 
   // ---- nice tick spacing ----
-  _step(range, target = 8) {
+  _step(range, target = 8, canvasPx) {
+    if (canvasPx && canvasPx > 0) {
+      target = Math.max(3, Math.min(12, Math.floor(canvasPx / 70)));
+    }
     const raw = range / target;
     const mag = Math.pow(10, Math.floor(Math.log10(raw)));
     const norm = raw / mag;
     let s = 1;
-    if (norm < 1.5) s = 1; else if (norm < 3) s = 2; else if (norm < 7) s = 5; else s = 10;
+    if (norm < 1.5) s = 1; else if (norm < 3.5) s = 2; else if (norm < 7.5) s = 5; else s = 10;
     return s * mag;
   }
 
@@ -95,18 +98,26 @@ export class Plot {
     const line = css("--grid-line"), axis = css("--grid-axis");
     const textc = css("--text-mut");
 
-    const xStep = this.piAxis ? Math.PI / 2 : this._step(xmax - xmin);
-    const yStep = this._step(ymax - ymin);
+    const xStep = this.piAxis ? Math.PI / 2 : this._step(xmax - xmin, 8, W);
+    const yStep = this._step(ymax - ymin, 8, H);
 
     // grid
     ctx.lineWidth = 1; ctx.strokeStyle = line;
-    ctx.font = `12px ${css("--font-mono") || "monospace"}`;
+    const xNumLabels = (xmax - xmin) / xStep;
+    let xFs = 12;
+    if (xNumLabels > 15) xFs = 9;
+    else if (xNumLabels > 10) xFs = 10;
+    else if (xNumLabels < 5) xFs = 14;
+    ctx.font = `${xFs}px ${css("--font-mono") || "monospace"}`;
     ctx.textAlign = "center"; ctx.textBaseline = "top";
 
     const x0 = Math.ceil(xmin / xStep) * xStep;
+    let lastPx = null;
     for (let x = x0; x <= xmax + 1e-9; x += xStep) {
       const px = this.X(x);
       ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, H); ctx.stroke();
+      if (lastPx !== null && Math.abs(px - lastPx) < 50) continue;
+      lastPx = px;
       if (Math.abs(x) > 1e-9) {
         const lbl = this.piAxis ? this._fmtPi(x) : this._fmtNum(x);
         const yAxisPx = Math.min(Math.max(this.Y(0), 14), H - 16);
@@ -115,10 +126,19 @@ export class Plot {
       }
     }
     ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    const yNumLabels = (ymax - ymin) / yStep;
+    let yFs = 12;
+    if (yNumLabels > 15) yFs = 9;
+    else if (yNumLabels > 10) yFs = 10;
+    else if (yNumLabels < 5) yFs = 14;
+    ctx.font = `${yFs}px ${css("--font-mono") || "monospace"}`;
     const yy0 = Math.ceil(ymin / yStep) * yStep;
+    let lastPy = null;
     for (let y = yy0; y <= ymax + 1e-9; y += yStep) {
       const py = this.Y(y);
       ctx.beginPath(); ctx.moveTo(0, py); ctx.lineTo(W, py); ctx.stroke();
+      if (lastPy !== null && Math.abs(py - lastPy) < 50) continue;
+      lastPy = py;
       if (Math.abs(y) > 1e-9) {
         const xAxisPx = Math.min(Math.max(this.X(0), 26), W - 6);
         ctx.fillStyle = textc;

@@ -88,6 +88,11 @@
             <button class="tool-btn" id="tool-triangle" aria-pressed="false" aria-label="Triângulo">△ Triângulo</button>
             <button class="tool-btn" id="tool-text" aria-pressed="false" aria-label="Texto livre">T Texto</button>
             <button class="tool-btn" id="tool-arrow" aria-pressed="false" aria-label="Seta">→ Seta</button>
+            <button class="tool-btn" data-tool="eraser" id="tool-eraser" aria-pressed="false" aria-label="Borracha (apagar elemento)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 20H7L3 16c-.8-.8-.8-2 0-2.8L14.8 1.4c.8-.8 2-.8 2.8 0L22 5.8c.8.8.8 2 0 2.8L12 18"/>
+              </svg>
+            </button>
           </div>
           <div class="color-row" id="tool-colors" style="margin:.35rem 0" role="radiogroup" aria-label="Cor da ferramenta">
             <div class="color-dot active" data-c="#ffa500" style="background:#ffa500" role="radio" aria-checked="true" aria-label="Laranja" tabindex="0"></div>
@@ -629,16 +634,122 @@ document.getElementById("tool-area").addEventListener("click",  e => setTool("ar
 document.getElementById("tool-triangle").addEventListener("click", e => setTool("triangle", e.currentTarget));
 document.getElementById("tool-text").addEventListener("click", e => setTool("text", e.currentTarget));
 document.getElementById("tool-arrow").addEventListener("click", e => setTool("arrow", e.currentTarget));
+document.getElementById("tool-eraser").addEventListener("click", e => setTool("eraser", e.currentTarget));
 document.getElementById("tool-clear").addEventListener("click", () => {
   overlayMgr.clear();
   areaStart = null;
   arrowStart = null;
+  trianglePoints = [];
+  lastMouseX = null;
+  lastMouseY = null;
   plot.draw();
 });
 
 let areaStart = null;
 let arrowStart = null;
 let trianglePoints = [];
+let lastMouseX = null;
+let lastMouseY = null;
+let currentSnap = null;
+
+function hitTestOverlay(ov, cx, cy, plot) {
+  const type = ov.type;
+  if (type === "marker" || type === "point") {
+    const dx = (ov.x ?? 0) - cx;
+    const dy = (ov.y ?? 0) - cy;
+    return Math.sqrt(dx*dx + dy*dy);
+  }
+  if (type === "vline") {
+    return Math.abs((ov.x ?? 0) - cx);
+  }
+  if (type === "hline") {
+    return Math.abs((ov.y ?? 0) - cy);
+  }
+  if (type === "triangle" && ov.points) {
+    let minD = Infinity;
+    for (const p of ov.points) {
+      const d = Math.sqrt((p.x-cx)**2 + (p.y-cy)**2);
+      if (d < minD) minD = d;
+    }
+    return minD;
+  }
+  if (type === "area") {
+    const x1 = ov.x ?? 0, x2 = ov.x2 ?? ov.x;
+    if (cx >= Math.min(x1,x2) && cx <= Math.max(x1,x2)) return 0;
+    return Math.abs(cx - (cx < x1 ? x1 : x2));
+  }
+  if (type === "arrow" || type === "segment") {
+    const x1=ov.x1??0, y1=ov.y1??0, x2=ov.x2??0, y2=ov.y2??0;
+    const A = y2-y1, B = x1-x2, C = x2*y1-x1*y2;
+    return Math.abs(A*cx+B*cy+C) / Math.sqrt(A*A+B*B);
+  }
+  if (type === "text") {
+    const dx = (ov.x ?? 0) - cx;
+    const dy = (ov.y ?? 0) - cy;
+    return Math.sqrt(dx*dx + dy*dy);
+  }
+  return Infinity;
+}
+
+function snapToReference(x, y, plot) {
+  const SNAP_R = (plot.xmax - plot.xmin) * 0.02;
+  const snapPoints = [];
+
+  const piValues = [];
+  for (let k = -20; k <= 20; k++) {
+    for (const frac of [0, Math.PI/6, Math.PI/4, Math.PI/3, Math.PI/2, Math.PI, 2*Math.PI]) {
+      const v = k * Math.PI + frac;
+      if (v >= plot.xmin && v <= plot.xmax) piValues.push(v);
+    }
+  }
+
+  const commonY = [-2, -1, -0.5, 0, 0.5, 1, 2].filter(v => v >= plot.ymin && v <= plot.ymax);
+
+  for (let k = Math.ceil(plot.xmin); k <= Math.floor(plot.xmax); k++) {
+    piValues.push(k);
+  }
+
+  let bestX = x, bestXd = Infinity;
+  for (const sx of piValues) {
+    const d = Math.abs(sx - x);
+    if (d < bestXd && d < SNAP_R) { bestXd = d; bestX = sx; }
+  }
+
+  let bestY = y, bestYd = Infinity;
+  for (const sy of commonY) {
+    const d = Math.abs(sy - y);
+    if (d < bestYd && d < SNAP_R) { bestYd = d; bestY = sy; }
+  }
+
+  return { x: bestX, y: bestY, snapped: bestXd < SNAP_R || bestYd < SNAP_R };
+}
+
+canvas.addEventListener("mousemove", e => {
+  if (!toolMode) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) / rect.width  * plot.W;
+  const my = (e.clientY - rect.top)  / rect.height * plot.H;
+  const x  = plot.invX(mx);
+  const y  = plot.invY(my);
+  lastMouseX = x;
+  lastMouseY = y;
+
+  if (toolMode === "eraser") {
+    const all = overlayMgr.getAll();
+    let bestDist = Infinity;
+    for (const ov of all) {
+      const ovFlat = { ...ov.props, type: ov.type };
+      const d = hitTestOverlay(ovFlat, x, y, plot);
+      if (d < bestDist) bestDist = d;
+    }
+    currentSnap = null;
+    plot.cv.style.cursor = bestDist < 0.5 ? "crosshair" : "default";
+  } else {
+    const snapped = snapToReference(x, y, plot);
+    currentSnap = snapped.snapped ? snapped : null;
+    plot.cv.style.cursor = snapped.snapped ? "cell" : "crosshair";
+  }
+});
 
 canvas.addEventListener("click", e => {
   if (ucDragging) return;
@@ -649,14 +760,33 @@ canvas.addEventListener("click", e => {
   const x  = plot.invX(mx);
   const y  = plot.invY(my);
 
+  if (toolMode === "eraser") {
+    const all = overlayMgr.getAll();
+    let bestIdx = -1, bestDist = Infinity;
+    for (let i = 0; i < all.length; i++) {
+      const ov = all[i];
+      const ovFlat = { ...ov.props, type: ov.type };
+      const dist = hitTestOverlay(ovFlat, x, y, plot);
+      if (dist < bestDist) { bestDist = dist; bestIdx = i; }
+    }
+    if (bestIdx >= 0 && bestDist < 0.5) {
+      overlayMgr.remove(all[bestIdx].id);
+      plot.draw();
+    }
+    return;
+  }
+
   if (toolMode === "marker") {
-    overlayMgr.add(OverlayType.MARKER, "plot-main", { x, y, color: toolColor, radius: 7, label: formatExactValue(x) });
+    const snapped = snapToReference(x, y, plot);
+    overlayMgr.add(OverlayType.MARKER, "plot-main", { x: snapped.x, y: snapped.y, color: toolColor, radius: 7, label: formatExactValue(snapped.x) });
     plot.draw();
   } else if (toolMode === "vline") {
-    overlayMgr.add(OverlayType.VLINE, "plot-main", { x, color: toolColor, width: 2 });
+    const snapped = snapToReference(x, y, plot);
+    overlayMgr.add(OverlayType.VLINE, "plot-main", { x: snapped.x, color: toolColor, width: 2 });
     plot.draw();
   } else if (toolMode === "hline") {
-    overlayMgr.add(OverlayType.HLINE, "plot-main", { y, color: toolColor, width: 2 });
+    const snapped = snapToReference(x, y, plot);
+    overlayMgr.add(OverlayType.HLINE, "plot-main", { y: snapped.y, color: toolColor, width: 2 });
     plot.draw();
   } else if (toolMode === "area") {
     if (areaStart === null) {
@@ -668,7 +798,9 @@ canvas.addEventListener("click", e => {
       plot.draw();
     }
   } else if (toolMode === "triangle") {
-    trianglePoints.push({ x, y });
+    const snapped = snapToReference(x, y, plot);
+    trianglePoints.push({ x: snapped.x, y: snapped.y });
+    readout.textContent = `x = ${snapped.x.toFixed(2)}   y = ${snapped.y.toFixed(2)}`;
     if (trianglePoints.length === 3) {
       overlayMgr.add(OverlayType.TRIANGLE, "plot-main", {
         color: toolColor, opacity: 0.25,
@@ -688,20 +820,43 @@ canvas.addEventListener("click", e => {
         ctx.arc(plot.X(p.x), plot.Y(p.y), 5, 0, 2*Math.PI);
         ctx.fill();
       }
+      if (trianglePoints.length === 1) {
+        ctx.strokeStyle = toolColor + "40";
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4,4]);
+        ctx.beginPath();
+        ctx.moveTo(plot.X(trianglePoints[0].x), plot.Y(trianglePoints[0].y));
+        ctx.lineTo(plot.X(snapped.x), plot.Y(snapped.y));
+        ctx.stroke();
+        ctx.setLineDash([]);
+      } else if (trianglePoints.length === 2) {
+        ctx.strokeStyle = toolColor + "40";
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4,4]);
+        for (const p of trianglePoints) {
+          ctx.beginPath();
+          ctx.moveTo(plot.X(p.x), plot.Y(p.y));
+          ctx.lineTo(plot.X(snapped.x), plot.Y(snapped.y));
+          ctx.stroke();
+        }
+        ctx.setLineDash([]);
+      }
       ctx.restore();
     }
   } else if (toolMode === "text") {
+    const snapped = snapToReference(x, y, plot);
     const txt = prompt("Texto da anotação:");
     if (txt) {
-      overlayMgr.add(OverlayType.TEXT, "plot-main", { x, y, text: txt, color: toolColor, fontSize: 14 });
+      overlayMgr.add(OverlayType.TEXT, "plot-main", { x: snapped.x, y: snapped.y, text: txt, color: toolColor, fontSize: 14 });
       plot.draw();
     }
   } else if (toolMode === "arrow") {
+    const snapped = snapToReference(x, y, plot);
     if (arrowStart === null) {
-      arrowStart = { x, y };
+      arrowStart = { x: snapped.x, y: snapped.y };
     } else {
       overlayMgr.add(OverlayType.ARROW, "plot-main", {
-        x1: arrowStart.x, y1: arrowStart.y, x2: x, y2: y,
+        x1: arrowStart.x, y1: arrowStart.y, x2: snapped.x, y2: snapped.y,
         color: toolColor, width: 2,
       });
       arrowStart = null;
@@ -727,6 +882,19 @@ function drawOverlays() {
     ctx.setLineDash([]);
     ctx.fillStyle = toolColor; ctx.font = "10px monospace";
     ctx.textAlign = "center"; ctx.fillText("→ clique p/ fechar área", px, 14);
+
+    if (lastMouseX !== null) {
+      const px2 = plot.X(lastMouseX);
+      const left = Math.min(px, px2);
+      const right = Math.max(px, px2);
+      ctx.fillStyle = toolColor + "15";
+      ctx.fillRect(left, 0, right - left, plot.H);
+      ctx.strokeStyle = toolColor + "40";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2,2]);
+      ctx.strokeRect(left, 0, right - left, plot.H);
+      ctx.setLineDash([]);
+    }
   }
 
   if (arrowStart !== null) {
@@ -734,6 +902,32 @@ function drawOverlays() {
     const py = plot.Y(arrowStart.y);
     ctx.fillStyle = toolColor;
     ctx.beginPath(); ctx.arc(px, py, 5, 0, 2*Math.PI); ctx.fill();
+
+    if (lastMouseX !== null && lastMouseY !== null) {
+      const px2 = plot.X(lastMouseX);
+      const py2 = plot.Y(lastMouseY);
+      ctx.strokeStyle = toolColor + "60";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4,4]);
+      ctx.beginPath();
+      ctx.moveTo(px, py);
+      ctx.lineTo(px2, py2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+
+  if (currentSnap && toolMode && toolMode !== "eraser") {
+    ctx.strokeStyle = toolColor + "60";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3,3]);
+    const sx = plot.X(currentSnap.x);
+    const sy = plot.Y(currentSnap.y);
+    ctx.beginPath();
+    ctx.moveTo(sx, 0); ctx.lineTo(sx, plot.H);
+    ctx.moveTo(0, sy); ctx.lineTo(plot.W, sy);
+    ctx.stroke();
+    ctx.setLineDash([]);
   }
 }
 
@@ -774,8 +968,15 @@ document.addEventListener("click", () => {
 function openPalette(dot, formula) {
   _palTarget = formula;
   const rect = dot.getBoundingClientRect();
-  palette.style.left = (rect.right + 8) + "px";
-  palette.style.top  = Math.min(rect.top, window.innerHeight - 200) + "px";
+  const palW = 160;
+  const palH = 120;
+  let left = rect.right + 8;
+  if (left + palW > window.innerWidth) left = rect.left - palW - 8;
+  if (left < 0) left = 8;
+  let top = Math.min(rect.top, window.innerHeight - palH - 8);
+  if (top < 0) top = 8;
+  palette.style.left = left + "px";
+  palette.style.top  = top + "px";
   palette.classList.remove("hidden");
   palette.querySelectorAll(".cp-swatch").forEach(s =>
     s.classList.toggle("active", s.dataset.c === formula.color));

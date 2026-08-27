@@ -250,7 +250,10 @@ function syncTrigOverlays() {
 }
 overlayMgr.onChange(syncTrigOverlays);
 
+let _pendingBoot = null;
+
 function go(id) {
+  if (_pendingBoot) { cancelAnimationFrame(_pendingBoot); _pendingBoot = null; }
   const idx = ALL.findIndex(l => l.id === id);
   if (idx < 0) return;
   
@@ -266,7 +269,8 @@ function go(id) {
   lessonEl.innerHTML = "";
 
   const boot = () => {
-    requestAnimationFrame(() => {
+    _pendingBoot = requestAnimationFrame(() => {
+      _pendingBoot = null;
       requestAnimationFrame(() => {
         l.render(lessonEl);
         syncTrigOverlays();

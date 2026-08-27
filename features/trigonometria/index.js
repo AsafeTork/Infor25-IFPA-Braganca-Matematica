@@ -297,7 +297,7 @@ export const trigonometriaLessons = [
 <section class="lesson-section">
   <h2 class="lesson-h2">Interativo — Círculo Trigonométrico → Gráfico de seno</h2>
   <p>O painel esquerdo mostra o círculo trigonométrico. O painel direito mostra o gráfico de seno sendo "desenrolado" conforme P gira. A linha horizontal conecta a altura de P no círculo ao ponto correspondente no gráfico.</p>
-  <div id="vis-c2g-seno" style="width:100%;max-width:700px;height:300px;margin:.8rem auto"></div>
+  <div id="vis-c2g-seno" style="width:100%;max-width:700px;min-height:300px;margin:.8rem auto"></div>
 </section>
 
 <section class="lesson-section">
@@ -383,7 +383,7 @@ export const trigonometriaLessons = [
 <section class="lesson-section">
   <h2 class="lesson-h2">Interativo — Círculo → Gráfico de cosseno</h2>
   <p>Agora observe a <strong>posição horizontal</strong> de P sendo projetada no gráfico. O cosseno começa no máximo (1) quando x = 0 e segue a mesma onda do seno, mas defasada.</p>
-  <div id="vis-c2g-cos" style="width:100%;max-width:700px;height:300px;margin:.8rem auto"></div>
+  <div id="vis-c2g-cos" style="width:100%;max-width:700px;min-height:300px;margin:.8rem auto"></div>
 </section>
 
 <section class="lesson-section">
@@ -624,7 +624,7 @@ export const trigonometriaLessons = [
 <section class="lesson-section">
   <h2 class="lesson-h2">Interativo — Movimento Harmônico Simples (mola)</h2>
   <p>Uma massa presa a uma mola oscila de forma senoidal. A posição da massa em função do tempo segue $x(t) = A \\cos(\\omega t)$. Ajuste amplitude, frequência e fase.</p>
-  <div id="vis-sho" style="width:100%;max-width:700px;height:320px;margin:.8rem auto"></div>
+  <div id="vis-sho" style="width:100%;max-width:700px;min-height:320px;margin:.8rem auto"></div>
 </section>
 
 <section class="lesson-section">
@@ -650,13 +650,13 @@ export const trigonometriaLessons = [
 <section class="lesson-section">
   <h2 class="lesson-h2">Interativo — Corrente Alternada</h2>
   <p>Observe a oscilação da tensão AC ao longo do tempo. Ajuste amplitude (tensão máxima), frequência e fase.</p>
-  <div id="vis-ac" style="width:100%;max-width:700px;height:320px;margin:.8rem auto"></div>
+  <div id="vis-ac" style="width:100%;max-width:700px;min-height:320px;margin:.8rem auto"></div>
 </section>
 
 <section class="lesson-section">
   <h2 class="lesson-h2">Temperatura — ciclo diário e anual</h2>
   <p>A temperatura ao longo do dia segue aproximadamente uma curva cossenoidal: mínima ao amanhecer, máxima no início da tarde.</p>
-  <div id="vis-temp" style="width:100%;max-width:700px;height:320px;margin:.8rem auto"></div>
+  <div id="vis-temp" style="width:100%;max-width:700px;min-height:320px;margin:.8rem auto"></div>
 </section>
 
 <div class="box think">
