@@ -2,8 +2,8 @@
    core/overlayRenderers.js
    Overlay rendering engine for Plot and TrigCircle canvases.
 
-   Handles 8 overlay types:
-     marker, vline, hline, area, triangle, text, freehand, distance
+   Handles 10 overlay types:
+     marker, vline, hline, area, triangle, text, arrow, circle, freehand, distance
 
    API:
      renderOverlaysOnPlot(ctx, plot, overlays, formatExact)
@@ -141,6 +141,78 @@ function renderTriangle(ctx, ov, toX, toY) {
   ctx.restore();
 }
 
+function renderArrow(ctx, ov, toX, toY) {
+  const x1 = ov.x1 ?? 0;
+  const y1 = ov.y1 ?? 0;
+  const x2 = ov.x2 ?? 1;
+  const y2 = ov.y2 ?? 0;
+  const px1 = toX(x1), py1 = toY(y1);
+  const px2 = toX(x2), py2 = toY(y2);
+  const color = ov.color || css("--accent") || "#ffa500";
+  const width = ov.width || 2;
+
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = width;
+
+  ctx.beginPath();
+  ctx.moveTo(px1, py1);
+  ctx.lineTo(px2, py2);
+  ctx.stroke();
+
+  const angle = Math.atan2(py2 - py1, px2 - px1);
+  const headLen = 10;
+  ctx.beginPath();
+  ctx.moveTo(px2, py2);
+  ctx.lineTo(px2 - headLen * Math.cos(angle - Math.PI / 6), py2 - headLen * Math.sin(angle - Math.PI / 6));
+  ctx.lineTo(px2 - headLen * Math.cos(angle + Math.PI / 6), py2 - headLen * Math.sin(angle + Math.PI / 6));
+  ctx.closePath();
+  ctx.fill();
+
+  if (ov.label) {
+    const fs = ov.fontSize || 12;
+    ctx.font = `${fs}px ${css("--font-mono") || "monospace"}`;
+    ctx.fillStyle = color;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+    ctx.fillText(ov.label, (px1 + px2) / 2, Math.min(py1, py2) - 6);
+  }
+
+  ctx.restore();
+}
+
+function renderCircle(ctx, ov, toX, toY) {
+  const cx = ov.cx ?? 0;
+  const cy = ov.cy ?? 0;
+  const rx = ov.rx ?? 1;
+  const ry = ov.ry ?? 1;
+  const px = toX(cx);
+  const py = toY(cy);
+  const prx = Math.abs(toX(cx + rx) - toX(cx));
+  const pry = Math.abs(toY(cy) - toY(cy + ry));
+  const color = ov.color || css("--accent") || "#ffa500";
+
+  ctx.save();
+
+  if (ov.opacity) {
+    ctx.globalAlpha = ov.opacity;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.ellipse(px, py, prx, pry, 0, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  ctx.strokeStyle = ov.stroke || color;
+  ctx.lineWidth = ov.strokeWidth || 1.5;
+  ctx.beginPath();
+  ctx.ellipse(px, py, prx, pry, 0, 0, 2 * Math.PI);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
 function renderText(ctx, ov, toX, toY) {
   const px = toX(ov.x);
   const py = toY(ov.y);
@@ -245,6 +317,8 @@ const RENDERERS = {
   area:      (ctx, ov, toX, toY)              => renderArea(ctx, ov, toX, toY),
   triangle:  (ctx, ov, toX, toY)              => renderTriangle(ctx, ov, toX, toY),
   text:      (ctx, ov, toX, toY)              => renderText(ctx, ov, toX, toY),
+  arrow:     (ctx, ov, toX, toY)              => renderArrow(ctx, ov, toX, toY),
+  circle:    (ctx, ov, toX, toY)              => renderCircle(ctx, ov, toX, toY),
   freehand:  (ctx, ov, toX, toY)              => renderFreehand(ctx, ov, toX, toY),
   distance:  (ctx, ov, toX, toY, _w, _h, fmt) => renderDistance(ctx, ov, toX, toY, fmt),
 };

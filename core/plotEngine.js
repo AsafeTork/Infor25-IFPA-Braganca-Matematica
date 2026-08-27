@@ -22,6 +22,9 @@ export class Plot {
     };
     this.onProbe = null;
     this.onDraw  = null;
+    this._pointers = new Map();
+    this._pinchInitialDist = 0;
+    this._pinchInitialZoom = 1;
     this._bind();
     this.resize();
     this._onResize = () => this.resize();
@@ -202,14 +205,46 @@ export class Plot {
       ly = e.clientY - rect.top;
       this.cv.style.cursor = "grabbing";
       this.cv.setPointerCapture(e.pointerId);
+
+      this._pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (this._pointers.size === 2) {
+        const pts = [...this._pointers.values()];
+        this._pinchInitialDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+        this._pinchInitialView = { ...this.view };
+      }
     });
 
     this.cv.addEventListener("pointermove", (e) => {
       const rect = this.cv.getBoundingClientRect();
       const mx = e.clientX - rect.left;
       const my = e.clientY - rect.top;
+
+      if (this._pointers.size === 2 && this._pointers.has(e.pointerId)) {
+        this._pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        const pts = [...this._pointers.values()];
+        const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+        const scale = this._pinchInitialDist / dist;
+        const midX = (pts[0].x + pts[1].x) / 2;
+        const midY = (pts[0].y + pts[1].y) / 2;
+        const rect2 = this.cv.getBoundingClientRect();
+        const cx = ((midX - rect2.left) / rect2.width);
+        const cy = ((midY - rect2.top) / rect2.height);
+        const iv = this._pinchInitialView;
+        const vw = iv.xmax - iv.xmin;
+        const vh = iv.ymax - iv.ymin;
+        const nw = vw * scale;
+        const nh = vh * scale;
+        this.view.xmin = iv.xmin + cx * (vw - nw);
+        this.view.xmax = this.view.xmin + nw;
+        this.view.ymin = iv.ymin + (1 - cy) * (vh - nh);
+        this.view.ymax = this.view.ymin + nh;
+        this.draw();
+        e.preventDefault();
+        return;
+      }
+
       if (this.cv.hasPointerCapture(e.pointerId)) {
-        if (dragging) {
+        if (dragging && this._pointers.size < 2) {
           const dx = mx - lx, dy = my - ly;
           const { xmin, xmax, ymin, ymax } = this.view;
           const sx = (xmax - xmin) / this.W, sy = (ymax - ymin) / this.H;
@@ -223,15 +258,21 @@ export class Plot {
     });
 
     this.cv.addEventListener("pointerup", (e) => {
-      dragging = false;
-      this.cv.style.cursor = "crosshair";
-      this.cv.releasePointerCapture(e.pointerId);
+      this._pointers.delete(e.pointerId);
+      if (this._pointers.size < 2) {
+        dragging = false;
+        this.cv.style.cursor = "crosshair";
+        this.cv.releasePointerCapture(e.pointerId);
+      }
     });
 
     this.cv.addEventListener("pointercancel", (e) => {
-      dragging = false;
-      this.cv.style.cursor = "crosshair";
-      this.cv.releasePointerCapture(e.pointerId);
+      this._pointers.delete(e.pointerId);
+      if (this._pointers.size < 2) {
+        dragging = false;
+        this.cv.style.cursor = "crosshair";
+        this.cv.releasePointerCapture(e.pointerId);
+      }
     });
 
     this.cv.addEventListener("wheel", (e) => {
@@ -243,6 +284,126 @@ export class Plot {
       v.ymin = cy + (v.ymin - cy) * f; v.ymax = cy + (v.ymax - cy) * f;
       this.draw();
     }, { passive: false });
+  }
+
+  exportPNG(pixelRatio = 2) {
+    const cv = document.createElement("canvas");
+    cv.width = this.W * pixelRatio;
+    cv.height = this.H * pixelRatio;
+    const ctx = cv.getContext("2d");
+    ctx.scale(pixelRatio, pixelRatio);
+
+    ctx.fillStyle = css("--plot-bg") || "#0b0c10";
+    ctx.fillRect(0, 0, this.W, this.H);
+
+    const origCtx = this.ctx;
+    this.ctx = ctx;
+    this.draw();
+    this.ctx = origCtx;
+
+    cv.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "grafico.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, "image/png");
+  }
+
+  exportSVG() {
+    const bg = css("--plot-bg") || "#0b0c10";
+    const gridColor = css("--grid-line") || "rgba(255,255,255,.055)";
+    const axisColor = css("--grid-axis") || "rgba(255,226,107,.55)";
+    const textColor = css("--text-mut") || "#f3f1ea";
+
+    let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${this.W}" height="${this.H}" viewBox="0 0 ${this.W} ${this.H}">`;
+    svg += `<rect width="100%" height="100%" fill="${bg}"/>`;
+
+    const { xmin, xmax, ymin, ymax } = this.view;
+    const xStep = this.piAxis ? Math.PI / 2 : this._step(xmax - xmin);
+    const yStep = this._step(ymax - ymin);
+
+    const x0 = Math.ceil(xmin / xStep) * xStep;
+    for (let x = x0; x <= xmax + 1e-9; x += xStep) {
+      const px = this.X(x);
+      svg += `<line x1="${px}" y1="0" x2="${px}" y2="${this.H}" stroke="${gridColor}" stroke-width="1"/>`;
+      if (Math.abs(x) > 1e-9) {
+        const lbl = this.piAxis ? this._fmtPi(x) : this._fmtNum(x);
+        const yAxisPx = Math.min(Math.max(this.Y(0), 14), this.H - 16);
+        svg += `<text x="${px}" y="${yAxisPx + 14}" fill="${textColor}" font-size="12" font-family="monospace" text-anchor="middle">${lbl}</text>`;
+      }
+    }
+
+    const y0 = Math.ceil(ymin / yStep) * yStep;
+    for (let y = y0; y <= ymax + 1e-9; y += yStep) {
+      const py = this.Y(y);
+      svg += `<line x1="0" y1="${py}" x2="${this.W}" y2="${py}" stroke="${gridColor}" stroke-width="1"/>`;
+      if (Math.abs(y) > 1e-9) {
+        const xAxisPx = Math.min(Math.max(this.X(0), 26), this.W - 6);
+        svg += `<text x="${xAxisPx - 6}" y="${py + 4}" fill="${textColor}" font-size="12" font-family="monospace" text-anchor="end">${this._fmtNum(y)}</text>`;
+      }
+    }
+
+    const ox = this.X(0), oy = this.Y(0);
+    svg += `<line x1="${ox}" y1="0" x2="${ox}" y2="${this.H}" stroke="${axisColor}" stroke-width="1.6"/>`;
+    svg += `<line x1="0" y1="${oy}" x2="${this.W}" y2="${oy}" stroke="${axisColor}" stroke-width="1.6"/>`;
+
+    for (const curve of this.curves) {
+      const N = Math.max(this.W, 600);
+      const dx = (xmax - xmin) / N;
+      let points = [];
+      let started = false, prevY = null;
+      for (let i = 0; i <= N; i++) {
+        const x = xmin + i * dx;
+        let y;
+        try { y = curve.fn(x); } catch { y = NaN; }
+        if (!isFinite(y)) {
+          if (points.length > 1) {
+            svg += `<polyline points="${points.join(" ")}" fill="none" stroke="${curve.color || css("--accent")}" stroke-width="2.6"/>`;
+          }
+          points = [];
+          started = false;
+          prevY = null;
+          continue;
+        }
+        const py = this.Y(y);
+        if (started && prevY !== null && Math.abs(py - prevY) > this.H * 2) {
+          if (points.length > 1) {
+            svg += `<polyline points="${points.join(" ")}" fill="none" stroke="${curve.color || css("--accent")}" stroke-width="2.6"/>`;
+          }
+          points = [];
+        }
+        points.push(`${this.X(x).toFixed(1)},${py.toFixed(1)}`);
+        started = true;
+        prevY = py;
+      }
+      if (points.length > 1) {
+        svg += `<polyline points="${points.join(" ")}" fill="none" stroke="${curve.color || css("--accent")}" stroke-width="2.6"/>`;
+      }
+    }
+
+    for (const m of this.markers) {
+      const px = this.X(m.x), py = this.Y(m.y);
+      svg += `<circle cx="${px}" cy="${py}" r="5" fill="${css("--accent")}" stroke="${bg}" stroke-width="2"/>`;
+      if (m.label) {
+        svg += `<text x="${px + 9}" y="${py - 6}" fill="${css("--text")}" font-size="13" font-family="monospace" text-anchor="start">${m.label}</text>`;
+      }
+    }
+
+    svg += `</svg>`;
+
+    const blob = new Blob([svg], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "grafico.svg";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   reset(v) { this.setView(v); }

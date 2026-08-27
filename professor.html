@@ -2,182 +2,141 @@
 <html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Professor · Informática 25</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles/tokens.css">
 <link rel="stylesheet" href="styles/base.css">
-<link rel="stylesheet" href="styles/board.css">
+<link rel="stylesheet" href="styles/professor.css">
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
-<style>
-.prof-top{position:sticky;top:0;z-index:50;height:52px;display:flex;align-items:center;gap:.6rem;padding:0 1rem;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
-.prof-brand{font-family:var(--font-display);font-weight:800;font-size:1rem;color:var(--text);text-decoration:none;letter-spacing:-.02em;flex:1;}
-.prof-brand b{color:var(--accent);}
-.prof-toplink{font-size:.8rem;color:var(--text-soft);padding:.25rem .6rem;border-radius:6px;text-decoration:none;transition:all .15s;}
-.prof-toplink:hover{background:var(--surface-2);color:var(--text);}
-.prof-wrap{display:grid;grid-template-columns:1fr 280px;height:calc(100dvh - 52px);overflow:hidden;}
-@media(max-width:700px){.prof-wrap{grid-template-columns:1fr;grid-template-rows:55vw 1fr;}}
-.prof-stage{position:relative;background:var(--bg);overflow:hidden;}
-.prof-stage canvas{width:100%;height:100%;display:block;}
-.prof-labels{position:absolute;top:.5rem;left:.5rem;display:flex;flex-direction:column;gap:.2rem;pointer-events:none;}
-.prof-label{font-family:var(--font-mono);font-size:.75rem;background:color-mix(in srgb,var(--bg) 75%,transparent);padding:.15rem .45rem;border-radius:4px;}
-.prof-panel{display:flex;flex-direction:column;border-left:1px solid var(--border);background:var(--surface);overflow:hidden;}
-.prof-context{padding:.5rem 1rem;font-size:.7rem;color:var(--text-mut);letter-spacing:.04em;border-bottom:1px solid var(--border);text-align:center;}
-.prof-section{padding:.75rem 1rem;border-bottom:1px solid var(--border);}
-.prof-section-title{font-family:var(--font-mono);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-mut);margin-bottom:.5rem;}
-.frow{display:flex;align-items:center;gap:.4rem;margin:.25rem 0;}
-.frow-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;cursor:pointer;border:2px solid transparent;transition:border-color .15s,transform .15s;position:relative;}
-.frow-dot:hover{border-color:rgba(255,255,255,.4);transform:scale(1.25);}
-.frow-color-inp{position:absolute;width:0;height:0;opacity:0;pointer-events:none;}
-/* Paleta de cores */
-.color-palette{position:fixed;z-index:999;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.6rem;display:grid;grid-template-columns:repeat(5,1fr);gap:.35rem;box-shadow:0 8px 32px rgba(0,0,0,.35);}
-.color-palette.hidden{display:none;}
-.cp-swatch{width:24px;height:24px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .15s,border-color .15s;}
-.cp-swatch:hover{transform:scale(1.2);border-color:rgba(255,255,255,.5);}
-.cp-swatch.active{border-color:#fff;}
-.frow-inp{flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:.3rem .5rem;border-radius:6px;font-family:var(--font-mono);font-size:.82rem;outline:none;transition:border-color .15s;}
-.frow-inp:focus{border-color:var(--accent);}
-.frow-del{width:22px;height:22px;border-radius:4px;border:none;background:transparent;color:var(--text-mut);cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;}
-.frow-del:hover{background:color-mix(in srgb,#f00 15%,var(--surface));color:#f66;}
-.prof-controls{display:flex;align-items:center;gap:.4rem;}
-.ctrl-btn{height:30px;padding:0 .6rem;border-radius:6px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-soft);cursor:pointer;font-size:.8rem;transition:all .15s;white-space:nowrap;}
-.ctrl-btn:hover{border-color:var(--accent);color:var(--accent);}
-.ctrl-btn.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
-.prof-presets-wrap{flex:1;overflow-y:auto;min-height:0;padding:.5rem;}
-.tools-details{margin-bottom:.5rem;}
-.preset-group{margin-bottom:.6rem;}
-.preset-group-title{font-family:var(--font-mono);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-mut);padding:.2rem .25rem;margin-bottom:.25rem;}
-.preset-btns{display:flex;flex-direction:column;gap:.2rem;}
-.preset-btn{text-align:left;padding:.35rem .6rem;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-soft);cursor:pointer;font-size:.8rem;transition:all .15s;}
-.preset-btn:hover{background:var(--surface-2);color:var(--text);}
-.preset-btn.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);}
-.prof-readout{font-family:var(--font-mono);font-size:.78rem;color:var(--text-soft);padding:.6rem 1rem;border-top:1px solid var(--border);}
-/* Info do círculo no painel */
-.uc-info{padding:.5rem 1rem;border-bottom:1px solid var(--border);display:none;}
-.uc-info.show{display:block;}
-.uc-row{display:flex;justify-content:space-between;gap:.5rem;padding:.1rem 0;font-family:var(--font-mono);font-size:.75rem;}
-.uc-k{font-weight:700;color:var(--text-mut);}
-.uc-val{color:var(--text);}
-.uc-snap{font-size:.65rem;color:var(--accent);text-align:right;margin-top:.2rem;}
-/* ── Ferramentas do professor ── */
-.tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:.3rem;margin-top:.4rem;}
-.tool-btn{padding:.35rem .4rem;border-radius:6px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-soft);cursor:pointer;font-size:.72rem;text-align:left;transition:all .15s;display:flex;align-items:center;gap:.35rem;}
-.tool-btn:hover{border-color:var(--accent);color:var(--accent);}
-.tool-btn.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:700;}
-.tool-icon{font-size:.85rem;flex-shrink:0;}
-.color-row{display:flex;gap:.3rem;margin-top:.35rem;flex-wrap:wrap;}
-.color-dot{width:18px;height:18px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .15s,border-color .15s;}
-.color-dot:hover{transform:scale(1.25);}
-.color-dot.active{border-color:#fff;}
-.sect-title{font-family:var(--font-mono);font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-mut);margin:.5rem 0 .25rem;}
-.opacity-row{display:flex;align-items:center;gap:.4rem;margin-top:.3rem;}
-.opacity-row input{flex:1;accent-color:var(--accent);}
-.opacity-row span{font-family:var(--font-mono);font-size:.68rem;color:var(--text-mut);min-width:28px;}
-.uc-set{margin-top:.6rem;border-top:1px solid var(--border);padding-top:.5rem;}
-.uc-set-title{font-family:var(--font-mono);font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-mut);margin-bottom:.4rem;}
-.uc-angle-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.2rem;}
-.uc-abtn{background:var(--surface-2);border:1px solid var(--border);color:var(--text-soft);border-radius:5px;padding:.25rem .1rem;font-family:var(--font-mono);font-size:.62rem;cursor:pointer;text-align:center;transition:all .15s;white-space:nowrap;}
-.uc-abtn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);}
-.uc-abtn.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:700;}
-.uc-custom{display:flex;gap:.3rem;margin-top:.4rem;}
-.uc-custom input{flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:.3rem .4rem;border-radius:5px;font-family:var(--font-mono);font-size:.75rem;outline:none;}
-.uc-custom input:focus{border-color:var(--accent);}
-.uc-custom button{background:var(--accent);border:none;color:#000;padding:.3rem .5rem;border-radius:5px;font-weight:700;font-size:.72rem;cursor:pointer;}
-.uc-tab{flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text-mut);border-radius:5px;padding:.22rem .3rem;font-size:.6rem;font-family:var(--font-mono);cursor:pointer;transition:all .15s;}
-.uc-tab.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:700;}
-#uc-negate-btn{background:var(--surface-2) !important;border:1px solid var(--border) !important;color:var(--text) !important;flex-shrink:0;}
-#uc-negate-btn:hover{border-color:var(--accent) !important;color:var(--accent) !important;}
-</style>
 </head>
 <body>
 
-<header class="prof-top">
+<header class="prof-top" role="banner">
   <a class="prof-brand" href="index.html">Informática <b>25</b></a>
   <a href="aluno.html" class="prof-toplink">Aluno</a>
-  <button class="theme-toggle" id="theme-btn" aria-label="Tema"></button>
+  <button class="theme-toggle" id="theme-btn" aria-label="Alternar tema"></button>
 </header>
 
 <div class="prof-wrap">
   <div class="prof-stage" id="prof-stage">
-    <canvas id="plot-canvas"></canvas>
+    <canvas id="plot-canvas" style="touch-action:none"></canvas>
     <div class="prof-labels" id="prof-labels"></div>
   </div>
-  <div class="prof-panel">
+
+  <!-- Painel lateral (desktop/tablet) -->
+  <div class="prof-panel" id="prof-panel" role="complementary" aria-label="Painel de controle">
     <div class="prof-context">Gráficos interativos · Informática 25</div>
+
     <div class="prof-section">
       <div class="prof-section-title">Fórmulas</div>
       <div id="formulas-rows"></div>
-      <button class="ctrl-btn" id="btn-add" style="width:100%;margin-top:.4rem;text-align:center">+ linha</button>
+      <button class="ctrl-btn" id="btn-add" style="width:100%;margin-top:.4rem;text-align:center" aria-label="Adicionar fórmula">+ linha</button>
     </div>
+
     <div class="prof-section">
       <div class="prof-controls">
-        <button class="ctrl-btn" id="btn-pi">π eixo</button>
-        <button class="ctrl-btn" id="btn-circle">⊙ círculo</button>
-        <button class="ctrl-btn" id="btn-reset">⌖</button>
+        <button class="ctrl-btn" id="btn-pi" aria-label="Eixo π">π eixo</button>
+        <button class="ctrl-btn" id="btn-circle" aria-label="Círculo unitário">⊙ círculo</button>
+        <button class="ctrl-btn" id="btn-reset" aria-label="Resetar vista">⌖</button>
+        <div class="prof-download-wrap">
+          <button class="ctrl-btn" id="btn-download" aria-label="Baixar gráfico" aria-haspopup="true">⬇</button>
+          <div class="prof-download-menu" id="download-menu" role="menu">
+            <button role="menuitem" data-format="png">PNG (2x)</button>
+            <button role="menuitem" data-format="svg">SVG vetorial</button>
+          </div>
+        </div>
       </div>
     </div>
+
     <!-- Info do círculo unitário -->
-    <div class="uc-info" id="uc-info">
+    <div class="uc-info" id="uc-info" aria-label="Informações do círculo trigonométrico">
       <div class="uc-row"><span class="uc-k">cos θ</span><span class="uc-val" id="uc-cos">—</span></div>
       <div class="uc-row"><span class="uc-k">sin θ</span><span class="uc-val" id="uc-sin">—</span></div>
       <div class="uc-row"><span class="uc-k">tan θ</span><span class="uc-val" id="uc-tan">—</span></div>
       <div class="uc-row"><span class="uc-k">θ</span><span class="uc-val" id="uc-ang">—</span></div>
       <div class="uc-snap" id="uc-snap"></div>
-      <!-- Seletor de ângulos -->
       <div class="uc-set">
         <div class="uc-set-title">Definir ângulo</div>
         <div style="display:flex;gap:.3rem;margin-bottom:.3rem;">
-          <button class="uc-tab active" id="tab-pos" onclick="ucShowTab('pos')">+ positivos</button>
-          <button class="uc-tab" id="tab-neg" onclick="ucShowTab('neg')">− negativos</button>
+          <button class="uc-tab active" id="tab-pos" aria-label="Ângulos positivos">+ positivos</button>
+          <button class="uc-tab" id="tab-neg" aria-label="Ângulos negativos">− negativos</button>
         </div>
         <div class="uc-angle-grid" id="uc-angle-grid"></div>
         <div class="uc-custom">
-          <input id="uc-custom-inp" name="uc-angle" autocomplete="off" placeholder="ex: -π/3 ou -90°">
-          <button id="uc-negate-btn" title="Negar ângulo atual">±</button>
-          <button id="uc-custom-btn">→</button>
+          <input id="uc-custom-inp" name="uc-angle" autocomplete="off" placeholder="ex: -π/3 ou -90°" aria-label="Ângulo personalizado">
+          <button id="uc-negate-btn" title="Negar ângulo atual" aria-label="Negar ângulo">±</button>
+          <button id="uc-custom-btn" aria-label="Aplicar ângulo">→</button>
         </div>
       </div>
     </div>
-    <div class="prof-presets" id="prof-presets-wrap" style="flex:1;overflow-y:auto;min-height:0">
-      <!-- Ferramentas colapsáveis -->
+
+    <!-- Ferramentas + Presets -->
+    <div class="prof-presets-wrap" id="prof-presets-wrap">
       <details class="tools-details" id="tools-section" open>
-        <summary class="preset-group-title" style="cursor:pointer;padding:.3rem .25rem;list-style:none;display:flex;justify-content:space-between">
+        <summary class="preset-group-title" style="cursor:pointer;padding:.3rem .25rem;list-style:none;display:flex;justify-content:space-between" aria-label="Ferramentas de anotação">
           ✏️ Ferramentas <span style="opacity:.5">▾</span>
         </summary>
         <div style="padding:.25rem 0">
-          <div class="tools-grid">
-            <button class="tool-btn" id="tool-marker">📍 Marcar ponto</button>
-            <button class="tool-btn" id="tool-vline">| Linha vertical</button>
-            <button class="tool-btn" id="tool-area">▓ Sombrear área</button>
-            <button class="tool-btn" id="tool-triangle">△ Triângulo</button>
+          <div class="tools-grid" role="toolbar" aria-label="Ferramentas" aria-orientation="horizontal">
+            <button class="tool-btn" id="tool-marker" aria-pressed="false" aria-label="Marcar ponto">📍 Marcar ponto</button>
+            <button class="tool-btn" id="tool-vline" aria-pressed="false" aria-label="Linha vertical">| Linha vertical</button>
+            <button class="tool-btn" id="tool-hline" aria-pressed="false" aria-label="Linha horizontal">— Linha horizontal</button>
+            <button class="tool-btn" id="tool-area" aria-pressed="false" aria-label="Sombrear área">▓ Sombrear área</button>
+            <button class="tool-btn" id="tool-triangle" aria-pressed="false" aria-label="Triângulo">△ Triângulo</button>
+            <button class="tool-btn" id="tool-text" aria-pressed="false" aria-label="Texto livre">T Texto</button>
+            <button class="tool-btn" id="tool-arrow" aria-pressed="false" aria-label="Seta">→ Seta</button>
           </div>
-          <div class="color-row" id="tool-colors" style="margin:.35rem 0">
-            <div class="color-dot active" data-c="#ffa500" style="background:#ffa500"></div>
-            <div class="color-dot" data-c="#ffd23f" style="background:#ffd23f"></div>
-            <div class="color-dot" data-c="#60a5fa" style="background:#60a5fa"></div>
-            <div class="color-dot" data-c="#34d399" style="background:#34d399"></div>
-            <div class="color-dot" data-c="#f472b6" style="background:#f472b6"></div>
-            <div class="color-dot" data-c="#f87171" style="background:#f87171"></div>
-            <div class="color-dot" data-c="#e2e8f0" style="background:#e2e8f0"></div>
+          <div class="color-row" id="tool-colors" style="margin:.35rem 0" role="radiogroup" aria-label="Cor da ferramenta">
+            <div class="color-dot active" data-c="#ffa500" style="background:#ffa500" role="radio" aria-checked="true" aria-label="Laranja" tabindex="0"></div>
+            <div class="color-dot" data-c="#ffd23f" style="background:#ffd23f" role="radio" aria-checked="false" aria-label="Amarelo" tabindex="0"></div>
+            <div class="color-dot" data-c="#60a5fa" style="background:#60a5fa" role="radio" aria-checked="false" aria-label="Azul" tabindex="0"></div>
+            <div class="color-dot" data-c="#34d399" style="background:#34d399" role="radio" aria-checked="false" aria-label="Verde" tabindex="0"></div>
+            <div class="color-dot" data-c="#f472b6" style="background:#f472b6" role="radio" aria-checked="false" aria-label="Rosa" tabindex="0"></div>
+            <div class="color-dot" data-c="#f87171" style="background:#f87171" role="radio" aria-checked="false" aria-label="Vermelho" tabindex="0"></div>
+            <div class="color-dot" data-c="#e2e8f0" style="background:#e2e8f0" role="radio" aria-checked="false" aria-label="Branco" tabindex="0"></div>
           </div>
           <div class="opacity-row">
-            <input type="range" id="area-opacity" min="5" max="60" value="25">
+            <input type="range" id="area-opacity" min="5" max="60" value="25" aria-label="Opacidade">
             <span id="area-opacity-val">25%</span>
           </div>
-          <button class="tool-btn" id="tool-clear" style="margin-top:.3rem;width:100%;justify-content:center">🗑 Limpar destaques</button>
+          <button class="tool-btn" id="tool-clear" style="margin-top:.3rem;width:100%;justify-content:center" aria-label="Limpar destaques">🗑 Limpar destaques</button>
           <div style="display:flex;gap:.3rem;margin-top:.3rem">
-            <button class="tool-btn" id="tool-undo" style="flex:1;justify-content:center">↩ Desfazer</button>
-            <button class="tool-btn" id="tool-redo" style="flex:1;justify-content:center">↪ Refazer</button>
+            <button class="tool-btn" id="tool-undo" style="flex:1;justify-content:center" aria-label="Desfazer (Ctrl+Z)">↩ Desfazer</button>
+            <button class="tool-btn" id="tool-redo" style="flex:1;justify-content:center" aria-label="Refazer (Ctrl+Y)">↪ Refazer</button>
           </div>
         </div>
       </details>
       <div id="prof-presets"></div>
     </div>
+
     <div class="prof-readout" id="readout">x = —   y = —</div>
   </div>
 </div>
+
+<!-- Bottom toolbar (mobile) -->
+<nav class="prof-bottom-bar" id="prof-bottom-bar" role="toolbar" aria-label="Barra de ferramentas móvel">
+  <button class="prof-bar-btn" data-panel="formulas" aria-label="Fórmulas" title="Fórmulas">📐</button>
+  <button class="prof-bar-btn" data-panel="tools" aria-label="Ferramentas" title="Ferramentas">🔧</button>
+  <button class="prof-bar-btn" data-panel="circle" aria-label="Círculo" title="Círculo">⭕</button>
+  <button class="prof-bar-btn" data-panel="download" aria-label="Baixar" title="Baixar">⬇️</button>
+  <button class="prof-bar-btn" data-action="reset" aria-label="Resetar" title="Resetar">🔄</button>
+  <button class="prof-bar-btn" data-action="theme" aria-label="Tema" title="Tema">🌙</button>
+</nav>
+
+<!-- Bottom sheet overlay (mobile) -->
+<div class="prof-sheet-overlay" id="sheet-overlay"></div>
+
+<!-- Bottom sheet content (mobile) -->
+<div class="prof-sheet" id="prof-sheet" role="dialog" aria-label="Painel de ferramentas">
+  <div class="prof-sheet-handle"></div>
+  <div id="sheet-content"></div>
+</div>
+
+<!-- Paleta de cores para fórmulas -->
+<div class="color-palette hidden" id="color-palette"></div>
 
 <script type="module">
 import { initTheme, mountThemeToggle } from "./core/theme.js";
@@ -231,7 +190,7 @@ plot.onProbe = (x, y) => {
 const overlayMgr = new OverlayManager();
 overlayMgr.registerTarget("plot-main", "plot", plot);
 
-/* ──────────── CÍRCULO UNITÁRIO — desenhado direto no canvas do plot ──────────── */
+/* ──────────── CÍRCULO UNITÁRIO ──────────── */
 const NOTABLE = [
   {a:0,           l:"0",     s:"0",    c:"1",    t:"0"   },
   {a:Math.PI/6,   l:"π/6",   s:"1/2",  c:"√3/2", t:"√3/3"},
@@ -251,7 +210,6 @@ const NOTABLE = [
   {a:11*Math.PI/6,l:"11π/6", s:"-1/2", c:"√3/2", t:"-√3/3"},
 ];
 
-// Ângulos notáveis negativos (mesmo ponto, label negativo)
 const NOTABLE_NEG = [
   {a:-Math.PI/6,   l:"-π/6",   s:"-1/2",  c:"√3/2",  t:"-√3/3"},
   {a:-Math.PI/4,   l:"-π/4",   s:"-√2/2", c:"√2/2",  t:"-1"   },
@@ -276,10 +234,9 @@ let ucSnapped = null;
 let ucDragging = false;
 
 function ucSnap(t, thresh = 0.1) {
-  // Volta atual (sem contar voltas completas)
   const base = t < 0
-    ? -((-t) % (2*Math.PI))              // negativo: volta negativa
-    : t % (2*Math.PI);                   // positivo: volta positiva
+    ? -((-t) % (2*Math.PI))
+    : t % (2*Math.PI);
   const list = t < 0 ? NOTABLE_NEG : NOTABLE;
   for (const k of list) {
     if (Math.abs(base - k.a) < thresh) return k;
@@ -298,20 +255,18 @@ function ucAutoZoom() {
   plot.setView({ xmin:-xRange/2, xmax:xRange/2, ymin:-yRange/2, ymax:yRange/2 });
 }
 
-/* Desenha o círculo no ctx do plot — chamado dentro de plot.onDraw */
 function ucDraw() {
   if (!ucActive) return;
   const ctx  = plot.ctx;
-  const dpr  = window.devicePixelRatio || 1;
   const { cx, cy, r } = ucGetCXYR();
   if (r < 10) return;
 
-  const css  = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const cssFn = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
   const dark = document.documentElement.getAttribute("data-theme") !== "light";
   const fg   = dark ? "#e8e3da" : "#1a1a2e";
   const fgMut= dark ? "rgba(220,210,190,.35)" : "rgba(60,60,80,.28)";
-  const acc  = css("--accent")   || "#ffa500";
-  const acc2 = css("--accent-2") || "#ffd23f";
+  const acc  = cssFn("--accent")   || "#ffa500";
+  const acc2 = cssFn("--accent-2") || "#ffd23f";
   const grn  = dark ? "#4ade80"  : "#16a34a";
 
   const t  = ucTheta;
@@ -321,11 +276,9 @@ function ucDraw() {
 
   ctx.save();
 
-  /* Círculo */
   ctx.strokeStyle = fgMut; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2*Math.PI); ctx.stroke();
 
-  /* Pontos notáveis */
   ctx.fillStyle = fgMut;
   for (const n of NOTABLE) {
     ctx.beginPath();
@@ -333,51 +286,42 @@ function ucDraw() {
     ctx.fill();
   }
 
-  /* ── Arco: cor muda por volta (k), voltas completas visíveis ── */
   const TURN_COLORS = [acc, acc2, "#60a5fa", "#34d399", "#a78bfa", "#fb923c", "#f472b6"];
   const isNeg   = ucTheta < 0;
   const absT    = Math.abs(ucTheta);
   const k       = Math.floor(absT / (2 * Math.PI));
   const partial = absT % (2 * Math.PI);
-  // Canvas: Y invertido → ângulo positivo (mat) = anti-horário na tela = arcCCW=true
-  //         ângulo negativo (mat) = horário na tela = arcCCW=false
   const arcEnd = isNeg ? partial : -partial;
   const arcCCW = !isNeg;
 
-  // 1. Trilha fantasma — círculo guia muito suave
   ctx.strokeStyle = fgMut + "55"; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI); ctx.stroke();
 
-  // 2. Voltas COMPLETAS anteriores — circulo cheio, cada uma na sua cor
-  //    A mais antiga fica mais apagada
   for (let i = 0; i < k; i++) {
     const col  = TURN_COLORS[i % TURN_COLORS.length];
-    const age  = k - 1 - i;                           // 0 = mais recente
-    const opac = Math.max(30, 90 - age * 22);         // opacidade 30..90
+    const age  = k - 1 - i;
+    const opac = Math.max(30, 90 - age * 22);
     const hex  = opac.toString(16).padStart(2, "0");
     ctx.strokeStyle = col + hex; ctx.lineWidth = 3.5;
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI); ctx.stroke();
   }
 
-  // 3. Arco parcial da volta atual — mais brilhante, por cima
   const kColor = TURN_COLORS[k % TURN_COLORS.length];
   ctx.strokeStyle = kColor + "dd"; ctx.lineWidth = 4;
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, arcEnd, arcCCW);
   ctx.stroke();
 
-  // 4. Mini arco indicador de ângulo no centro
   ctx.strokeStyle = kColor + "99"; ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.arc(cx, cy, r * .2, 0, arcEnd, arcCCW);
   ctx.stroke();
 
-  /* Tangente */
   if (Math.abs(co) > 0.07) {
     const tn = si/co, tx = cx+r, ty = cy - r*tn;
-    const H  = plot.H;
+    const H2 = plot.H;
     ctx.strokeStyle = grn+"25"; ctx.lineWidth = 1; ctx.setLineDash([3,4]);
-    ctx.beginPath(); ctx.moveTo(tx, 0); ctx.lineTo(tx, H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(tx, 0); ctx.lineTo(tx, H2); ctx.stroke();
     ctx.setLineDash([]);
     ctx.strokeStyle = grn+"bb"; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(tx, cy); ctx.lineTo(tx, ty); ctx.stroke();
@@ -388,41 +332,34 @@ function ucDraw() {
   }
   ctx.setLineDash([]);
 
-  /* Projeções */
   ctx.strokeStyle = acc;  ctx.lineWidth = 1.8; ctx.setLineDash([4,3]);
   ctx.beginPath(); ctx.moveTo(cx, py); ctx.lineTo(px, py); ctx.stroke();
   ctx.strokeStyle = acc2; ctx.lineWidth = 1.8;
   ctx.beginPath(); ctx.moveTo(px, cy); ctx.lineTo(px, py); ctx.stroke();
   ctx.setLineDash([]);
 
-  /* Pontos nos eixos */
   ctx.fillStyle = acc;  ctx.beginPath(); ctx.arc(px, cy, 4, 0, 2*Math.PI); ctx.fill();
   ctx.fillStyle = acc2; ctx.beginPath(); ctx.arc(cx, py, 4, 0, 2*Math.PI); ctx.fill();
 
-  /* Triângulo retângulo */
   ctx.strokeStyle = fgMut; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,cy); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(px,cy); ctx.lineTo(px,py); ctx.stroke();
 
-  /* Raio */
   ctx.strokeStyle = fg; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke();
 
-  /* Ponto principal */
   ctx.fillStyle = ucSnapped ? acc2 : acc;
   ctx.beginPath(); ctx.arc(px, py, 9, 0, 2*Math.PI); ctx.fill();
   ctx.strokeStyle = dark ? "rgba(8,8,20,.8)" : "rgba(255,255,255,.8)";
   ctx.lineWidth = 2; ctx.stroke();
 
-  /* Labels */
-  const fs = ~~(r*.1);
-  ctx.font = `bold ${fs}px monospace`;
+  const fs2 = ~~(r*.1);
+  ctx.font = `bold ${fs2}px monospace`;
   ctx.fillStyle = acc; ctx.textAlign = "center";
   ctx.fillText("cos θ", (cx+px)/2, cy + (si>=0?13:-10));
   ctx.fillStyle = acc2; ctx.textAlign = co>=0?"left":"right"; ctx.textBaseline="middle";
   ctx.fillText("sin θ", px+(co>=0?6:-6), (cy+py)/2);
 
-  /* Ângulo */
   const la=tN/2, lr=r*.28;
   ctx.fillStyle = fg; ctx.font=`bold ${~~(r*.11)}px monospace`;
   ctx.textAlign="left"; ctx.textBaseline="middle";
@@ -436,7 +373,7 @@ function ucDraw() {
 
 plot.onDraw = () => { ucDraw(); drawOverlays(); };
 
-/* Interação com o círculo — capture phase para ter prioridade sobre o plot */
+/* ── Interação círculo ── */
 let ucPrev = null;
 let ucPointerId = null;
 
@@ -448,7 +385,6 @@ function ucCanvasCoords(e) {
   };
 }
 
-// CAPTURE PHASE — dispara antes dos handlers do plot (bubble)
 canvas.addEventListener("pointerdown", e => {
   if (!ucActive || ucPointerId !== null) return;
   const { cx, cy, r } = ucGetCXYR();
@@ -456,9 +392,9 @@ canvas.addEventListener("pointerdown", e => {
   const px = cx + r * Math.cos(ucTheta);
   const py = cy - r * Math.sin(ucTheta);
   const hit = Math.max(52, r * 0.18);
-  if (Math.hypot(mx - px, my - py) > hit) return; // fora → deixa plot fazer pan
+  if (Math.hypot(mx - px, my - py) > hit) return;
   e.preventDefault();
-  e.stopPropagation(); // bloqueia plot
+  e.stopPropagation();
   canvas.setPointerCapture(e.pointerId);
   ucPointerId = e.pointerId;
   ucDragging  = true;
@@ -480,13 +416,11 @@ canvas.addEventListener("pointermove", e => {
   ucPrev = cur;
   ucSnapped = ucSnap(ucTheta, 0.1);
   ucUpdateInfo();
-  // Desenha no próximo frame — não bloqueia os eventos de pointer
   if (!ucRaf) ucRaf = requestAnimationFrame(() => { ucRaf = null; plot.draw(); });
 }, { capture: true });
 
 const ucRelease = e => {
   if (e.pointerId !== ucPointerId) return;
-  // Snap final mais forte ao soltar
   const sn = ucSnap(ucTheta, 0.12);
   if (sn) {
     const turns = Math.round(ucTheta / (2*Math.PI));
@@ -506,10 +440,9 @@ function ucUpdateInfo() {
   const co = Math.cos(ucTheta), si = Math.sin(ucTheta), tn = si/co;
   const k  = Math.floor(Math.abs(ucTheta) / (2*Math.PI));
   const n  = ucSnapped;
-  // Ângulo da volta atual com sinal correto
   const sign   = ucTheta < 0 ? -1 : 1;
-  const partial = Math.abs(ucTheta) % (2*Math.PI);
-  const degVal  = sign * partial * 180 / Math.PI;
+  const partial2 = Math.abs(ucTheta) % (2*Math.PI);
+  const degVal  = sign * partial2 * 180 / Math.PI;
   document.getElementById("uc-cos").textContent = n ? `${n.c}  (${co.toFixed(3)})` : co.toFixed(4);
   document.getElementById("uc-sin").textContent = n ? `${n.s}  (${si.toFixed(3)})` : si.toFixed(4);
   document.getElementById("uc-tan").textContent = n ? n.t : (Math.abs(co)<.01?"∄":tn.toFixed(4));
@@ -518,7 +451,6 @@ function ucUpdateInfo() {
   document.getElementById("uc-snap").textContent = k > 0
     ? (n ? `⊙ notável · k = ${k}` : `k = ${k}`)
     : (n ? "⊙ ângulo notável" : "");
-  // Destacar botão ativo (compara com módulo para aguentar multi-volta)
   const tCur = ((ucTheta % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
   const tCurSigned = ucTheta < 0 ? tCur - 2*Math.PI : tCur;
   document.querySelectorAll(".uc-abtn").forEach(b => {
@@ -527,7 +459,7 @@ function ucUpdateInfo() {
   });
 }
 
-/* ── Ângulos notáveis — grade de botões ── */
+/* ── Ângulos notáveis ── */
 const UC_ANGLES = [
   { l:"0",     a:0            },
   { l:"π/6",   a:Math.PI/6   },
@@ -574,38 +506,42 @@ function ucBuildGrid(tab) {
   });
 }
 
-window.ucShowTab = function(tab) {
-  ucCurrentTab = tab;
-  document.getElementById("tab-pos").classList.toggle("active", tab === "pos");
-  document.getElementById("tab-neg").classList.toggle("active", tab === "neg");
-  ucBuildGrid(tab);
-};
+document.getElementById("tab-pos").addEventListener("click", () => {
+  ucCurrentTab = "pos";
+  document.getElementById("tab-pos").classList.add("active");
+  document.getElementById("tab-neg").classList.remove("active");
+  ucBuildGrid("pos");
+});
+document.getElementById("tab-neg").addEventListener("click", () => {
+  ucCurrentTab = "neg";
+  document.getElementById("tab-neg").classList.add("active");
+  document.getElementById("tab-pos").classList.remove("active");
+  ucBuildGrid("neg");
+});
 
 ucBuildGrid("pos");
 
-// Botão ± — nega o ângulo atual
 document.getElementById("uc-negate-btn").addEventListener("click", () => {
   ucSetAngle(-ucTheta);
-  // Trocar aba automaticamente
   const goNeg = ucTheta < 0;
-  if (goNeg !== (ucCurrentTab === "neg")) ucShowTab(goNeg ? "neg" : "pos");
+  if (goNeg !== (ucCurrentTab === "neg")) {
+    ucCurrentTab = goNeg ? "neg" : "pos";
+    document.getElementById("tab-pos").classList.toggle("active", !goNeg);
+    document.getElementById("tab-neg").classList.toggle("active", goNeg);
+    ucBuildGrid(ucCurrentTab);
+  }
 });
 
-// Input customizado — aceita graus (ex: 72°) ou radianos (ex: π/5 ou 0.5)
 function parseAngle(raw) {
   raw = raw.trim();
   if (!raw) return null;
-
-  // Graus: "-90°", "90°", "90 graus"
   const degMatch = raw.match(/^([+-]?\d+(?:[.,]\d+)?)\s*(?:°|graus?)?$/i);
   if (degMatch) return parseFloat(degMatch[1].replace(",", ".")) * Math.PI / 180;
-
-  // Expressões com π/pi — corrige "2π" → "2*π" antes de substituir
   const expr = raw
     .replace(/pi/gi, "π")
-    .replace(/(\d)π/g, "$1*" + Math.PI)   // "2π" → "2*3.14..."
-    .replace(/π(\d)/g, Math.PI + "*$1")   // "π2" → "3.14...*2" (raro)
-    .replace(/π/g, String(Math.PI));        // "π" sozinho
+    .replace(/(\d)π/g, "$1*" + Math.PI)
+    .replace(/π(\d)/g, Math.PI + "*$1")
+    .replace(/π/g, String(Math.PI));
   try {
     const v = Function('"use strict"; return (' + expr + ')')();
     if (isFinite(v)) return v;
@@ -624,23 +560,23 @@ document.getElementById("uc-custom-inp").addEventListener("keydown", e => {
   if (e.key === "Enter") document.getElementById("uc-custom-btn").click();
 });
 
-/* ──────────── FERRAMENTAS PEDAGÓGICAS ──────────── */
+/* ──────────── FERRAMENTAS ──────────── */
 let toolColor = "#ffa500";
-let toolMode  = null; // 'marker' | 'vline' | 'area' | 'triangle'
+let toolMode  = null;
 let areaOpacity = 0.25;
 
-// Overlays managed by OverlayManager (undo/redo supported)
-
-// Cor ativa
 document.querySelectorAll(".color-dot").forEach(dot => {
   dot.addEventListener("click", () => {
-    document.querySelectorAll(".color-dot").forEach(d => d.classList.remove("active"));
+    document.querySelectorAll(".color-dot").forEach(d => {
+      d.classList.remove("active");
+      d.setAttribute("aria-checked", "false");
+    });
     dot.classList.add("active");
+    dot.setAttribute("aria-checked", "true");
     toolColor = dot.dataset.c;
   });
 });
 
-// Opacidade
 const opSlider = document.getElementById("area-opacity");
 const opVal    = document.getElementById("area-opacity-val");
 opSlider.addEventListener("input", () => {
@@ -648,25 +584,36 @@ opSlider.addEventListener("input", () => {
   opVal.textContent = opSlider.value + "%";
 });
 
-// Botões de ferramenta
 function setTool(mode, btn) {
   toolMode = toolMode === mode ? null : mode;
-  document.querySelectorAll(".tool-btn").forEach(b => b.classList.remove("active"));
-  if (toolMode) btn.classList.add("active");
+  document.querySelectorAll(".tool-btn").forEach(b => {
+    b.classList.remove("active");
+    b.setAttribute("aria-pressed", "false");
+  });
+  if (toolMode && btn) {
+    btn.classList.add("active");
+    btn.setAttribute("aria-pressed", "true");
+  }
   canvas.style.cursor = toolMode ? "crosshair" : "";
 }
 
 document.getElementById("tool-marker").addEventListener("click", e => setTool("marker", e.currentTarget));
 document.getElementById("tool-vline").addEventListener("click", e => setTool("vline", e.currentTarget));
+document.getElementById("tool-hline").addEventListener("click", e => setTool("hline", e.currentTarget));
 document.getElementById("tool-area").addEventListener("click",  e => setTool("area",   e.currentTarget));
 document.getElementById("tool-triangle").addEventListener("click", e => setTool("triangle", e.currentTarget));
+document.getElementById("tool-text").addEventListener("click", e => setTool("text", e.currentTarget));
+document.getElementById("tool-arrow").addEventListener("click", e => setTool("arrow", e.currentTarget));
 document.getElementById("tool-clear").addEventListener("click", () => {
   overlayMgr.clear();
   areaStart = null;
+  arrowStart = null;
   plot.draw();
 });
 
 let areaStart = null;
+let arrowStart = null;
+let trianglePoints = [];
 
 canvas.addEventListener("click", e => {
   if (ucDragging) return;
@@ -683,6 +630,9 @@ canvas.addEventListener("click", e => {
   } else if (toolMode === "vline") {
     overlayMgr.add(OverlayType.VLINE, "plot-main", { x, color: toolColor, width: 2 });
     plot.draw();
+  } else if (toolMode === "hline") {
+    overlayMgr.add(OverlayType.HLINE, "plot-main", { y, color: toolColor, width: 2 });
+    plot.draw();
   } else if (toolMode === "area") {
     if (areaStart === null) {
       areaStart = x;
@@ -693,21 +643,49 @@ canvas.addEventListener("click", e => {
       plot.draw();
     }
   } else if (toolMode === "triangle") {
-    overlayMgr.add(OverlayType.TRIANGLE, "plot-main", {
-      color: toolColor,
-      opacity: 0.25,
-      points: [
-        { x: 0, y: 0 },
-        { x: x, y: 0 },
-        { x: x, y: y },
-      ],
-    });
-    setTool(null, null);
-    plot.draw();
+    trianglePoints.push({ x, y });
+    if (trianglePoints.length === 3) {
+      overlayMgr.add(OverlayType.TRIANGLE, "plot-main", {
+        color: toolColor, opacity: 0.25,
+        points: trianglePoints,
+      });
+      trianglePoints = [];
+      setTool(null, null);
+      plot.draw();
+    } else {
+      plot.draw();
+      const ctx = plot.ctx;
+      const dpr = window.devicePixelRatio || 1;
+      ctx.save(); ctx.scale(dpr, dpr);
+      ctx.fillStyle = toolColor;
+      for (const p of trianglePoints) {
+        ctx.beginPath();
+        ctx.arc(plot.X(p.x), plot.Y(p.y), 5, 0, 2*Math.PI);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  } else if (toolMode === "text") {
+    const txt = prompt("Texto da anotação:");
+    if (txt) {
+      overlayMgr.add(OverlayType.TEXT, "plot-main", { x, y, text: txt, color: toolColor, fontSize: 14 });
+      plot.draw();
+    }
+  } else if (toolMode === "arrow") {
+    if (arrowStart === null) {
+      arrowStart = { x, y };
+    } else {
+      overlayMgr.add(OverlayType.ARROW, "plot-main", {
+        x1: arrowStart.x, y1: arrowStart.y, x2: x, y2: y,
+        color: toolColor, width: 2,
+      });
+      arrowStart = null;
+      setTool(null, null);
+      plot.draw();
+    }
   }
 });
 
-/* Desenhar overlays dentro do plot.onDraw — usa OverlayManager + renderOverlaysOnPlot */
 function drawOverlays() {
   const ctx = plot.ctx;
   const dpr = window.devicePixelRatio || 1;
@@ -716,19 +694,10 @@ function drawOverlays() {
 
   const allOverlays = overlayMgr.getAll();
   for (const ov of allOverlays) {
-    if (ov.type === OverlayType.TRIANGLE) {
-      const pts = ov.props.points;
-      if (Array.isArray(pts) && pts.length >= 3) {
-        const ovFlat = { ...ov.props, type: "triangle" };
-        renderOverlaysOnPlot(ctx, plot, [ovFlat], formatExactValue);
-      }
-    } else {
-      const ovFlat = { ...ov.props, type: ov.type };
-      renderOverlaysOnPlot(ctx, plot, [ovFlat], formatExactValue);
-    }
+    const ovFlat = { ...ov.props, type: ov.type };
+    renderOverlaysOnPlot(ctx, plot, [ovFlat], formatExactValue);
   }
 
-  /* Indicador de area em andamento */
   if (areaStart !== null) {
     const px = plot.X(areaStart);
     ctx.strokeStyle = toolColor + "bb"; ctx.lineWidth = 2; ctx.setLineDash([4,3]);
@@ -738,6 +707,13 @@ function drawOverlays() {
     ctx.textAlign = "center"; ctx.fillText("→ clique p/ fechar área", px, 14);
   }
 
+  if (arrowStart !== null) {
+    const px = plot.X(arrowStart.x);
+    const py = plot.Y(arrowStart.y);
+    ctx.fillStyle = toolColor;
+    ctx.beginPath(); ctx.arc(px, py, 5, 0, 2*Math.PI); ctx.fill();
+  }
+
   ctx.restore();
 }
 
@@ -745,7 +721,6 @@ function drawOverlays() {
 let formulas = [];
 let piActive = false, circleActive = false;
 
-/* ── Paleta de cores ── */
 const PALETTE = [
   "#ffa500","#ffd23f","#60a5fa","#34d399","#a78bfa","#fb923c","#f472b6","#38bdf8",
   "#e11d48","#16a34a","#7c3aed","#0ea5e9","#d97706","#059669","#dc2626","#6366f1",
@@ -794,7 +769,7 @@ function addFormula(expr="") {
   row.innerHTML = `
     <span class="frow-dot" style="background:${color}" title="Mudar cor"></span>
     <input class="frow-inp" name="f${idx}" autocomplete="off" placeholder="y=..." value="${expr}" spellcheck="false">
-    <button class="frow-del">×</button>`;
+    <button class="frow-del" aria-label="Remover fórmula">×</button>`;
   const inp = row.querySelector("input");
   const dot = row.querySelector(".frow-dot");
   inp.addEventListener("input", updatePlot);
@@ -848,7 +823,24 @@ btnCircle.addEventListener("click", ()=>{
 
 document.getElementById("btn-reset").addEventListener("click", ()=>{ setView(null); plot.draw(); });
 
-/* Presets */
+/* ── Download ── */
+const btnDownload = document.getElementById("btn-download");
+const downloadMenu = document.getElementById("download-menu");
+btnDownload.addEventListener("click", e => {
+  e.stopPropagation();
+  downloadMenu.classList.toggle("open");
+});
+downloadMenu.querySelectorAll("button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const fmt = btn.dataset.format;
+    if (fmt === "png") plot.exportPNG(2);
+    else if (fmt === "svg") plot.exportSVG();
+    downloadMenu.classList.remove("open");
+  });
+});
+document.addEventListener("click", () => downloadMenu.classList.remove("open"));
+
+/* ── Presets ── */
 const presetsEl = document.getElementById("prof-presets");
 const allPresets = PRESET_GROUPS.flatMap(g=>g.items.map(p=>({...p,group:g.title})));
 presetsEl.innerHTML = PRESET_GROUPS.map(g=>`
@@ -878,7 +870,6 @@ presetsEl.querySelectorAll(".preset-btn").forEach(btn=>{
 
 window.addEventListener("themechange", ()=>{ plot.draw(); });
 
-/* Overlay manager: redraw on change + undo/redo buttons */
 overlayMgr.onChange(() => plot.draw());
 document.getElementById("tool-undo").addEventListener("click", () => { overlayMgr.undo(); plot.draw(); });
 document.getElementById("tool-redo").addEventListener("click", () => { overlayMgr.redo(); plot.draw(); });
@@ -886,13 +877,45 @@ document.addEventListener("keydown", e => {
   if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
   if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) { e.preventDefault(); overlayMgr.undo(); plot.draw(); }
   if ((e.ctrlKey || e.metaKey) && (e.key === "y" || (e.key === "z" && e.shiftKey))) { e.preventDefault(); overlayMgr.redo(); plot.draw(); }
+  if (e.key === "d" || e.key === "D") { e.preventDefault(); plot.exportPNG(2); }
+  if (e.key === "r" || e.key === "R") { e.preventDefault(); setView(null); plot.draw(); }
 });
+
+/* ── Bottom sheet (mobile) ── */
+const bottomBar = document.getElementById("prof-bottom-bar");
+const sheetOverlay = document.getElementById("sheet-overlay");
+const profSheet = document.getElementById("prof-panel");
+let activeSheetPanel = null;
+
+function openSheet(panelName) {
+  if (activeSheetPanel === panelName) { closeSheet(); return; }
+  activeSheetPanel = panelName;
+  profSheet.classList.add("open");
+  sheetOverlay.classList.add("open");
+  bottomBar.querySelectorAll(".prof-bar-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.panel === panelName);
+  });
+}
+
+function closeSheet() {
+  activeSheetPanel = null;
+  profSheet.classList.remove("open");
+  sheetOverlay.classList.remove("open");
+  bottomBar.querySelectorAll(".prof-bar-btn").forEach(b => b.classList.remove("active"));
+}
+
+bottomBar.querySelectorAll("[data-panel]").forEach(btn => {
+  btn.addEventListener("click", () => openSheet(btn.dataset.panel));
+});
+bottomBar.querySelectorAll("[data-action]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (btn.dataset.action === "reset") { setView(null); plot.draw(); }
+    if (btn.dataset.action === "theme") { document.getElementById("theme-btn").click(); }
+  });
+});
+sheetOverlay.addEventListener("click", closeSheet);
 
 addFormula("y=2^x"); addFormula("y=(1/2)^x");
 </script>
-
-<!-- Paleta de cores para fórmulas -->
-<div class="color-palette hidden" id="color-palette">
-</div>
 </body>
 </html>
