@@ -185,6 +185,7 @@ export class Plot {
 
   _fmtNum(v) {
     if (Math.abs(v) >= 1000) return v.toExponential(0).replace("e+", "·10^");
+    if (Math.abs(v) < 0.001 && v !== 0) return v.toExponential(1);
     const r = Math.round(v * 1000) / 1000;
     return String(r);
   }
@@ -218,6 +219,7 @@ export class Plot {
     this.cv.style.cursor = "crosshair";
 
     this.cv.addEventListener("pointerdown", (e) => {
+      if (e.defaultPrevented) return;
       e.preventDefault();
       dragging = true;
       const rect = this.cv.getBoundingClientRect();
@@ -281,7 +283,7 @@ export class Plot {
       this._pointers.delete(e.pointerId);
       if (this._pointers.size < 2) {
         dragging = false;
-        this.cv.style.cursor = "crosshair";
+        if (!this._externalCursor) this.cv.style.cursor = "crosshair";
         this.cv.releasePointerCapture(e.pointerId);
       }
     });
@@ -290,7 +292,7 @@ export class Plot {
       this._pointers.delete(e.pointerId);
       if (this._pointers.size < 2) {
         dragging = false;
-        this.cv.style.cursor = "crosshair";
+        if (!this._externalCursor) this.cv.style.cursor = "crosshair";
         this.cv.releasePointerCapture(e.pointerId);
       }
     });
@@ -343,8 +345,8 @@ export class Plot {
     svg += `<rect width="100%" height="100%" fill="${bg}"/>`;
 
     const { xmin, xmax, ymin, ymax } = this.view;
-    const xStep = this.piAxis ? Math.PI / 2 : this._step(xmax - xmin);
-    const yStep = this._step(ymax - ymin);
+    const xStep = this.piAxis ? Math.PI / 2 : this._step(xmax - xmin, 8, this.W);
+    const yStep = this._step(ymax - ymin, 8, this.H);
 
     const x0 = Math.ceil(xmin / xStep) * xStep;
     for (let x = x0; x <= xmax + 1e-9; x += xStep) {
@@ -413,6 +415,14 @@ export class Plot {
       }
     }
 
+    if (this._overlays && this._overlays.length > 0) {
+      for (const ov of this._overlays) {
+        const o = { ...ov.props, type: ov.type };
+        const s = this._renderOverlayToSVG(o, (v) => this.X(v), (v) => this.Y(v), this.W, this.H);
+        if (s) svg += s;
+      }
+    }
+
     svg += `</svg>`;
 
     const blob = new Blob([svg], { type: "image/svg+xml" });
@@ -427,6 +437,41 @@ export class Plot {
   }
 
   reset(v) { this.setView(v); }
+
+  setCursor(mode) {
+    this._externalCursor = !!mode;
+    this.cv.style.cursor = mode || "crosshair";
+  }
+
+  _renderOverlayToSVG(ov, toXS, toYS, W, H) {
+    const color = ov.color || "#ffa500";
+    const type = ov.type;
+
+    if (type === "marker" || type === "point") {
+      const cx = toXS(ov.x ?? 0), cy = toYS(ov.y ?? 0);
+      return `<circle cx="${cx}" cy="${cy}" r="4" fill="${color}"/>`;
+    } else if (type === "vline") {
+      const px = toXS(ov.x ?? 0);
+      return `<line x1="${px}" y1="0" x2="${px}" y2="${H}" stroke="${color}" stroke-width="2"/>`;
+    } else if (type === "hline") {
+      const py = toYS(ov.y ?? 0);
+      return `<line x1="0" y1="${py}" x2="${W}" y2="${py}" stroke="${color}" stroke-width="2"/>`;
+    } else if (type === "arrow" || type === "segment") {
+      const x1=toXS(ov.x1??0), y1=toYS(ov.y1??0);
+      const x2=toXS(ov.x2??0), y2=toYS(ov.y2??0);
+      return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${ov.width||2}"/>`;
+    } else if (type === "area") {
+      const x1=toXS(ov.x??0), x2=toXS(ov.x2??ov.x);
+      return `<rect x="${Math.min(x1,x2)}" y="0" width="${Math.abs(x2-x1)}" height="${H}" fill="${color}" opacity="${ov.opacity||0.25}"/>`;
+    } else if (type === "triangle" && ov.points) {
+      const pts = ov.points.map(p => `${toXS(p.x)},${toYS(p.y)}`).join(" ");
+      return `<polygon points="${pts}" fill="${color}" fill-opacity="${ov.opacity||0.25}" stroke="${color}" stroke-width="2"/>`;
+    } else if (type === "text") {
+      const x = toXS(ov.x??0), y = toYS(ov.y??0);
+      return `<text x="${x}" y="${y}" fill="${color}" font-size="${ov.fontSize||12}" font-family="monospace">${ov.text || ""}</text>`;
+    }
+    return "";
+  }
 
   destroy() {
     window.removeEventListener("resize", this._onResize);

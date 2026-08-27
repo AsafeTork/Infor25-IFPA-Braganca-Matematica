@@ -75,7 +75,7 @@
 
     <!-- Ferramentas + Presets -->
     <div class="prof-presets-wrap" id="prof-presets-wrap">
-      <details class="tools-details" id="tools-section" open>
+      <details class="tools-details" id="tools-section">
         <summary class="preset-group-title" style="cursor:pointer;padding:.3rem .25rem;list-style:none;display:flex;justify-content:space-between" aria-label="Ferramentas de anotação">
           ✏️ Ferramentas <span style="opacity:.5">▾</span>
         </summary>
@@ -382,7 +382,7 @@ function drawLabels() {
   if (activeFormulas.length === 0) return;
 
   ctx.save();
-  const fs = 12;
+  const fs = Math.max(9, Math.min(14, Math.floor(plot.W / 60)));
   ctx.font = `bold ${fs}px monospace`;
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
@@ -615,6 +615,12 @@ opSlider.addEventListener("input", () => {
 });
 
 function setTool(mode, btn) {
+  trianglePoints = [];
+  areaStart = null;
+  arrowStart = null;
+  lastMouseX = null;
+  lastMouseY = null;
+
   toolMode = toolMode === mode ? null : mode;
   document.querySelectorAll(".tool-btn").forEach(b => {
     b.classList.remove("active");
@@ -800,7 +806,7 @@ canvas.addEventListener("click", e => {
   } else if (toolMode === "triangle") {
     const snapped = snapToReference(x, y, plot);
     trianglePoints.push({ x: snapped.x, y: snapped.y });
-    readout.textContent = `x = ${snapped.x.toFixed(2)}   y = ${snapped.y.toFixed(2)}`;
+    document.getElementById("readout").textContent = `x = ${snapped.x.toFixed(2)}   y = ${snapped.y.toFixed(2)}`;
     if (trianglePoints.length === 3) {
       overlayMgr.add(OverlayType.TRIANGLE, "plot-main", {
         color: toolColor, opacity: 0.25,
@@ -1092,6 +1098,10 @@ overlayMgr.onChange(() => plot.draw());
 document.getElementById("tool-undo").addEventListener("click", () => { overlayMgr.undo(); plot.draw(); });
 document.getElementById("tool-redo").addEventListener("click", () => { overlayMgr.redo(); plot.draw(); });
 document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    downloadMenu.classList.remove("open");
+    palette.classList.add("hidden");
+  }
   if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
   if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) { e.preventDefault(); overlayMgr.undo(); plot.draw(); }
   if ((e.ctrlKey || e.metaKey) && (e.key === "y" || (e.key === "z" && e.shiftKey))) { e.preventDefault(); overlayMgr.redo(); plot.draw(); }
