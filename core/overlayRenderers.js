@@ -92,19 +92,17 @@ function renderHline(ctx, ov, _toX, toY, _plotH, plotW) {
   ctx.restore();
 }
 
-function renderArea(ctx, ov, toX, toY) {
+function renderArea(ctx, ov, toX, toY, h) {
   const x1 = ov.x;
   const x2 = ov.x2 ?? ov.x1 ?? ov.x;
   const lo = Math.min(x1, x2);
   const hi = Math.max(x1, x2);
   const pxLo = toX(lo);
   const pxHi = toX(hi);
+  const color = ov.color || css("--accent") || "#ffa500";
 
-  /* polygon: bottom-left → top-left → top-right → bottom-right */
-  const yTop = ov.yTop ?? ov.yMax ?? toY(ov.y ?? 0);
-  const yBot = ov.yBottom ?? ov.yMin ?? toY(0);
-  const pyTop = typeof ov.yTop === "number" ? toY(ov.yTop) : yTop;
-  const pyBot = typeof ov.yBottom === "number" ? toY(ov.yBottom) : yBot;
+  const pyTop = typeof ov.yTop === "number" ? toY(ov.yTop) : 0;
+  const pyBot = typeof ov.yBottom === "number" ? toY(ov.yBottom) : (h || toY(0));
 
   ctx.save();
   ctx.globalAlpha = ov.opacity ?? 0.25;
@@ -314,7 +312,7 @@ const RENDERERS = {
   marker:    (ctx, ov, toX, toY, _w, _h, fmt) => renderMarker(ctx, ov, toX, toY, fmt),
   vline:     (ctx, ov, toX, toY, w, _h)       => renderVline(ctx, ov, toX, toY, _h),
   hline:     (ctx, ov, toX, toY, w, _h)       => renderHline(ctx, ov, toX, toY, _h, w),
-  area:      (ctx, ov, toX, toY)              => renderArea(ctx, ov, toX, toY),
+  area:      (ctx, ov, toX, toY, w, h)        => renderArea(ctx, ov, toX, toY, h),
   triangle:  (ctx, ov, toX, toY)              => renderTriangle(ctx, ov, toX, toY),
   text:      (ctx, ov, toX, toY)              => renderText(ctx, ov, toX, toY),
   arrow:     (ctx, ov, toX, toY)              => renderArrow(ctx, ov, toX, toY),

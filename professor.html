@@ -371,7 +371,32 @@ function ucDraw() {
   ctx.restore();
 }
 
-plot.onDraw = () => { ucDraw(); drawOverlays(); };
+function drawLabels() {
+  const ctx = plot.ctx;
+  const activeFormulas = formulas.filter(f => f.inp.value.trim());
+  if (activeFormulas.length === 0) return;
+
+  ctx.save();
+  const fs = 12;
+  ctx.font = `bold ${fs}px monospace`;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "top";
+
+  let y = 8;
+  for (const f of activeFormulas) {
+    const text = f.inp.value.trim();
+    const metrics = ctx.measureText(text);
+    const pw = metrics.width + 8;
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    ctx.fillRect(8, y - 2, pw, fs + 4);
+    ctx.fillStyle = f.color;
+    ctx.fillText(text, 12, y);
+    y += fs + 6;
+  }
+  ctx.restore();
+}
+
+plot.onDraw = () => { ucDraw(); drawOverlays(); drawLabels(); };
 
 /* ── Interação círculo ── */
 let ucPrev = null;
@@ -688,9 +713,6 @@ canvas.addEventListener("click", e => {
 
 function drawOverlays() {
   const ctx = plot.ctx;
-  const dpr = window.devicePixelRatio || 1;
-  ctx.save();
-  ctx.scale(dpr, dpr);
 
   const allOverlays = overlayMgr.getAll();
   for (const ov of allOverlays) {
@@ -713,8 +735,6 @@ function drawOverlays() {
     ctx.fillStyle = toolColor;
     ctx.beginPath(); ctx.arc(px, py, 5, 0, 2*Math.PI); ctx.fill();
   }
-
-  ctx.restore();
 }
 
 /* ──────────── FÓRMULAS ──────────── */
@@ -792,9 +812,6 @@ function updatePlot() {
     try { const c=compile(expr); return (c&&!c.error)?{fn:c.fn,color}:null; } catch { return null; }
   }).filter(Boolean);
   plot.setCurves(curves);
-  document.getElementById("prof-labels").innerHTML = formulas
-    .filter(f=>f.inp.value.trim())
-    .map(f=>`<span class="prof-label" style="color:${f.color}">${f.inp.value.trim()}</span>`).join("");
 }
 
 function setView(v) {
