@@ -499,9 +499,9 @@
 /* ── Bottom sheet (mobile only) ─────────────────────────── */
 
 /* ============================================================
-   RESPONSIVE — Tablet (480-768px)
+   RESPONSIVE — Tablet (480-768px) — FIX 2026-08-28: sidebar apenas >=768 (evita conflito 480)
    ============================================================ */
-@media (min-width: 480px) {
+@media (min-width: 768px) {
   .prof-wrap {
     grid-template-columns: 1fr 280px;
     grid-template-rows: 1fr;
@@ -534,9 +534,9 @@
 }
 
 /* ============================================================
-   RESPONSIVE — Phone (< 480px) — show toolbar + sheet
+   RESPONSIVE — Phone (< 768px) — show toolbar + sheet (fix 480->767)
    ============================================================ */
-@media (max-width: 480px) {
+@media (max-width: 767px) {
   .prof-bottom-bar { display: flex; }
 
   .prof-wrap {

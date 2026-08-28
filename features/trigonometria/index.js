@@ -104,6 +104,16 @@ export const trigonometriaLessons = [
 </div>
 
 `;
+    autoRender(c);
+    const visRoot = c.querySelector("#vis-mov-circular");
+    const circ = mountTrigCircle(visRoot, {
+      initialTheta: Math.PI / 4,
+      showTan: false,
+      showProj: true,
+      showQuadrants: true,
+      showNotable: true,
+    });
+    _activeControllers.push(circ);
   }
 },
 
@@ -688,4 +698,5 @@ export const trigonometriaLessons = [
 ];
 
 /* ── Expose cleanup for navigation hook ──────────────────── */
+trigonometriaLessons.forEach(l=> l.cleanupLesson = cleanupLesson);
 export { cleanupLesson };

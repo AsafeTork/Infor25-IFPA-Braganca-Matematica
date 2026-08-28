@@ -8,6 +8,17 @@ import { autoRender } from "../../components/katex.js";
 import { section, def, think, explore, solved, apply, labSlot } from "../../utils/content.js";
 import { mountLab } from "../../components/formulaLab.js";
 
+/* ── Cleanup controller registry (audit #18) ───────────────── */
+let _activeControllers = [];
+let _activeObservers = [];
+export function cleanupLesson(){
+  try{ _activeControllers.forEach(c=>{ try{ c?.plot?.destroy?.(); c?.destroy?.(); }catch(e){} }); }catch(e){}
+  _activeControllers = [];
+  try{ _activeObservers.forEach(o=>{ try{ o?.disconnect?.(); }catch(e){} }); }catch(e){}
+  _activeObservers = [];
+  try{ document.querySelectorAll("#lab-inteiro, #lab-racional, #lab-irra").forEach(el=>{ if(el) el.innerHTML=""; }); }catch(e){}
+}
+
 
 /* ---------- 1.1 O que é potência + propriedades ---------- */
 const propriedades = {
@@ -58,25 +69,28 @@ const inteiro = {
         `<p>Compare visualmente $a^{x}$ para $a>1$ e $0<a<1$ — observe o papel do sinal do expoente:</p>` +
         labSlot("lab-inteiro"));
     autoRender(c);
-    mountLab(c.querySelector("#lab-inteiro"), {
-      base: "f(x) = a^{x}",
-      vars: [{ sym: "a", papel: "base da potência", limites: "a > 0 e a ≠ 1",
-               efeito: "a > 1 cresce ↗ · 0 < a < 1 decresce ↘ · expoente negativo espelha em Oy" }],
-      start: "y = 2^x",
-      view: { xmin: -4, xmax: 4, ymin: -1, ymax: 9 },
-      examples: ["y = 2^x", "y = 2^(-x)", "y = (1/2)^x", "y = 3^x"],
-      desafios: [
-        { ordem: "Faça a curva DECRESCER (cair da esquerda para a direita), sem usar expoente negativo.",
-          checa: (f) => f(-2) > f(0) && f(0) > f(2),
-          dica: "Uma base entre 0 e 1 inverte o crescimento. Tente uma fração como (1/2)." },
-        { ordem: "Faça a curva crescer MAIS RÁPIDO do que 2^x.",
-          checa: (f, base) => f(3) > base(3) + 1e-6 && f(1) > 0,
-          dica: "Quanto maior a base, mais íngreme a subida. Aumente a base." },
-        { ordem: "Escreva uma potência cujo valor em x = 0 seja 1, mas que seja ESPELHADA (use expoente negativo).",
-          checa: (f) => Math.abs(f(0) - 1) < 1e-9 && f(-1) > f(1),
-          dica: "a^(−x) reflete o gráfico no eixo y; lembre que qualquer base elevada a 0 dá 1." },
-      ],
-    });
+    try{
+      const _lab = mountLab(c.querySelector("#lab-inteiro"), {
+        base: "f(x) = a^{x}",
+        vars: [{ sym: "a", papel: "base da potência", limites: "a > 0 e a ≠ 1",
+                 efeito: "a > 1 cresce ↗ · 0 < a < 1 decresce ↘ · expoente negativo espelha em Oy" }],
+        start: "y = 2^x",
+        view: { xmin: -4, xmax: 4, ymin: -1, ymax: 9 },
+        examples: ["y = 2^x", "y = 2^(-x)", "y = (1/2)^x", "y = 3^x"],
+        desafios: [
+          { ordem: "Faça a curva DECRESCER (cair da esquerda para a direita), sem usar expoente negativo.",
+            checa: (f) => f(-2) > f(0) && f(0) > f(2),
+            dica: "Uma base entre 0 e 1 inverte o crescimento. Tente uma fração como (1/2)." },
+          { ordem: "Faça a curva crescer MAIS RÁPIDO do que 2^x.",
+            checa: (f, base) => f(3) > base(3) + 1e-6 && f(1) > 0,
+            dica: "Quanto maior a base, mais íngreme a subida. Aumente a base." },
+          { ordem: "Escreva uma potência cujo valor em x = 0 seja 1, mas que seja ESPELHADA (use expoente negativo).",
+            checa: (f) => Math.abs(f(0) - 1) < 1e-9 && f(-1) > f(1),
+            dica: "a^(−x) reflete o gráfico no eixo y; lembre que qualquer base elevada a 0 dá 1." },
+        ],
+      });
+      if(_lab) _activeControllers.push(_lab);
+    }catch(e){ console.warn("[pot] lab-inteiro", e); }
   },
 };
 
@@ -121,22 +135,25 @@ const racional = {
         (domínio) ao usar expoentes não inteiros:</p>` +
         labSlot("lab-racional"));
     autoRender(c);
-    mountLab(c.querySelector("#lab-racional"), {
-      base: "f(x) = x^{p/q}",
-      vars: [{ sym: "p/q", papel: "expoente racional", limites: "q ≠ 0; se q par, exige base ≥ 0",
-               efeito: "p/q < 1 dobra a curva (raiz) · p/q > 1 acelera · denominador par ⇒ sem ramo negativo" }],
-      start: "y = x^(3/2)",
-      view: { xmin: -2, xmax: 6, ymin: -2, ymax: 10 },
-      examples: ["y = x^(3/2)", "y = x^(1/2)", "y = x^(1/3)", "y = x^(2/3)"],
-      desafios: [
-        { ordem: "Escreva uma potência que NÃO exista para x negativo (índice par).",
-          checa: (f) => !Number.isFinite(f(-2)) && Number.isFinite(f(4)),
-          dica: "Raiz de índice par (expoente com denominador 2) não aceita base negativa: x^(1/2)." },
-        { ordem: "Escreva uma raiz que EXISTA para x negativo (índice ímpar).",
-          checa: (f) => Number.isFinite(f(-8)) && f(-8) < 0,
-          dica: "x^(1/3) é a raiz cúbica: aceita negativos e devolve negativo." },
-      ],
-    });
+    try{
+      const _lab = mountLab(c.querySelector("#lab-racional"), {
+        base: "f(x) = x^{p/q}",
+        vars: [{ sym: "p/q", papel: "expoente racional", limites: "q ≠ 0; se q par, exige base ≥ 0",
+                 efeito: "p/q < 1 dobra a curva (raiz) · p/q > 1 acelera · denominador par ⇒ sem ramo negativo" }],
+        start: "y = x^(3/2)",
+        view: { xmin: -2, xmax: 6, ymin: -2, ymax: 10 },
+        examples: ["y = x^(3/2)", "y = x^(1/2)", "y = x^(1/3)", "y = x^(2/3)"],
+        desafios: [
+          { ordem: "Escreva uma potência que NÃO exista para x negativo (índice par).",
+            checa: (f) => !Number.isFinite(f(-2)) && Number.isFinite(f(4)),
+            dica: "Raiz de índice par (expoente com denominador 2) não aceita base negativa: x^(1/2)." },
+          { ordem: "Escreva uma raiz que EXISTA para x negativo (índice ímpar).",
+            checa: (f) => Number.isFinite(f(-8)) && f(-8) < 0,
+            dica: "x^(1/3) é a raiz cúbica: aceita negativos e devolve negativo." },
+        ],
+      });
+      if(_lab) _activeControllers.push(_lab);
+    }catch(e){ console.warn("[pot] lab-racional", e); }
   },
 };
 
@@ -155,13 +172,16 @@ const irracional = {
         `<p>Digite expoentes com $\\pi$ e $e$ na caixa — a curva continua contínua e suave:</p>` +
         labSlot("lab-irra"));
     autoRender(c);
-    mountLab(c.querySelector("#lab-irra"), {
-      base: "f(x) = a^{x},\\quad a>0",
-      params: [{ k: "a", name: "base", default: Math.PI }],
-      start: "y = π^x",
-      view: { xmin: -3, xmax: 3, ymin: -1, ymax: 12 },
-      examples: ["y = π^x", "y = e^x", "y = 2^x", "y = a^x"],
-    });
+    try{
+      const _lab = mountLab(c.querySelector("#lab-irra"), {
+        base: "f(x) = a^{x},\\quad a>0",
+        params: [{ k: "a", name: "base", default: Math.PI }],
+        start: "y = π^x",
+        view: { xmin: -3, xmax: 3, ymin: -1, ymax: 12 },
+        examples: ["y = π^x", "y = e^x", "y = 2^x", "y = a^x"],
+      });
+      if(_lab) _activeControllers.push(_lab);
+    }catch(e){ console.warn("[pot] lab-irra", e); }
   },
 };
 
@@ -176,4 +196,5 @@ const pratica = {
 };
 
 export const potenciacaoLessons = [propriedades, inteiro, notacao, racional, irracional, pratica];
+potenciacaoLessons.forEach(l=> l.cleanupLesson = cleanupLesson);
 export const potenciacaoMeta = { num: "01", title: "Potenciação", chapter: "Capítulo 1" };

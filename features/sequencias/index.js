@@ -6,6 +6,18 @@ import { mountLab } from "../../components/formulaLab.js";
 
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
+/* ── Cleanup controller registry (audit #18 + #19) ───────────────── */
+let _activeControllers = [];
+let _activePlots = [];
+export function cleanupLesson(){
+  try{ _activeControllers.forEach(c=>{ try{ c?.plot?.destroy?.(); c?.destroy?.(); }catch(e){} }); }catch(e){}
+  _activeControllers = [];
+  try{ _activePlots.forEach(p=>{ try{ p?.destroy?.(); }catch(e){} }); }catch(e){}
+  _activePlots = [];
+  try{ document.querySelectorAll("#cmp-seq").forEach(el=>{ if(el) el.innerHTML=""; }); }catch(e){}
+  try{ document.querySelectorAll("#lab-pa, #lab-pg").forEach(el=>{ if(el) el.innerHTML=""; }); }catch(e){}
+}
+
 export const sequenciasMeta = { num: "02", title: "Sequências Numéricas", chapter: "Capítulo 2" };
 
 export const sequenciasLessons = [
@@ -31,25 +43,28 @@ export const sequenciasLessons = [
 
       autoRender(c);
 
-      mountLab(c.querySelector("#lab-pa"), {
-        base: "f(n) = a_1 + (n-1)\\cdot r",
-        vars: [
-          { sym: "a₁", papel: "primeiro termo", limites: "∈ ℝ", efeito: "intercepto vertical (em n=1)" },
-          { sym: "r",  papel: "razão", limites: "∈ ℝ · r=0 sequência constante",
-            efeito: "r>0 cresce ↗ · r<0 decresce ↘ · define inclinação da reta" },
-        ],
-        start: "y = 3 + (x-1)·5",
-        view: { xmin: 0, xmax: 12, ymin: -10, ymax: 60 },
-        examples: ["y = 3 + (x-1)·5", "y = 10 + (x-1)·(-2)", "y = 1 + (x-1)·7"],
-        desafios: [
-          { ordem: "Faça uma PA com 5.º termo = 20 e razão 3.",
-            checa: f => Math.abs(f(5)-20)<1e-6 && Math.abs(f(6)-f(5)-3)<1e-6,
-            dica: "a₅=a₁+4r=20. r=3 ⇒ a₁=8. Escreva: y = 8 + (x−1)·3" },
-          { ordem: "Crie uma PA decrescente que comece em 50.",
-            checa: f => Math.abs(f(1)-50)<1e-6 && f(2)<f(1),
-            dica: "Razão negativa: y = 50 + (x−1)·(−4)" },
-        ],
-      });
+      try{
+        const _lab = mountLab(c.querySelector("#lab-pa"), {
+          base: "f(n) = a_1 + (n-1)\\cdot r",
+          vars: [
+            { sym: "a₁", papel: "primeiro termo", limites: "∈ ℝ", efeito: "intercepto vertical (em n=1)" },
+            { sym: "r",  papel: "razão", limites: "∈ ℝ · r=0 sequência constante",
+              efeito: "r>0 cresce ↗ · r<0 decresce ↘ · define inclinação da reta" },
+          ],
+          start: "y = 3 + (x-1)·5",
+          view: { xmin: 0, xmax: 12, ymin: -10, ymax: 60 },
+          examples: ["y = 3 + (x-1)·5", "y = 10 + (x-1)·(-2)", "y = 1 + (x-1)·7"],
+          desafios: [
+            { ordem: "Faça uma PA com 5.º termo = 20 e razão 3.",
+              checa: f => Math.abs(f(5)-20)<1e-6 && Math.abs(f(6)-f(5)-3)<1e-6,
+              dica: "a₅=a₁+4r=20. r=3 ⇒ a₁=8. Escreva: y = 8 + (x−1)·3" },
+            { ordem: "Crie uma PA decrescente que comece em 50.",
+              checa: f => Math.abs(f(1)-50)<1e-6 && f(2)<f(1),
+              dica: "Razão negativa: y = 50 + (x−1)·(−4)" },
+          ],
+        });
+        if(_lab) _activeControllers.push(_lab);
+      }catch(e){ console.warn("[seq] lab-pa", e); }
 
 
     }
@@ -80,25 +95,28 @@ export const sequenciasLessons = [
 
       autoRender(c);
 
-      mountLab(c.querySelector("#lab-pg"), {
-        base: "f(n) = a_1 \\cdot q^{n-1}",
-        vars: [
-          { sym: "a₁", papel: "primeiro termo", limites: "a₁ > 0", efeito: "escala vertical" },
-          { sym: "q",  papel: "razão da PG", limites: "q > 0, q ≠ 1",
-            efeito: "q>1 cresce explosivo ↑ · 0<q<1 decai ↘ até zero" },
-        ],
-        start: "y = 2·3^(x-1)",
-        view: { xmin: 0, xmax: 8, ymin: -5, ymax: 80 },
-        examples: ["y = 2·3^(x-1)", "y = 100·(1/2)^(x-1)", "y = 1·2^(x-1)", "y = 5·(1.1)^(x-1)"],
-        desafios: [
-          { ordem: "PG com a₁=3 e q=2. Confirme que o 4.º termo é 24.",
-            checa: f => Math.abs(f(1)-3)<1e-6 && Math.abs(f(4)-24)<1e-6,
-            dica: "y = 3·2^(x−1). f(4) = 3·8 = 24." },
-          { ordem: "PG decrescente (0 < q < 1) com a₁ = 81.",
-            checa: f => Math.abs(f(1)-81)<1e-6 && f(2)<f(1),
-            dica: "y = 81·(1/3)^(x−1)" },
-        ],
-      });
+      try{
+        const _lab = mountLab(c.querySelector("#lab-pg"), {
+          base: "f(n) = a_1 \\cdot q^{n-1}",
+          vars: [
+            { sym: "a₁", papel: "primeiro termo", limites: "a₁ > 0", efeito: "escala vertical" },
+            { sym: "q",  papel: "razão da PG", limites: "q > 0, q ≠ 1",
+              efeito: "q>1 cresce explosivo ↑ · 0<q<1 decai ↘ até zero" },
+          ],
+          start: "y = 2·3^(x-1)",
+          view: { xmin: 0, xmax: 8, ymin: -5, ymax: 80 },
+          examples: ["y = 2·3^(x-1)", "y = 100·(1/2)^(x-1)", "y = 1·2^(x-1)", "y = 5·(1.1)^(x-1)"],
+          desafios: [
+            { ordem: "PG com a₁=3 e q=2. Confirme que o 4.º termo é 24.",
+              checa: f => Math.abs(f(1)-3)<1e-6 && Math.abs(f(4)-24)<1e-6,
+              dica: "y = 3·2^(x−1). f(4) = 3·8 = 24." },
+            { ordem: "PG decrescente (0 < q < 1) com a₁ = 81.",
+              checa: f => Math.abs(f(1)-81)<1e-6 && f(2)<f(1),
+              dica: "y = 81·(1/3)^(x−1)" },
+          ],
+        });
+        if(_lab) _activeControllers.push(_lab);
+      }catch(e){ console.warn("[seq] lab-pg", e); }
 
 
     }
@@ -119,18 +137,31 @@ export const sequenciasLessons = [
         </div>` +
         think("A partir de qual índice a PG supera definitivamente a PA? Leia no gráfico.");
 
+      const _container = c.querySelector("#cmp-seq");
+      if (!_container) { autoRender(c); return; }
       const canvas = document.createElement("canvas");
       canvas.style.cssText = "width:100%;height:100%;display:block;";
-      c.querySelector("#cmp-seq").appendChild(canvas);
+      _container.appendChild(canvas);
+      // autoRender antes do Plot para evitar race de layout? Mantém após append para KaTeX não bloquear gráfico
+      autoRender(c);
       import("../../core/plotEngine.js").then(({ Plot }) => {
-        const p = new Plot(canvas, { xmin:0, xmax:15, ymin:-5, ymax:120 });
-        p.setCurves([
-          { fn: x => 5+(x-1)*5, color: css("--accent") },
-          { fn: x => 5*Math.pow(1.5,x-1), color: css("--accent-2") },
-        ]);
+        if (!c.querySelector("#cmp-seq")) return;
+        if (!document.body.contains(canvas)) return;
+        try{
+          const p = new Plot(canvas, { xmin:0, xmax:15, ymin:-5, ymax:120 });
+          _activePlots.push(p);
+          p.setCurves([
+            { fn: x => 5+(x-1)*5, color: css("--accent") },
+            { fn: x => 5*Math.pow(1.5,x-1), color: css("--accent-2") },
+          ]);
+        }catch(e){ console.error("[seq] cmp-seq Plot", e); }
+      }).catch(err=>{
+        console.error("[seq] plotEngine load fail", err);
+        const el = c.querySelector("#cmp-seq");
+        if (el) el.innerHTML = "<p style='color:var(--text-mut)'>Gráfico indisponível</p>";
       });
 
-      autoRender(c);
     }
   },
 ];
+sequenciasLessons.forEach(l=> l.cleanupLesson = cleanupLesson);

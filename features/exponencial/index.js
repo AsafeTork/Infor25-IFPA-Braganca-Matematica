@@ -10,6 +10,17 @@ import { mountLab } from "../../components/formulaLab.js";
 
 import { Plot } from "../../core/plotEngine.js";
 
+/* ── Cleanup controller registry (audit #18) ───────────────── */
+let _activeControllers = [];
+let _activePlots = [];
+export function cleanupLesson(){
+  try{ _activeControllers.forEach(c=>{ try{ c?.plot?.destroy?.(); c?.destroy?.(); }catch(e){} }); }catch(e){}
+  _activeControllers = [];
+  try{ _activePlots.forEach(p=>{ try{ p?.destroy?.(); }catch(e){} }); }catch(e){}
+  _activePlots = [];
+  try{ document.querySelectorAll("#lab-conceito, #lab-graf, #lab-app, #cmp").forEach(el=>{ if(el) el.innerHTML=""; }); }catch(e){}
+}
+
 /* ---------- 2.1 Conceito ---------- */
 const conceito = {
   id: "exp-conceito",
@@ -31,13 +42,13 @@ const conceito = {
         `<p>Experimente. Mude a base $a$ e observe o painel de leitura — o intercepto em $(0,1)$ nunca muda:</p>` +
         labSlot("lab-conceito"));
     autoRender(c);
-    mountLab(c.querySelector("#lab-conceito"), {
+    try{ const _lab = mountLab(c.querySelector("#lab-conceito"), {
       base: "f(x) = a^{x}",
       params: [{ k: "a", name: "base ($a>0,\\ a\\ne1$)", default: 2 }],
       start: "y = 2^x",
       view: { xmin: -4, xmax: 4, ymin: -1, ymax: 9 },
       examples: ["y = 2^x", "y = 3^x", "y = π^x", "y = (1/2)^x", "y = (1/3)^x"],
-    });
+    }); if(_lab) _activeControllers.push(_lab); }catch(e){ console.warn("[exp] lab-conceito", e); }
   },
 };
 
@@ -63,13 +74,13 @@ const grafico = {
         `<p>Use a base como parâmetro. Para $a>1$ a curva sobe; para $0<a<1$ ela desce. A linha tracejada é a assíntota:</p>` +
         labSlot("lab-graf"));
     autoRender(c);
-    mountLab(c.querySelector("#lab-graf"), {
+    try{ const _lab = mountLab(c.querySelector("#lab-graf"), {
       base: "f(x) = a^{x}",
       params: [{ k: "a", name: "base", default: 0.5 }],
       start: "y = (1/2)^x",
       view: { xmin: -4, xmax: 4, ymin: -1, ymax: 9 },
       examples: ["y = 2^x", "y = (1/2)^x", "y = 3^x", "y = (1/3)^x", "y = 10^x"],
-    });
+    }); if(_lab) _activeControllers.push(_lab); }catch(e){ console.warn("[exp] lab-graf", e); }
   },
 };
 
@@ -86,19 +97,25 @@ const comparacao = {
         <canvas id="cmp" class="lab-canvas" style="height:360px"></canvas>
         <p class="lab-hint mono">linha reta f(x)=5x · curva g(x)=2^x — arraste e dê zoom</p>` +
         think(`Até cerca de qual valor de $x$ a reta está acima da curva? Depois desse ponto, quem domina? Por quê?`));
-    const p = new Plot(c.querySelector("#cmp"), { xmin: -1, xmax: 9, ymin: -2, ymax: 40 });
-    const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
     autoRender(c);
-    p.setCurves([
-      { fn: (x) => 5 * x, color: css("--accent"), label: "5x" },
-      { fn: (x) => Math.pow(2, x), color: css("--accent-2"), label: "2^x" },
-    ]);
-    window.addEventListener("themechange", () => {
+    try{
+      const p = new Plot(c.querySelector("#cmp"), { xmin: -1, xmax: 9, ymin: -2, ymax: 40 });
+      _activePlots.push(p);
+      const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
       p.setCurves([
-        { fn: (x) => 5 * x, color: css("--accent") },
-        { fn: (x) => Math.pow(2, x), color: css("--accent-2") },
+        { fn: (x) => 5 * x, color: css("--accent"), label: "5x" },
+        { fn: (x) => Math.pow(2, x), color: css("--accent-2"), label: "2^x" },
       ]);
-    });
+      const _onTheme = () => {
+        try{ p.setCurves([
+          { fn: (x) => 5 * x, color: css("--accent") },
+          { fn: (x) => Math.pow(2, x), color: css("--accent-2") },
+        ]); }catch(e){}
+      };
+      window.addEventListener("themechange", _onTheme);
+      // guarda para cleanup remover listener se necessário
+      p._themeHandler = _onTheme;
+    }catch(e){ console.warn("[exp] cmp plot", e); }
   },
 };
 
@@ -121,13 +138,13 @@ const aplicacoes = {
         <p>Modele você mesmo. A base $&gt;1$ cresce (bactérias, juros); a base $&lt;1$ decai (imóvel, decaimento):</p>
         ${labSlot("lab-app")}`);
     autoRender(c);
-    mountLab(c.querySelector("#lab-app"), {
+    try{ const _lab = mountLab(c.querySelector("#lab-app"), {
       base: "N(x) = N_{0}\\cdot a^{x}",
       params: [{ k: "N", name: "valor inicial $N_0$", default: 1 }, { k: "a", name: "fator por passo", default: 2 }],
       start: "y = 3·2^x",
       view: { xmin: 0, xmax: 10, ymin: -2, ymax: 60 },
       examples: ["y = N·a^x", "y = 1800·(1.03)^x", "y = 100·(1/2)^x", "y = 2^x"],
-    });
+    }); if(_lab) _activeControllers.push(_lab); }catch(e){ console.warn("[exp] lab-app", e); }
   },
 };
 
@@ -161,4 +178,5 @@ const pratica = {
 };
 
 export const exponencialLessons = [conceito, grafico, comparacao, aplicacoes, equacoes, pratica];
+exponencialLessons.forEach(l=> l.cleanupLesson = cleanupLesson);
 export const exponencialMeta = { num: "1.2", title: "Função exponencial", chapter: "Cap. 1 — Exponencial" };

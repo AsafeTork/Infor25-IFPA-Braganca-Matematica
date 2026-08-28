@@ -75,7 +75,7 @@ import { exponencialLessons, exponencialMeta } from "./features/exponencial/inde
 import { sequenciasLessons, sequenciasMeta } from "./features/sequencias/index.js";
 import { trigonometriaLessons, trigonometriaMeta } from "./features/trigonometria/index.js";
 import { OverlayManager } from "./core/overlays.js";
-import { renderOverlaysOnTrigCircle } from "./core/overlayRenderers.js";
+import { renderOverlaysOnTrigCircle, renderOverlaysOnPlot } from "./core/overlayRenderers.js";
 
 initTheme();
 mountThemeToggle(document.getElementById("tg"));
@@ -204,6 +204,7 @@ function closeSidebar() { sidebar.classList.remove("open"); overlay.classList.re
 menuBtn.addEventListener("click", () =>
   sidebar.classList.contains("open") ? closeSidebar() : openSidebar());
 overlay.addEventListener("click", closeSidebar);
+window.addEventListener("resize", ()=>{ if(window.innerWidth>=760){ document.getElementById("al-overlay")?.classList.remove("active"); document.getElementById("overlay")?.classList.remove("active"); document.querySelector(".al-overlay")?.classList.remove("active"); sidebar.classList.remove("open"); } });
 
 /* ── Navigation ── */
 let cur = 0;
@@ -222,7 +223,7 @@ function syncTrigOverlays() {
   const allOverlays = overlayMgr.getAll();
   const canvases = lessonEl.querySelectorAll("canvas");
   for (const cv of canvases) {
-    const ucRoot = cv.closest(".uc-root");
+    const ucRoot = cv.closest(".trig-circle-root, .ctg-container, .tpe-container, .tv-container, .pv-container, [data-trig-root]");
     if (!ucRoot) continue;
     let ovc = ucRoot.querySelector(".al-overlay-canvas");
     if (!ovc) {
@@ -243,8 +244,28 @@ function syncTrigOverlays() {
     if (allOverlays.length === 0) continue;
     const pad = 40;
     const circleInfo = { cx: W / 2, cy: H / 2, r: Math.min(W, H) / 2 - pad, W, H };
-    for (const ov of allOverlays) {
-      renderOverlaysOnTrigCircle(ctx, circleInfo, [{ ...ov.props, type: ov.type }]);
+    // Escolha inteligente: Plot vs TrigCircle (mantém compatibilidade #17)
+    const isPlotCanvas = cv.matches("#tpe-canvas, #tv-graph, #pv-graph, #ctg-graph, .tpe-canvas, .tv-graph, .pv-graph, .ctg-graph, .pv-anim, #pv-anim, .lab-canvas") || !!cv.closest(".tpe-graph, .pv-graph-wrap, .tv-graph-wrap, .ctg-right, .pv-anim-wrap, .lab-canvas");
+    if (isPlotCanvas) {
+      try {
+        const plotLike = { X: (x) => (x + 6) / 12 * W, Y: (y) => H - (y + 4) / 8 * H, W, H };
+        // Tenta Plot renderer; fallback para TrigCircle se falhar
+        for (const ov of allOverlays) {
+          if (["area","triangle","vline","hline","marker","arrow","circle","text","freehand","distance","ruler"].includes(ov.type)) {
+            renderOverlaysOnPlot(ctx, plotLike, [{ ...ov.props, type: ov.type }]);
+          } else {
+            renderOverlaysOnTrigCircle(ctx, circleInfo, [{ ...ov.props, type: ov.type }]);
+          }
+        }
+      } catch(e) {
+        for (const ov of allOverlays) {
+          renderOverlaysOnTrigCircle(ctx, circleInfo, [{ ...ov.props, type: ov.type }]);
+        }
+      }
+    } else {
+      for (const ov of allOverlays) {
+        renderOverlaysOnTrigCircle(ctx, circleInfo, [{ ...ov.props, type: ov.type }]);
+      }
     }
   }
 }
@@ -266,19 +287,24 @@ function go(id) {
 
   crumbEl.textContent = `${l.meta.chapter}`;
   titleEl.textContent = l.title;
+  if (window._cleanupLesson) try{ window._cleanupLesson(); }catch(e){ console.warn("[aluno] cleanupLesson immediate", e); }
   lessonEl.innerHTML = "";
 
   const boot = () => {
     _pendingBoot = requestAnimationFrame(() => {
       _pendingBoot = null;
       requestAnimationFrame(() => {
+        if (window._cleanupLesson) try{ window._cleanupLesson(); }catch(e){ console.warn("[aluno] cleanupLesson", e); }
+        window._cleanupLesson = l.cleanupLesson || null;
         l.render(lessonEl);
         syncTrigOverlays();
       });
     });
   };
   if (window.katex) boot();
-  else window.addEventListener("load", boot, { once: true });
+  else if (document.readyState === "complete") boot();
+  else window.addEventListener("load", boot, {once:true});
+  setTimeout(()=>{ if(document.getElementById("lesson") && document.getElementById("lesson").innerHTML==="") boot(); }, 2000);
 
   prevBtn.disabled = cur === 0;
   nextBtn.disabled = cur >= ALL.length - 1;
