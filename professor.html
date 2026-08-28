@@ -297,11 +297,11 @@ function ucSnap(t, thresh = 0.1) {
 
 function ucGetCXYR() {
   const cx = plot.X(0), cy = plot.Y(0);
-  // raio de 1 unidade de dado em pixels, usando menor escala para manter círculo perfeito
   const sx = plot.W / (plot.view.xmax - plot.view.xmin);
   const sy = plot.H / (plot.view.ymax - plot.view.ymin);
-  const r = Math.min(sx, sy) * 1;
-  return { cx, cy, r };
+  const rx = sx * 1;
+  const ry = sy * 1;
+  return { cx, cy, rx, ry, r: Math.min(rx, ry) };
 }
 
 function ucAutoZoom() {
@@ -314,7 +314,7 @@ function ucAutoZoom() {
 function ucDraw() {
   if (!ucActive) return;
   const ctx  = plot.ctx;
-  const { cx, cy, r } = ucGetCXYR();
+  const { cx, cy, rx, ry, r } = ucGetCXYR();
   if (r < 10) return;
 
   const cssFn = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
@@ -328,17 +328,17 @@ function ucDraw() {
   const t  = ucTheta;
   const tN = ((t % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
   const co = Math.cos(t), si = Math.sin(t);
-  const px = cx + r*co, py = cy - r*si;
+  const px = cx + rx*co, py = cy - ry*si;
 
   ctx.save();
 
   ctx.strokeStyle = fgMut; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2*Math.PI); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, 2*Math.PI); ctx.stroke();
 
   ctx.fillStyle = fgMut;
   for (const n of NOTABLE) {
     ctx.beginPath();
-    ctx.arc(cx + r*Math.cos(n.a), cy - r*Math.sin(n.a), 2, 0, 2*Math.PI);
+    ctx.arc(cx + rx*Math.cos(n.a), cy - ry*Math.sin(n.a), 2, 0, 2*Math.PI);
     ctx.fill();
   }
 
@@ -351,7 +351,7 @@ function ucDraw() {
   const arcCCW = !isNeg;
 
   ctx.strokeStyle = fgMut + "55"; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI); ctx.stroke();
 
   for (let i = 0; i < k; i++) {
     const col  = TURN_COLORS[i % TURN_COLORS.length];
@@ -359,13 +359,13 @@ function ucDraw() {
     const opac = Math.max(30, 90 - age * 22);
     const hex  = opac.toString(16).padStart(2, "0");
     ctx.strokeStyle = col + hex; ctx.lineWidth = 3.5;
-    ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI); ctx.stroke();
   }
 
   const kColor = TURN_COLORS[k % TURN_COLORS.length];
   ctx.strokeStyle = kColor + "dd"; ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, arcEnd, arcCCW);
+  ctx.ellipse(cx, cy, rx, ry, 0, 0, arcEnd, arcCCW);
   ctx.stroke();
 
   ctx.strokeStyle = kColor + "99"; ctx.lineWidth = 1.5;
@@ -374,7 +374,7 @@ function ucDraw() {
   ctx.stroke();
 
   if (Math.abs(co) > 0.07) {
-    const tn = si/co, tx = cx+r, ty = cy - r*tn;
+    const tn = si/co, tx = cx+rx, ty = cy - ry*tn;
     const H2 = plot.H;
     ctx.strokeStyle = grn+"25"; ctx.lineWidth = 1; ctx.setLineDash([3,4]);
     ctx.beginPath(); ctx.moveTo(tx, 0); ctx.lineTo(tx, H2); ctx.stroke();
@@ -505,10 +505,10 @@ function ucCanvasCoords(e) {
 
 canvas.addEventListener("pointerdown", e => {
   if (!ucActive || ucPointerId !== null) return;
-  const { cx, cy, r } = ucGetCXYR();
+  const { cx, cy, rx, ry, r } = ucGetCXYR();
   const { mx, my } = ucCanvasCoords(e);
-  const px = cx + r * Math.cos(ucTheta);
-  const py = cy - r * Math.sin(ucTheta);
+  const px = cx + rx * Math.cos(ucTheta);
+  const py = cy - ry * Math.sin(ucTheta);
   const hit = Math.max(52, r * 0.18);
   if (Math.hypot(mx - px, my - py) > hit) return;
   e.preventDefault();
@@ -516,7 +516,7 @@ canvas.addEventListener("pointerdown", e => {
   canvas.setPointerCapture(e.pointerId);
   ucPointerId = e.pointerId;
   ucDragging  = true;
-  ucPrev = Math.atan2(-(my - cy), mx - cx);
+  ucPrev = Math.atan2(-(my - cy)/ry, (mx - cx)/rx);
 }, { capture: true });
 
 let ucRaf = null;
@@ -524,9 +524,9 @@ canvas.addEventListener("pointermove", e => {
   if (!ucDragging || e.pointerId !== ucPointerId) return;
   e.preventDefault();
   e.stopPropagation();
-  const { cx, cy } = ucGetCXYR();
+  const { cx, cy, rx, ry } = ucGetCXYR();
   const { mx, my } = ucCanvasCoords(e);
-  const cur = Math.atan2(-(my - cy), mx - cx);
+  const cur = Math.atan2(-(my - cy)/ry, (mx - cx)/rx);
   let delta = cur - ucPrev;
   if (delta >  Math.PI) delta -= 2*Math.PI;
   if (delta < -Math.PI) delta += 2*Math.PI;
