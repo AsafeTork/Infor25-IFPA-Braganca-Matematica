@@ -4,8 +4,10 @@
    ============================================================ */
 
 :root{--zoom-scale:1}
+:root { --info-scale: 1; }
 :root {
   --zoom-scale: 1;
+  --info-scale: 1;
   
   /* ---- Brand ramp ---- */
   --orange-900: #7a2e00;
