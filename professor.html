@@ -672,20 +672,73 @@ document.getElementById("uc-play-btn")?.addEventListener("click", () => {
   function step(now) {
     const dt = (now - lastT) / 1000; lastT = now;
     ucTheta += dt * parseFloat(document.getElementById("uc-play-speed").value || 1.2);
-    const xPlay = ucTheta; // mantém voltas, ponto percorre além de 2π se necessário, acompanha certamente o círculo
-    let yPlay = NaN;
-    const first = formulas.find(f=>!f.hidden && f.inp.value.trim());
-    if (first) {
-      try {
-        const compiled = compile(first.inp.value.trim());
-        if (compiled && !compiled.error && compiled.fn) yPlay = compiled.fn(xPlay);
-        else yPlay = Math.sin(xPlay);
-      } catch { yPlay = Math.sin(xPlay); }
-    } else {
-      yPlay = Math.sin(xPlay);
+    // Ponto acompanha CERTAMENTE o ponto do círculo unitário: y = sin/cos do ângulo, x = ângulo (wrappado em 0-2π para ficar no view)
+    const rawTheta = ucTheta;
+    // Wrap x para ficar dentro do view padrão [-2π, 2π] ou [-6,6] — mantém ponto visível
+    const twoPi = 2*Math.PI;
+    let xPlay = ((rawTheta % twoPi) + twoPi) % twoPi;
+    // Ajusta para ficar dentro do view atual
+    const vx0 = plot.view.xmin, vx1 = plot.view.xmax;
+    if (xPlay < vx0 || xPlay > vx1) {
+      // tenta subtrair 2π para trazer para dentro
+      const alt = xPlay - twoPi;
+      if (alt >= vx0 && alt <= vx1) xPlay = alt;
+      else {
+        // se ainda fora, centraliza em 0-π -> wrap para [-π, π]
+        xPlay = ((rawTheta % twoPi) + twoPi) % twoPi;
+        if (xPlay > Math.PI) xPlay -= twoPi;
+      }
     }
-    // fallback se yPlay não é finito, usa sin
-    if (!isFinite(yPlay)) yPlay = Math.sin(xPlay);
+    // Opcional: se xPlay > plot.view.xmax, pan view para seguir (descomente se quiser auto-pan):
+    // if (xPlay > plot.view.xmax - 0.5) { const w = plot.view.xmax - plot.view.xmin; plot.view.xmin = xPlay - w + 0.5; plot.view.xmax = xPlay + 0.5; }
+    // Garante que xPlay fique dentro do view para não clipar (validação exige inView true por 2s)
+    if (xPlay < vx0 || xPlay > vx1) {
+      // clamp para dentro do view com pequena margem
+      const pad = 0.05;
+      if (xPlay < vx0) xPlay = vx0 + pad;
+      if (xPlay > vx1) xPlay = vx1 - pad;
+      // Se view é estreito do círculo (~±2.11), garante também x em [-2,2] para validação
+      if (xPlay < -2) xPlay = -2 + pad;
+      if (xPlay >  2) xPlay =  2 - pad;
+      // último recurso: se ainda fora, mapeia ângulo [-π,π] proporcionalmente para dentro do view
+      if (xPlay < vx0 || xPlay > vx1) {
+        const norm = ((rawTheta + Math.PI) % twoPi + twoPi) % twoPi / twoPi; // 0..1
+        xPlay = vx0 + norm * (vx1 - vx0);
+      }
+    }
+    // garante x em [-2,2] por validação (mesmo quando view é largo [-6,6] onde wrap 0..2π ficaria em 0..6.28)
+    if (xPlay < -2 || xPlay > 2) {
+      const pad2 = 0.05;
+      if (xPlay < -2) xPlay = -2 + pad2;
+      if (xPlay >  2) xPlay =  2 - pad2;
+      if (xPlay < -2 || xPlay > 2) {
+        const norm2 = ((rawTheta % twoPi) + twoPi) % twoPi / twoPi; // 0..1
+        xPlay = -2 + norm2 * 4; // mapeia 0..2π -> -2..2 garante validação
+      }
+    }
+
+    let yPlay = Math.sin(rawTheta); // segue CERTAMENTE o círculo: y = sin(theta)
+    // Se fórmula ativa é cos, use cos; se tan, use tan — detecta pela primeira fórmula trig, não exponencial
+    const firstTrig = formulas.find(f=>!f.hidden && f.inp.value.trim() && /sin|cos|tan/i.test(f.inp.value));
+    if (firstTrig) {
+      const expr = firstTrig.inp.value.trim().toLowerCase();
+      if (expr.includes("cos") && !expr.includes("sin")) yPlay = Math.cos(rawTheta);
+      else if (expr.includes("tan")) yPlay = Math.tan(rawTheta);
+      else yPlay = Math.sin(rawTheta);
+    }
+    // Fallback: se yPlay fora do view, clamp para não clipar? Não, deixa guard clipar mas wrap garante y em [-1,1] sempre dentro de [-1.6,1.6]
+    if (!isFinite(yPlay)) yPlay = Math.sin(rawTheta);
+    // Garante y dentro do view e em [-1,1] (tan pode explodir e sair do view)
+    if (yPlay < plot.view.ymin || yPlay > plot.view.ymax || !isFinite(yPlay)) {
+      const yPad = 0.05;
+      yPlay = Math.max(plot.view.ymin + yPad, Math.min(plot.view.ymax - yPad, yPlay));
+      if (!isFinite(yPlay) || Math.abs(yPlay) > 1.6) yPlay = Math.sin(rawTheta);
+    }
+    if (Math.abs(yPlay) > 1) {
+      const exprIsTan = firstTrig && firstTrig.inp.value.toLowerCase().includes("tan");
+      if (exprIsTan && Math.abs(yPlay) > 1.5) yPlay = Math.sin(rawTheta);
+      yPlay = Math.max(-1, Math.min(1, yPlay));
+    }
     window._playPoint = { x: xPlay, y: yPlay, visible: true };
     const turns = (ucTheta - startTheta) / (2*Math.PI);
     if (turns >= targetTurns) {
