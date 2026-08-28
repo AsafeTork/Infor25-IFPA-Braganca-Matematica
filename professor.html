@@ -296,7 +296,10 @@ function ucSnap(t, thresh = 0.1) {
 }
 
 function ucGetCXYR() {
-  return { cx: plot.X(0), cy: plot.Y(0), r: plot.X(1) - plot.X(0) };
+  const cx = plot.X(0), cy = plot.Y(0);
+  // raio fixo em pixels, proporcional ao menor lado do canvas, não ao view
+  const r = Math.min(plot.W, plot.H) * 0.32;
+  return { cx, cy, r };
 }
 
 function ucAutoZoom() {
@@ -1350,8 +1353,8 @@ btnCircle.addEventListener("click", ()=>{
   circleActive=!circleActive; btnCircle.classList.toggle("active",circleActive);
   ucActive = circleActive;
   document.getElementById("uc-info").classList.toggle("show",circleActive);
-  if (circleActive) { ucAutoZoom(); ucUpdateInfo(); }
-  else plot.draw();
+  if (circleActive) ucUpdateInfo();
+  plot.draw();
 });
 
 document.getElementById("btn-reset").addEventListener("click", ()=>{ setView(null); plot.draw(); });
@@ -1390,36 +1393,18 @@ presetsEl.querySelectorAll(".preset-btn").forEach(btn=>{
     btn.classList.add("active");
     const p = allPresets.find(x=>x.group===btn.dataset.g&&x.label===btn.dataset.label);
     if (!p) return;
-    // Acrescenta sem apagar; para trig (pi+uc) ajusta view para círculo tamanho normal
+    // Acrescenta sem apagar, sem mexer na perspectiva
     p.fns.forEach(fn => {
       const exists = formulas.some(f => f.inp.value.trim() === fn);
       if (!exists && formulas.length < 8) addFormula(fn);
     });
-    const needsCircleView = p.pi && p.uc;
-    if (needsCircleView) {
-      // Para trig com π, usa view π padrão para manter proporção função↔círculo
-      const target = piActive || p.pi
-        ? { xmin:-2*Math.PI, xmax:2*Math.PI, ymin:-3, ymax:3 }
-        : (()=>{ const W=canvas.clientWidth,H=canvas.clientHeight; const yRange=3.2, xRange=yRange*(W/H); return {xmin:-xRange/2,xmax:xRange/2,ymin:-yRange/2,ymax:yRange/2}; })();
-      const curRange = plot.view.xmax - plot.view.xmin;
-      const targetRange = target.xmax - target.xmin;
-      if (Math.abs(curRange - targetRange) > 0.5) animateView(target, 400);
-      if (p.pi !== piActive) { piActive = p.pi; btnPi.classList.toggle("active", p.pi); plot.setPiAxis(p.pi); }
-      if (!circleActive) {
-        circleActive = true; btnCircle.classList.add("active");
-        ucActive = true;
-        document.getElementById("uc-info").classList.add("show");
-        ucUpdateInfo();
-      }
-    } else {
-      if (p.pi !== piActive) { piActive = p.pi; btnPi.classList.toggle("active", p.pi); plot.setPiAxis(p.pi); }
-      if (p.uc !== circleActive) {
-        circleActive = p.uc; btnCircle.classList.toggle("active", p.uc);
-        ucActive = p.uc;
-        document.getElementById("uc-info").classList.toggle("show", p.uc);
-        if (p.uc) ucUpdateInfo();
-        else plot.draw();
-      }
+    if (p.pi !== piActive) { piActive = p.pi; btnPi.classList.toggle("active", p.pi); plot.setPiAxis(p.pi); }
+    if (p.uc !== circleActive) {
+      circleActive = p.uc; btnCircle.classList.toggle("active", p.uc);
+      ucActive = p.uc;
+      document.getElementById("uc-info").classList.toggle("show", p.uc);
+      if (p.uc) ucUpdateInfo();
+      else plot.draw();
     }
   });
 });
