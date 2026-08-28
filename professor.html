@@ -453,39 +453,35 @@ function drawLabels() {
 }
 
 function drawPlayPoint() {
-  if (!window._playPoint || !window._playPoint.visible) return;
-  const p = window._playPoint;
-  if (p.x < plot.view.xmin || p.x > plot.view.xmax || p.y < plot.view.ymin || p.y > plot.view.ymax) return;
+  const pts = window._playPoints || (window._playPoint && window._playPoint.visible ? [window._playPoint] : []);
+  if (!pts.length) return;
   const ctx = plot.ctx;
   const dark = document.documentElement.getAttribute("data-theme") !== "light";
-  const px = plot.X(p.x), py = plot.Y(p.y);
-  ctx.save();
-  ctx.fillStyle = formulas.find(f=>!f.hidden)?.color || "#ffa500";
-  ctx.beginPath(); ctx.arc(px, py, 6, 0, 2*Math.PI); ctx.fill();
-  ctx.strokeStyle = dark ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.8)";
-  ctx.lineWidth = 2; ctx.stroke();
-  ctx.fillStyle = (formulas.find(f=>!f.hidden)?.color || "#ffa500") + "33";
-  ctx.beginPath(); ctx.arc(px, py, 10, 0, 2*Math.PI); ctx.fill();
-  // linha vertical pontilhada até o eixo X
-  ctx.strokeStyle = (formulas.find(f=>!f.hidden)?.color || "#ffa500") + "66";
-  ctx.lineWidth = 1;
-  ctx.setLineDash([4,4]);
-  ctx.beginPath();
-  ctx.moveTo(px, plot.Y(0));
-  ctx.lineTo(px, py);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  // linha horizontal opcional até Y
-  ctx.strokeStyle = (formulas.find(f=>!f.hidden)?.color || "#ffa500") + "44";
-  ctx.beginPath();
-  ctx.moveTo(plot.X(0), py);
-  ctx.lineTo(px, py);
-  ctx.stroke();
-  ctx.fillStyle = dark ? "#fff" : "#000";
-  ctx.font = "10px JetBrains Mono, monospace";
-  ctx.textAlign = "center";
-  ctx.fillText(`(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`, px, py - 14);
-  ctx.restore();
+  for (const p of pts) {
+    if (!p.visible) continue;
+    if (p.x < plot.view.xmin || p.x > plot.view.xmax || p.y < plot.view.ymin || p.y > plot.view.ymax) continue;
+    if (!isFinite(p.y)) continue;
+    const px = plot.X(p.x), py = plot.Y(p.y);
+    ctx.save();
+    ctx.fillStyle = p.color || "#ffa500";
+    ctx.beginPath(); ctx.arc(px, py, 6, 0, 2*Math.PI); ctx.fill();
+    ctx.strokeStyle = dark ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.8)";
+    ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = (p.color || "#ffa500") + "33";
+    ctx.beginPath(); ctx.arc(px, py, 10, 0, 2*Math.PI); ctx.fill();
+    ctx.strokeStyle = (p.color || "#ffa500") + "66";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(px, plot.Y(0)); ctx.lineTo(px, py); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.strokeStyle = (p.color || "#ffa500") + "44";
+    ctx.beginPath(); ctx.moveTo(plot.X(0), py); ctx.lineTo(px, py); ctx.stroke();
+    ctx.fillStyle = dark ? "#fff" : "#000";
+    ctx.font = "10px JetBrains Mono, monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(`(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`, px, py - 14);
+    ctx.restore();
+  }
 }
 
 plot.onDraw = () => { ucDraw(); drawOverlays(); drawLabels(); drawPlayPoint(); };
@@ -579,20 +575,29 @@ function ucUpdateInfo() {
     let xP = xSync;
     const vx0 = plot.view.xmin, vx1 = plot.view.xmax;
     if (xP < vx0 || xP > vx1) { const alt = xP - 2*Math.PI; if (alt >= vx0 && alt <= vx1) xP = alt; else { xP = ((ucTheta % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI); if (xP > Math.PI) xP -= 2*Math.PI; } }
-    let yP = Math.sin(ucTheta);
-    const fTrig = formulas.find(f=>!f.hidden && f.inp.value.trim() && /sin|cos|tan/i.test(f.inp.value));
-    if (fTrig) {
-      const ex = fTrig.inp.value.trim().toLowerCase();
-      if (ex.includes("cos") && !ex.includes("sin")) yP = Math.cos(ucTheta);
-      else if (ex.includes("tan")) yP = Math.tan(ucTheta);
-      else yP = Math.sin(ucTheta);
+    const activeFormulas = formulas.filter(f=>!f.hidden && f.inp.value.trim());
+    if (activeFormulas.length) {
+      window._playPoints = activeFormulas.map(f => {
+        let y = NaN;
+        try {
+          const c = compile(f.inp.value.trim());
+          if (c && !c.error && c.fn) y = c.fn(xP);
+        } catch {}
+        if (!isFinite(y) || Math.abs(y) > 1e6) {
+          if (/cos/i.test(f.inp.value) && !/sin/i.test(f.inp.value)) y = Math.cos(ucTheta);
+          else if (/tan/i.test(f.inp.value)) y = Math.tan(ucTheta);
+          else y = Math.sin(ucTheta);
+        }
+        return { x: xP, y, visible: true, color: f.color };
+      });
     } else {
-      const f = formulas.find(f=>!f.hidden && f.inp.value.trim());
-      if (f) { try { const c=compile(f.inp.value.trim()); if(c&&!c.error&&c.fn) { const yc=c.fn(xP); if(isFinite(yc)) yP=yc; } } catch{} }
+      let yP = Math.sin(ucTheta);
+      if (!isFinite(yP) || Math.abs(yP) > 1e6) yP = Math.sin(ucTheta);
+      window._playPoints = [{ x: xP, y: yP, visible: true, color: "#ffa500" }];
     }
-    if (!isFinite(yP) || Math.abs(yP) > 1e6) yP = Math.sin(ucTheta);
-    window._playPoint = { x: xP, y: yP, visible: true };
+    window._playPoint = window._playPoints[0] || {visible:false};
   } else {
+    window._playPoints = [];
     if (window._playPoint) window._playPoint.visible = false;
   }
 }
@@ -729,29 +734,26 @@ document.getElementById("uc-play-btn")?.addEventListener("click", () => {
       while (xPlay > vx1) xPlay -= twoPi;
     }
 
-    // yPlay segue certamente o círculo e a função trig ativa (sin/cos/tan), não exponencial residual
-    let yPlay = Math.sin(rawTheta);
-    const firstTrig = formulas.find(f=>!f.hidden && f.inp.value.trim() && /sin|cos|tan/i.test(f.inp.value));
-    if (firstTrig) {
-      const expr = firstTrig.inp.value.trim().toLowerCase();
-      if (expr.includes("cos") && !expr.includes("sin")) yPlay = Math.cos(rawTheta);
-      else if (expr.includes("tan")) yPlay = Math.tan(rawTheta);
-      else yPlay = Math.sin(rawTheta);
-    } else {
-      // sem trig, tenta compilar primeira fórmula qualquer (ex: y=2*sin(x))
-      const firstAny = formulas.find(f=>!f.hidden && f.inp.value.trim());
-      if (firstAny) {
-        try {
-          const compiled = compile(firstAny.inp.value.trim());
-          if (compiled && !compiled.error && compiled.fn) {
-            const yC = compiled.fn(xPlay);
-            if (isFinite(yC)) yPlay = yC;
-          }
-        } catch {}
+    const activeFormulas = formulas.filter(f=>!f.hidden && f.inp.value.trim());
+    window._playPoints = activeFormulas.map(f => {
+      let y = NaN;
+      try {
+        const c = compile(f.inp.value.trim());
+        if (c && !c.error && c.fn) y = c.fn(xPlay);
+      } catch {}
+      if (!isFinite(y) || Math.abs(y) > 1e6) {
+        if (/cos/i.test(f.inp.value) && !/sin/i.test(f.inp.value)) y = Math.cos(rawTheta);
+        else if (/tan/i.test(f.inp.value)) y = Math.tan(rawTheta);
+        else y = Math.sin(rawTheta);
       }
+      return { x: xPlay, y, visible: true, color: f.color };
+    });
+    if (!window._playPoints.length) {
+      let yFallback = Math.sin(rawTheta);
+      if (!isFinite(yFallback) || Math.abs(yFallback) > 1e6) yFallback = Math.sin(rawTheta);
+      window._playPoints = [{ x: xPlay, y: yFallback, visible: true, color: "#ffa500" }];
     }
-    if (!isFinite(yPlay) || Math.abs(yPlay) > 1e6) yPlay = Math.sin(rawTheta);
-    window._playPoint = { x: xPlay, y: yPlay, visible: true };
+    window._playPoint = window._playPoints[0] || {visible:false};
     const turns = Math.abs(ucTheta - startTheta) / (2*Math.PI);
     if (turns >= targetTurns) {
       ucTheta = startTheta + targetTurns * 2*Math.PI * ucPlayDir;
@@ -812,6 +814,7 @@ let toolColor = "#ffa500";
 let toolMode  = null;
 let areaOpacity = 0.25;
 let triShowValues = true;
+window._playPoints = [];
 window._playPoint = { visible: false, x: 0, y: 0 };
 let areaStart = null;
 let arrowStart = null;
@@ -1417,36 +1420,18 @@ presetsEl.querySelectorAll(".preset-btn").forEach(btn=>{
     btn.classList.add("active");
     const p = allPresets.find(x=>x.group===btn.dataset.g&&x.label===btn.dataset.label);
     if (!p) return;
-    // Acrescenta sem apagar, mas para trigonometria ajusta view suavemente para círculo caber
+    // Acrescenta sem apagar, sem mexer na perspectiva
     p.fns.forEach(fn => {
       const exists = formulas.some(f => f.inp.value.trim() === fn);
       if (!exists && formulas.length < 6) addFormula(fn);
     });
-    const needsCircleView = p.pi && p.uc;
-    if (needsCircleView) {
-      // Calcula view alvo do círculo (igual ucAutoZoom)
-      const W = canvas.clientWidth, H = canvas.clientHeight;
-      const yRange = 3.2, xRange = yRange * (W / H);
-      const target = { xmin:-xRange/2, xmax:xRange/2, ymin:-yRange/2, ymax:yRange/2 };
-      // Só anima se view atual é muito diferente (range >6 ou <3.5)
-      const curRange = plot.view.xmax - plot.view.xmin;
-      if (Math.abs(curRange - xRange) > 0.5) animateView(target, 400);
-      if (p.pi !== piActive) { piActive = p.pi; btnPi.classList.toggle("active", p.pi); plot.setPiAxis(p.pi); }
-      if (!circleActive) {
-        circleActive = true; btnCircle.classList.add("active");
-        ucActive = true;
-        document.getElementById("uc-info").classList.add("show");
-        ucUpdateInfo();
-      }
-    } else {
-      if (p.pi !== piActive) { piActive = p.pi; btnPi.classList.toggle("active", p.pi); plot.setPiAxis(p.pi); }
-      if (p.uc !== circleActive) {
-        circleActive = p.uc; btnCircle.classList.toggle("active", p.uc);
-        ucActive = p.uc;
-        document.getElementById("uc-info").classList.toggle("show", p.uc);
-        if (p.uc) ucUpdateInfo();
-      }
-      if (p.view) animateView(p.view, 300);
+    if (p.pi !== piActive) { piActive = p.pi; btnPi.classList.toggle("active", p.pi); plot.setPiAxis(p.pi); }
+    if (p.uc !== circleActive) {
+      circleActive = p.uc; btnCircle.classList.toggle("active", p.uc);
+      ucActive = p.uc;
+      document.getElementById("uc-info").classList.toggle("show", p.uc);
+      if (p.uc) ucUpdateInfo();
+      else plot.draw();
     }
   });
 });
