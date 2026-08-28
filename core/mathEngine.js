@@ -18,6 +18,29 @@ const FUNCS = {
   exp: Math.exp, floor: Math.floor, ceil: Math.ceil, sign: Math.sign,
 };
 
+function normalizeSuperscript(expr) {
+  // Normaliza superscript unicode para ^n
+  expr = expr.replace(/⁰/g,"^0").replace(/¹/g,"^1").replace(/²/g,"^2").replace(/³/g,"^3")
+             .replace(/⁴/g,"^4").replace(/⁵/g,"^5").replace(/⁶/g,"^6").replace(/⁷/g,"^7")
+             .replace(/⁸/g,"^8").replace(/⁹/g,"^9");
+  // Para superscript negativo como ⁻² ? raramente, mas se houver `⁻` (U+207B) troque para `^-`
+  expr = expr.replace(/⁻/g,"^-");
+  expr = expr.replace(/⁺/g,"^+");
+  expr = expr.replace(/⁽/g,"(").replace(/⁾/g,")");
+  // Corrige duplo ^ gerado por superscript composto (ex: ⁻¹ virou ^-^1 -> ^-1)
+  expr = expr.replace(/\^-\^/g, "^-");
+  expr = expr.replace(/\^\+\^/g, "^+");
+  // Corrige parêntese superscript que virou (^2) -> ^(2)
+  expr = expr.replace(/\(\^/g, "^(");
+  // Junta dígitos separados por ^ (ex: ¹⁰ virou ^1^0 -> ^10)
+  let prev;
+  do {
+    prev = expr;
+    expr = expr.replace(/\^(\d+)\^(\d+)/g, "^$1$2");
+  } while (expr !== prev);
+  return expr;
+}
+
 /* -------------------- Tokenizer -------------------- */
 // multi-char names that must NOT be split into single letters (longest first)
 const KNOWN_NAMES = [
@@ -27,6 +50,7 @@ const KNOWN_NAMES = [
 ].sort((a, b) => b.length - a.length);
 
 function tokenize(src) {
+  src = normalizeSuperscript(src);
   const SUP = "⁰¹²³⁴⁵⁶⁷⁸⁹";
   const s = src
     .replace(/\s+/g, "")
@@ -218,6 +242,13 @@ export function compile(input) {
     const eqi = rhs.indexOf("=");
     if (eqi >= 0) rhs = rhs.slice(eqi + 1).trim(); // descarta "y =", "f(x) ="
     if (!rhs) return { error: "Digite uma expressão." };
+    // Normaliza superscript unicode para ^n
+    rhs = rhs.replace(/⁰/g,"^0").replace(/¹/g,"^1").replace(/²/g,"^2").replace(/³/g,"^3")
+             .replace(/⁴/g,"^4").replace(/⁵/g,"^5").replace(/⁶/g,"^6").replace(/⁷/g,"^7")
+             .replace(/⁸/g,"^8").replace(/⁹/g,"^9");
+    // Para superscript negativo como ⁻² ? raramente, mas se houver `⁻` (U+207B) troque para `^-`
+    rhs = rhs.replace(/⁻/g,"^-");
+    rhs = normalizeSuperscript(rhs);
 
     const ast = parse(tokenize(rhs));
 

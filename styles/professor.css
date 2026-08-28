@@ -535,6 +535,15 @@
   }
 }
 
+/* FIX keypad flutuante acima da bottom-bar + readout no celular */
+@media (max-width: 480px) {
+  .sym-float, #sym-float,
+  .keypad, .floating-keypad, .kp-wrap, .kp-root, .keypad-float {
+    bottom: 64px !important;
+    z-index: 30 !important;
+  }
+}
+
 /* ============================================================
    RESPONSIVE — Phone (< 768px) — show toolbar + sheet (fix 480->767)
    ============================================================ */
@@ -558,6 +567,13 @@
     border-top: 1px solid var(--border);
     padding: .4rem .8rem;
     font-size: .72rem;
+  }
+
+  /* FIX professor: keypad acima da bottom-bar(56px)+readout(~34px) */
+  .sym-float, #sym-float,
+  .keypad, .floating-keypad, .kp-wrap, .kp-root {
+    bottom: 96px !important; /* 56 + 32 readout + 8 gap */
+    z-index: 30 !important;
   }
 
   .ctrl-btn { height: 36px; min-height: 36px; }

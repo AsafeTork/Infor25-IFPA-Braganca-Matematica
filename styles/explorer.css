@@ -171,3 +171,19 @@
 
 /* ─── btn sm ─── */
 .btn.sm { padding: .3rem .7rem; font-size: .82rem; }
+
+/* FIX keypad flutuante acima da bottom-bar (56px) no celular — evita sobreposição */
+@media (max-width: 480px) {
+  .sym-float, #sym-float,
+  .keypad, .floating-keypad, .kp-wrap, .kp-root, .keypad-float {
+    bottom: 64px !important;
+    z-index: 30 !important;
+  }
+}
+@media (max-width: 767px) {
+  .sym-float, #sym-float,
+  .keypad, .floating-keypad, .kp-wrap, .kp-root {
+    bottom: 64px !important;
+    z-index: 30 !important;
+  }
+}

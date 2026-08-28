@@ -199,3 +199,19 @@ body::before {
   .sf-icon-btn { width: 34px; height: 34px; border-radius: 9px; }
   .sf-keys { max-width: min(220px, 85vw); }
 }
+
+/* FIX keypad flutuante acima da bottom-bar (56px) no celular — evita sobreposição tarefa */
+@media (max-width: 480px) {
+  .sym-float, #sym-float,
+  .keypad, .floating-keypad, .kp-wrap, .kp-root, .keypad-float {
+    bottom: 64px !important; /* 56px bottom-bar + 8px gap */
+    z-index: 30 !important; /* abaixo de bottom-bar(45) e panel(40) mas acima do canvas */
+  }
+}
+@media (max-width: 767px) {
+  .sym-float, #sym-float,
+  .keypad, .floating-keypad, .kp-wrap, .kp-root {
+    bottom: 64px !important;
+    z-index: 30 !important;
+  }
+}
