@@ -150,6 +150,9 @@ const racional = {
           { ordem: "Escreva uma raiz que EXISTA para x negativo (índice ímpar).",
             checa: (f) => Number.isFinite(f(-8)) && f(-8) < 0,
             dica: "x^(1/3) é a raiz cúbica: aceita negativos e devolve negativo." },
+          { ordem: "Crie uma raiz quadrada que em x=4 dê exatamente 2.",
+            checa: (f) => Math.abs(f(4) - 2) < 0.05 && Math.abs(f(9) - 3) < 0.05,
+            dica: "y = x^(1/2) — a raiz quadrada. Teste x=4 → 2, x=9 → 3." },
         ],
       });
       if(_lab) _activeControllers.push(_lab);
@@ -175,26 +178,27 @@ const irracional = {
     try{
       const _lab = mountLab(c.querySelector("#lab-irra"), {
         base: "f(x) = a^{x},\\quad a>0",
-        params: [{ k: "a", name: "base", default: Math.PI }],
+        vars: [{ sym: "a", papel: "base", limites: "a > 0, a ≠ 1", efeito: "a > 1 cresce ↗ · 0 < a < 1 decresce ↘ · controla inclinação" }],
         start: "y = π^x",
         view: { xmin: -3, xmax: 3, ymin: -1, ymax: 12 },
-        examples: ["y = π^x", "y = e^x", "y = 2^x", "y = a^x"],
+        examples: ["y = π^x", "y = e^x", "y = 2^x", "y = 3^x"],
+        desafios: [
+          { ordem: "Faça a curva crescer MAIS RÁPIDO que π^x (use base maior que π).",
+            checa: (f, base) => f(2) > base(2) + 1 && Number.isFinite(f(1)),
+            dica: "π ≈ 3,14. Tente y = 4^x ou y = 5^x — quanto maior a base, mais íngreme." },
+          { ordem: "Crie uma curva DECRESCENTE com base irracional (ex: (1/π)^x).",
+            checa: (f) => f(-1) > f(1) && f(0) === 1 || Math.abs(f(0)-1) < 1e-9 && f(-1) > f(1),
+            dica: "Base entre 0 e 1 inverte o crescimento. Tente y = (1/π)^x ou y = (0.5)^x." },
+          { ordem: "Encontre a base onde f(1) ≈ 2,71 (número de Euler).",
+            checa: (f) => Math.abs(f(1) - Math.E) < 0.05 && Math.abs(f(0)-1) < 1e-9,
+            dica: "y = e^x dá f(1)=e≈2,718. Digite exatamente y = e^x." },
+        ],
       });
       if(_lab) _activeControllers.push(_lab);
     }catch(e){ console.warn("[pot] lab-irra", e); }
   },
 };
 
-/* ---------- Prática / ENEM ---------- */
-const pratica = {
-  id: "pot-pratica",
-  title: "Prática · vestibular & Enem",
-  render(c) {
-    c.innerHTML = section("1 · Potenciação", "Questões para raciocinar", "");
-    autoRender(c);
-  },
-};
-
-export const potenciacaoLessons = [propriedades, inteiro, notacao, racional, irracional, pratica];
+export const potenciacaoLessons = [propriedades, inteiro, notacao, racional, irracional];
 potenciacaoLessons.forEach(l=> l.cleanupLesson = cleanupLesson);
 export const potenciacaoMeta = { num: "01", title: "Potenciação", chapter: "Capítulo 1" };

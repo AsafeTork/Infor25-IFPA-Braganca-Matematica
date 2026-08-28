@@ -86,9 +86,10 @@
         </div>
       </div>
       <button class="uc-tri-btn" id="uc-tri-btn" style="width:100%;margin-top:.5rem;padding:.35rem;background:var(--accent);color:#000;border:none;border-radius:6px;font-weight:700;font-size:.75rem;cursor:pointer">Triângulo no círculo</button>
-      <div style="display:flex;gap:.4rem;margin-top:.4rem">
+      <div style="display:flex;gap:.4rem;margin-top:.4rem;align-items:center">
         <button id="uc-play-btn" style="flex:1;padding:.35rem;background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-weight:600;font-size:.75rem;cursor:pointer">▶ Play</button>
         <label style="display:flex;align-items:center;gap:.25rem;font-size:.7rem;color:var(--text-mut)"><span>voltas</span><input id="uc-play-limit" type="number" min="1" max="10" value="3" style="width:40px;padding:.2rem;border:1px solid var(--border);border-radius:4px;background:var(--surface-2);color:var(--text);text-align:center"></label>
+        <label style="display:flex;align-items:center;gap:.25rem;font-size:.7rem;color:var(--text-mut)"><span>vel</span><input id="uc-play-speed" type="range" min="0.2" max="3" step="0.2" value="1.2" style="width:60px;accent-color:var(--accent)"><span id="uc-speed-val" style="min-width:22px;text-align:center">1.2x</span></label>
       </div>
     </div>
 
@@ -450,7 +451,28 @@ function drawLabels() {
   ctx.restore();
 }
 
-plot.onDraw = () => { ucDraw(); drawOverlays(); drawLabels(); };
+function drawPlayPoint() {
+  if (!window._playPoint || !window._playPoint.visible) return;
+  const p = window._playPoint;
+  if (p.x < plot.view.xmin || p.x > plot.view.xmax || p.y < plot.view.ymin || p.y > plot.view.ymax) return;
+  const ctx = plot.ctx;
+  const dark = document.documentElement.getAttribute("data-theme") !== "light";
+  const px = plot.X(p.x), py = plot.Y(p.y);
+  ctx.save();
+  ctx.fillStyle = formulas.find(f=>!f.hidden)?.color || "#ffa500";
+  ctx.beginPath(); ctx.arc(px, py, 6, 0, 2*Math.PI); ctx.fill();
+  ctx.strokeStyle = dark ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.8)";
+  ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = (formulas.find(f=>!f.hidden)?.color || "#ffa500") + "33";
+  ctx.beginPath(); ctx.arc(px, py, 10, 0, 2*Math.PI); ctx.fill();
+  ctx.fillStyle = dark ? "#fff" : "#000";
+  ctx.font = "10px JetBrains Mono, monospace";
+  ctx.textAlign = "center";
+  ctx.fillText(`(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`, px, py - 14);
+  ctx.restore();
+}
+
+plot.onDraw = () => { ucDraw(); drawOverlays(); drawLabels(); drawPlayPoint(); };
 
 /* ── Interação círculo ── */
 let ucPrev = null;
@@ -614,6 +636,9 @@ document.getElementById("uc-tri-btn")?.addEventListener("click", () => {
 });
 
 let ucPlayRaf = null;
+document.getElementById("uc-play-speed")?.addEventListener("input", e => {
+  document.getElementById("uc-speed-val").textContent = parseFloat(e.target.value).toFixed(1) + "x";
+});
 let ucPlayStart = 0;
 let ucPlayTurns = 0;
 document.getElementById("uc-play-btn")?.addEventListener("click", () => {
@@ -621,6 +646,7 @@ document.getElementById("uc-play-btn")?.addEventListener("click", () => {
   if (ucPlayRaf) {
     cancelAnimationFrame(ucPlayRaf); ucPlayRaf = null;
     btn.textContent = "▶ Play";
+    window._playPoint.visible = false; plot.draw();
     return;
   }
   const limit = parseInt(document.getElementById("uc-play-limit").value) || 3;
@@ -630,12 +656,24 @@ document.getElementById("uc-play-btn")?.addEventListener("click", () => {
   btn.textContent = "⏸ Pause";
   function step(now) {
     const dt = (now - lastT) / 1000; lastT = now;
-    ucTheta += dt * 1.2; // rad/s
+    ucTheta += dt * parseFloat(document.getElementById("uc-play-speed").value || 1.2);
+    const xPlay = ucTheta; // mantém voltas, ponto percorre além de 2π se necessário, acompanha certamente o círculo
+    let fnPlay = Math.sin;
+    const first = formulas.find(f=>!f.hidden && f.inp.value.trim());
+    if (first) {
+      const expr = first.inp.value.trim().toLowerCase();
+      if (expr.includes("cos")) fnPlay = Math.cos;
+      else if (expr.includes("tan")) fnPlay = Math.tan;
+      else if (expr.includes("sin")) fnPlay = Math.sin;
+    }
+    const yPlay = fnPlay(xPlay);
+    window._playPoint = { x: xPlay, y: yPlay, visible: true };
     const turns = (ucTheta - startTheta) / (2*Math.PI);
     if (turns >= targetTurns) {
       ucTheta = startTheta + targetTurns * 2*Math.PI;
       ucSnapped = ucSnap(ucTheta, 0.12);
       ucUpdateInfo(); plot.draw();
+      window._playPoint.visible = false;
       cancelAnimationFrame(ucPlayRaf); ucPlayRaf = null;
       btn.textContent = "▶ Play";
       return;
@@ -691,6 +729,7 @@ let toolColor = "#ffa500";
 let toolMode  = null;
 let areaOpacity = 0.25;
 let triShowValues = true;
+window._playPoint = { visible: false, x: 0, y: 0 };
 let areaStart = null;
 let arrowStart = null;
 let rulerStart = null;
@@ -1295,24 +1334,21 @@ presetsEl.querySelectorAll(".preset-btn").forEach(btn=>{
     btn.classList.add("active");
     const p = allPresets.find(x=>x.group===btn.dataset.g&&x.label===btn.dataset.label);
     if (!p) return;
-    document.getElementById("formulas-rows").innerHTML=""; formulas=[];
-    p.fns.forEach(f=>addFormula(f));
-    piActive=p.pi; btnPi.classList.toggle("active",p.pi); plot.setPiAxis(p.pi);
-    circleActive=p.uc; btnCircle.classList.toggle("active",p.uc);
-    ucActive=p.uc;
-    document.getElementById("uc-info").classList.toggle("show",p.uc);
-    if (p.view) animateView(p.view);
-    else if (p.uc) { /* só autoZoom se view é default e não há curvas ativas com zoom manual — com transição suave */
-      const isDefaultView = Math.abs(plot.view.xmin + 6) < 0.1 && Math.abs(plot.view.xmax - 6) < 0.1;
-      if (isDefaultView) {
-        const W = canvas.clientWidth, H = canvas.clientHeight;
-        const yRange = 3.2;
-        const xRange = yRange * (W / H);
-        animateView({ xmin:-xRange/2, xmax:xRange/2, ymin:-yRange/2, ymax:yRange/2 });
-      }
+    // Acrescenta sem apagar, sem mexer na perspectiva (view/zoom)
+    // Só adiciona fórmulas novas
+    p.fns.forEach(fn => {
+      const exists = formulas.some(f => f.inp.value.trim() === fn);
+      if (!exists && formulas.length < 6) addFormula(fn);
+    });
+    // Ativa pi/círculo sem animar view
+    if (p.pi !== piActive) { piActive = p.pi; btnPi.classList.toggle("active", p.pi); plot.setPiAxis(p.pi); }
+    if (p.uc !== circleActive) {
+      circleActive = p.uc; btnCircle.classList.toggle("active", p.uc);
+      ucActive = p.uc;
+      document.getElementById("uc-info").classList.toggle("show", p.uc);
+      if (p.uc) ucUpdateInfo();
     }
-    // se p.uc sem view e não é default, mantém zoom atual
-    if (p.uc) ucUpdateInfo();
+    // NÃO chama setView, animateView ou ucAutoZoom — preserva perspectiva
   });
 });
 

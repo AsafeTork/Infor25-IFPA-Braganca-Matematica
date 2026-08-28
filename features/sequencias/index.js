@@ -61,6 +61,9 @@ export const sequenciasLessons = [
             { ordem: "Crie uma PA decrescente que comece em 50.",
               checa: f => Math.abs(f(1)-50)<1e-6 && f(2)<f(1),
               dica: "Razão negativa: y = 50 + (x−1)·(−4)" },
+            { ordem: "PA constante (razão 0) com todos os termos iguais a 7.",
+              checa: f => Math.abs(f(1)-7)<1e-6 && Math.abs(f(5)-7)<1e-6 && Math.abs(f(10)-7)<1e-6,
+              dica: "r=0 → y = 7 + (x−1)·0 ou simplesmente y = 7." },
           ],
         });
         if(_lab) _activeControllers.push(_lab);
@@ -113,6 +116,9 @@ export const sequenciasLessons = [
             { ordem: "PG decrescente (0 < q < 1) com a₁ = 81.",
               checa: f => Math.abs(f(1)-81)<1e-6 && f(2)<f(1),
               dica: "y = 81·(1/3)^(x−1)" },
+            { ordem: "PG com crescimento de 10% ao passo: a₁=5 e q=1.1. Verifique que o 6.º termo ≈ 8.",
+              checa: f => Math.abs(f(1)-5)<1e-6 && Math.abs(f(6) - 5*Math.pow(1.1,5)) < 0.5,
+              dica: "y = 5·1.1^(x−1). Crescimento suave, típico de juros." },
           ],
         });
         if(_lab) _activeControllers.push(_lab);

@@ -13,11 +13,12 @@ import { mountTrigCircle, mountCircleToGraph, mountTrigParamExplorer, mountTange
 
 export const trigonometriaMeta = { num: "05", title: "O Círculo e as Ondas", subtitle: "Funções Trigonométricas", chapter: "Funções Trigonométricas" };
 
-/* ── Cleanup controller registry ─────────────────────────── */
+/* ── Cleanup controller registry (mantém trigVisuals + labs) ── */
 let _activeControllers = [];
 function cleanupLesson() {
-  _activeControllers.forEach(c => c?.destroy?.());
+  try{ _activeControllers.forEach(c=>{ try{ c?.plot?.destroy?.(); c?.destroy?.(); }catch(e){} }); }catch(e){}
   _activeControllers = [];
+  try{ document.querySelectorAll("#lab-seno, #lab-cos, #lab-tan").forEach(el=>{ if(el) el.innerHTML=""; }); }catch(e){}
 }
 
 export const trigonometriaLessons = [
@@ -335,7 +336,7 @@ export const trigonometriaLessons = [
     });
     _activeControllers.push(ctgSin);
 
-    mountLab(c.querySelector("#lab-seno"), {
+    const _labSeno = mountLab(c.querySelector("#lab-seno"), {
       base: "y = A·sin(B·x + C) + D",
       vars: [
         { sym: "A", papel: "amplitude", limites: "A > 0", efeito: "máx = D+A · mín = D−A" },
@@ -347,7 +348,19 @@ export const trigonometriaLessons = [
       start: "y = sin(x)",
       view: { xmin: -2 * Math.PI, xmax: 2 * Math.PI, ymin: -2.5, ymax: 2.5 },
       examples: ["y = sin(x)", "y = 2*sin(x)", "y = sin(2*x)", "y = sin(x + π/2)", "y = sin(x) + 1"],
+      desafios: [
+        { ordem: "Aumente a AMPLITUDE para 2 — o pico deve chegar a y=2 e o vale a y=−2.",
+          checa: (f) => Math.abs(f(Math.PI/2) - 2) < 0.15 && Math.abs(f(3*Math.PI/2) + 2) < 0.15,
+          dica: "Multiplique por 2: y = 2*sin(x). Amplitude estica verticalmente." },
+        { ordem: "DOBRE a frequência (B=2) — o período deve ser π, com 2 ondas no intervalo 0 a 2π.",
+          checa: (f) => Math.abs(f(Math.PI/4) - 1) < 0.15 && Math.abs(f(Math.PI/2)) < 0.15 && Math.abs(f(3*Math.PI/4) + 1) < 0.25,
+          dica: "Use y = sin(2*x). B=2 comprime horizontalmente, período = 2π/2 = π." },
+        { ordem: "Desloque a onda 1 unidade PARA CIMA (eixo central em y=1).",
+          checa: (f) => Math.abs(f(0) - 1) < 0.15 && Math.abs(f(Math.PI/2) - 2) < 0.15 && Math.abs(f(Math.PI) - 1) < 0.15,
+          dica: "Some 1: y = sin(x) + 1. D translada verticalmente." },
+      ],
     });
+    if (_labSeno) _activeControllers.push(_labSeno);
   }
 },
 
@@ -419,7 +432,7 @@ export const trigonometriaLessons = [
     });
     _activeControllers.push(ctgCos);
 
-    mountLab(c.querySelector("#lab-cos"), {
+    const _labCos = mountLab(c.querySelector("#lab-cos"), {
       base: "y = A·cos(B·x + C) + D",
       vars: [
         { sym: "A", papel: "amplitude", limites: "A > 0", efeito: "máx = D+A · mín = D−A" },
@@ -431,7 +444,19 @@ export const trigonometriaLessons = [
       start: "y = cos(x)",
       view: { xmin: -2 * Math.PI, xmax: 2 * Math.PI, ymin: -2.5, ymax: 2.5 },
       examples: ["y = cos(x)", "y = 2*cos(x)", "y = cos(2*x)", "y = cos(x - π/3)", "y = cos(x) - 1"],
+      desafios: [
+        { ordem: "Aumente a AMPLITUDE para 2 — pico em y=2 (x=0) e vale em y=−2 (x=π).",
+          checa: (f) => Math.abs(f(0) - 2) < 0.15 && Math.abs(f(Math.PI) + 2) < 0.15,
+          dica: "y = 2*cos(x). Cosseno começa no máximo, amplitude amplia." },
+        { ordem: "DOBRE a frequência (B=2) — período π, 2 ciclos em 0 a 2π.",
+          checa: (f) => Math.abs(f(0) - 1) < 0.15 && Math.abs(f(Math.PI/4)) < 0.2 && Math.abs(f(Math.PI/2) + 1) < 0.15,
+          dica: "y = cos(2*x). cos(π/2)=0, mas com B=2, cos(2·π/4)=cos(π/2)=0." },
+        { ordem: "Desloque a onda 1 unidade PARA BAIXO (eixo central em y=−1).",
+          checa: (f) => Math.abs(f(0) - 0) < 0.15 && Math.abs(f(Math.PI) + 2) < 0.15,
+          dica: "Subtraia 1: y = cos(x) - 1. Em x=0, cos=1 → 0; em x=π, cos=−1 → −2." },
+      ],
     });
+    if (_labCos) _activeControllers.push(_labCos);
   }
 },
 
@@ -503,7 +528,7 @@ export const trigonometriaLessons = [
     });
     _activeControllers.push(tv);
 
-    mountLab(c.querySelector("#lab-tan"), {
+    const _labTan = mountLab(c.querySelector("#lab-tan"), {
       base: "y = A·tan(B·x + C) + D",
       vars: [
         { sym: "A", papel: "escala vertical", limites: "A ≠ 0", efeito: "não é amplitude (imagem é ℝ) — só estica" },
@@ -514,7 +539,19 @@ export const trigonometriaLessons = [
       start: "y = tan(x)",
       view: { xmin: -Math.PI, xmax: Math.PI, ymin: -4, ymax: 4 },
       examples: ["y = tan(x)", "y = 2*tan(x)", "y = tan(2*x)", "y = tan(x - π/4)"],
+      desafios: [
+        { ordem: "DOBRE a inclinação vertical (A=2) — em x=π/4 o valor deve ser 2.",
+          checa: (f) => Math.abs(f(Math.PI/4) - 2) < 0.15 && Math.abs(f(0)) < 0.05,
+          dica: "y = 2*tan(x). Tangente estica verticalmente: tan(π/4)=1 → 2." },
+        { ordem: "DOBRE a frequência (B=2) — período deve ser π/2 (assíntotas mais próximas).",
+          checa: (f) => Math.abs(f(Math.PI/8) - 1) < 0.2 && !Number.isFinite(f(Math.PI/4 + 0.01)) || Math.abs(f(Math.PI/8) - 1) < 0.3,
+          dica: "y = tan(2*x). Assíntota vai para π/4, metade de π/2. Teste x=π/8 → tan(π/4)=1." },
+        { ordem: "Desloque a curva para passar por (0,1) — ou seja, f(0)=1.",
+          checa: (f) => Math.abs(f(0) - 1) < 0.15,
+          dica: "Some 1: y = tan(x) + 1. Ou desloque fase: y = tan(x + π/4)." },
+      ],
     });
+    if (_labTan) _activeControllers.push(_labTan);
   }
 },
 

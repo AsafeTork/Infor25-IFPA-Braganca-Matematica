@@ -81,11 +81,21 @@
 .lab-canvas { width: 100%; aspect-ratio: 4/3; border-radius: var(--radius-sm); display: block; }
 .lab-readout { font-size: .78rem; color: var(--text-mut); min-height: 1.2em; }
 
-/* ─── Desafio ─── */
+/* ─── Desafio opcional — destaque laranja ─── */
 .lab-challenge {
-  padding: .75rem 1rem; border-left: 3px solid var(--accent-2);
-  background: color-mix(in srgb, var(--accent-2) 6%, var(--surface));
+  padding: .85rem 1rem; border-left: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  box-shadow: 0 2px 12px rgba(0,0,0,.07);
+  border-radius: 0 8px 8px 0;
 }
+.lab-challenge.challenge-box {
+  border-left: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+.ch-head { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.ch-badge { font-size: 1.15rem; line-height: 1; flex-shrink: 0; }
+.ch-title { color: var(--accent); font-weight: 800; font-size: .74rem; letter-spacing: .05em; text-transform: uppercase; }
+.ch-counter { margin-left: auto; font-size: .72rem; color: var(--text-mut); font-family: var(--font-mono); }
 .ch-head .section-eyebrow { display: block; margin-bottom: .3rem; }
 .ch-order { font-weight: 600; margin: .3rem 0 .6rem; line-height: 1.4; }
 .ch-actions { display: flex; gap: .4rem; flex-wrap: wrap; }

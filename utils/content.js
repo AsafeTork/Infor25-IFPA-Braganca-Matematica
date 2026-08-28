@@ -28,4 +28,7 @@ export const solved = (bodyOrTitle, body) => body !== undefined
   : box("solved", "Resolução", bodyOrTitle);
 export const apply  = (body) => box("apply",   "Aplicação real",   body);
 export const labSlot = (id)  => `<div id="${id}" class="lab-slot"></div>`;
+/** Desafio opcional destacado — borda laranja + fundo suave */
+export const challenge = (body) => `<!-- Desafio opcional --><div class="challenge-box" style="border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface));padding:.75rem 1rem;border-radius:0 8px 8px 0;margin:.75rem 0"><div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem"><span aria-hidden="true">◆</span><strong style="color:var(--accent);font-size:.74rem;letter-spacing:.05em;text-transform:uppercase">Desafio opcional — tente sem olhar a dica</strong></div>${body}</div>`;
+// quizSlot mantido por compatibilidade mas não usado — quizes removidos em favor de desafios opcionais
 export const quizSlot= (id)  => `<div id="${id}"></div>`;

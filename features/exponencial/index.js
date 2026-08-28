@@ -48,6 +48,17 @@ const conceito = {
       start: "y = 2^x",
       view: { xmin: -4, xmax: 4, ymin: -1, ymax: 9 },
       examples: ["y = 2^x", "y = 3^x", "y = π^x", "y = (1/2)^x", "y = (1/3)^x"],
+      desafios: [
+        { ordem: "Faça a curva DECRESCER (base entre 0 e 1) mantendo f(0)=1.",
+          checa: (f) => Math.abs(f(0)-1) < 1e-9 && f(-1) > f(1),
+          dica: "Base fracionária inverte o crescimento. Tente y = (1/2)^x." },
+        { ordem: "Crie uma exponencial que passe por (1,4) — ou seja, f(1)=4.",
+          checa: (f) => Math.abs(f(1)-4) < 0.05 && Math.abs(f(0)-1) < 1e-9,
+          dica: "Se f(x)=a^x, então f(1)=a. Qual a deve ser 4?" },
+        { ordem: "Faça a curva crescer MAIS RÁPIDO que 3^x.",
+          checa: (f, base) => f(2) > 9 + 0.5 && Number.isFinite(f(2)),
+          dica: "Quanto maior a base, mais íngreme. Tente y = 4^x ou 5^x e compare no ponto x=2." },
+      ],
     }); if(_lab) _activeControllers.push(_lab); }catch(e){ console.warn("[exp] lab-conceito", e); }
   },
 };
@@ -80,6 +91,17 @@ const grafico = {
       start: "y = (1/2)^x",
       view: { xmin: -4, xmax: 4, ymin: -1, ymax: 9 },
       examples: ["y = 2^x", "y = (1/2)^x", "y = 3^x", "y = (1/3)^x", "y = 10^x"],
+      desafios: [
+        { ordem: "Inverta o comportamento: se está decrescente, faça CRESCER (base > 1).",
+          checa: (f) => f(1) > f(0) && f(0) > 0,
+          dica: "Troque (1/2)^x por 2^x — base >1 cresce para a direita." },
+        { ordem: "Crie uma curva que em x=2 tenha valor maior que 20.",
+          checa: (f) => f(2) > 20,
+          dica: "Precisa de base grande: 5^2=25. Tente y = 5^x." },
+        { ordem: "Faça a curva passar por (0,1) e ser simétrica à 2^x em relação ao eixo y.",
+          checa: (f) => Math.abs(f(0)-1) < 1e-9 && Math.abs(f(1) - 0.5) < 0.05,
+          dica: "Simétrica em y é inverter o sinal do expoente: y = 2^(-x) = (1/2)^x." },
+      ],
     }); if(_lab) _activeControllers.push(_lab); }catch(e){ console.warn("[exp] lab-graf", e); }
   },
 };
@@ -144,6 +166,17 @@ const aplicacoes = {
       start: "y = 3·2^x",
       view: { xmin: 0, xmax: 10, ymin: -2, ymax: 60 },
       examples: ["y = N·a^x", "y = 1800·(1.03)^x", "y = 100·(1/2)^x", "y = 2^x"],
+      desafios: [
+        { ordem: "Modele juros de 5% ao ano com N0=1000: f(x)=1000·1.05^x. Verifique f(10)≈1628.",
+          checa: (f) => Math.abs(f(10) - 1628) < 50 && Math.abs(f(0)-1000) < 1,
+          dica: "Digite y = 1000*1.05^x — observe o crescimento suave no gráfico." },
+        { ordem: "Modele DECAIMENTO (fator <1) com valor inicial 100.",
+          checa: (f) => Math.abs(f(0)-100) < 1 && f(5) < f(0) && f(5) > 0,
+          dica: "Fator entre 0 e 1 faz decair. Tente y = 100*(0.8)^x." },
+        { ordem: "Crie um crescimento que dobre a cada passo (fator 2) começando em 5.",
+          checa: (f) => Math.abs(f(0)-5) < 0.5 && Math.abs(f(3)-40) < 1,
+          dica: "y = 5*2^x — em x=3, 5·8=40." },
+      ],
     }); if(_lab) _activeControllers.push(_lab); }catch(e){ console.warn("[exp] lab-app", e); }
   },
 };
@@ -167,16 +200,6 @@ const equacoes = {
   },
 };
 
-/* ---------- 2.6 Prática / ENEM ---------- */
-const pratica = {
-  id: "exp-pratica",
-  title: "Prática · vestibular & Enem",
-  render(c) {
-    c.innerHTML = section("2 · Função exponencial", "Questões para raciocinar", "");
-    autoRender(c);
-  },
-};
-
-export const exponencialLessons = [conceito, grafico, comparacao, aplicacoes, equacoes, pratica];
+export const exponencialLessons = [conceito, grafico, comparacao, aplicacoes, equacoes];
 exponencialLessons.forEach(l=> l.cleanupLesson = cleanupLesson);
 export const exponencialMeta = { num: "1.2", title: "Função exponencial", chapter: "Cap. 1 — Exponencial" };

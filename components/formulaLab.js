@@ -75,10 +75,13 @@ export function mountLab(root, cfg = {}) {
       </div>
     </div>
 
+    <!-- Desafio opcional -->
     ${desafios.length ? `
-    <div class="lab-challenge card" id="ch-${id}">
+    <div class="lab-challenge challenge-box card" id="ch-${id}" style="border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface))">
       <div class="ch-head">
-        <span class="section-eyebrow">Desafio <span id="chn-${id}">1</span>/${desafios.length}</span>
+        <span class="ch-badge" aria-hidden="true">◆</span>
+        <span class="ch-title">Desafio opcional — tente sem olhar a dica</span>
+        <span class="ch-counter"><span id="chn-${id}">1</span>/${desafios.length}</span>
       </div>
       <p class="ch-order" id="cho-${id}"></p>
       <div class="ch-actions">
