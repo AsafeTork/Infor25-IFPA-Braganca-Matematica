@@ -1357,7 +1357,13 @@ document.getElementById("btn-add").addEventListener("click", ()=>addFormula());
 const btnPi = document.getElementById("btn-pi");
 btnPi.addEventListener("click", ()=>{
   piActive=!piActive; btnPi.classList.toggle("active",piActive);
-  plot.setPiAxis(piActive); setView(null);
+  plot.setPiAxis(piActive);
+  if (ucActive) {
+    ensureSquareView();
+    plot.draw();
+  } else {
+    setView(null);
+  }
 });
 
 const btnCircle = document.getElementById("btn-circle");
