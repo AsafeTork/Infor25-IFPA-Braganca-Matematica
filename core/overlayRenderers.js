@@ -306,6 +306,35 @@ function renderDistance(ctx, ov, toX, toY, fmt) {
   ctx.restore();
 }
 
+function renderRuler(ctx, ov, toX, toY) {
+  const x1=toX(ov.x1??0), y1=toY(ov.y1??0), x2=toX(ov.x2??0), y2=toY(ov.y2??0);
+  const color = ov.color || "#ffa500";
+  ctx.save();
+  ctx.strokeStyle = color; ctx.lineWidth = ov.width||2;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  // arrowheads
+  const ang = Math.atan2(y2-y1, x2-x1);
+  const ah = 8;
+  for (const [cx,cy,dir] of [[x1,y1,ang+Math.PI],[x2,y2,ang]]) {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(dir - Math.PI/6)*ah, cy + Math.sin(dir - Math.PI/6)*ah);
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(dir + Math.PI/6)*ah, cy + Math.sin(dir + Math.PI/6)*ah);
+    ctx.stroke();
+  }
+  // label distância
+  const mx=(x1+x2)/2, my=(y1+y2)/2;
+  const dx=(ov.x2??0)-(ov.x1??0), dy=(ov.y2??0)-(ov.y1??0);
+  const dist = Math.hypot(dx, dy).toFixed(2);
+  const txt = `d=${dist}  Δx=${dx.toFixed(2)} Δy=${dy.toFixed(2)}`;
+  ctx.fillStyle = color; ctx.font = "11px monospace"; ctx.textAlign="center";
+  const tw = ctx.measureText(txt).width;
+  ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillRect(mx - tw/2 -4, my -18, tw+8, 14);
+  ctx.fillStyle = color; ctx.fillText(txt, mx, my -8);
+  ctx.restore();
+}
+
 /* ── Dispatcher by type ──────────────────────────────────── */
 
 const RENDERERS = {
@@ -319,6 +348,7 @@ const RENDERERS = {
   circle:    (ctx, ov, toX, toY)              => renderCircle(ctx, ov, toX, toY),
   freehand:  (ctx, ov, toX, toY)              => renderFreehand(ctx, ov, toX, toY),
   distance:  (ctx, ov, toX, toY, _w, _h, fmt) => renderDistance(ctx, ov, toX, toY, fmt),
+  ruler: (ctx, ov, toX, toY) => renderRuler(ctx, ov, toX, toY),
 };
 
 /* ==========================================================
@@ -435,6 +465,10 @@ export function hitTestOverlay(overlay, px, py, engine, tolerance) {
       return _hitFreehand(overlay, px, py, engine, tol);
 
     case "distance":
+      return _hitDistance(overlay, px, py, engine, tol);
+
+    case "ruler":
+    case "arrow":
       return _hitDistance(overlay, px, py, engine, tol);
 
     default:

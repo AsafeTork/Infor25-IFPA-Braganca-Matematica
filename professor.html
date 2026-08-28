@@ -11,6 +11,15 @@
 <link rel="stylesheet" href="styles/base.css">
 <link rel="stylesheet" href="styles/professor.css">
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<style>
+/* Refatoração professor.html: grid responsivo e touch targets (integração com professor.css) */
+.tools-grid{grid-template-columns:1fr 1fr;gap:.3rem}
+@media(min-width:480px){.tools-grid{grid-template-columns:1fr 1fr 1fr}}
+.tool-btn,.ctrl-btn,.frow-eye,.frow-del{min-height:36px}
+.tool-btn{font-size:.78rem}
+.frow-eye{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);background:var(--surface-2);color:var(--text-mut);border-radius:6px;cursor:pointer;font-size:.75rem;flex-shrink:0;transition:all .15s}
+.frow-eye:hover{border-color:var(--accent);color:var(--accent)}
+</style>
 </head>
 <body>
 
@@ -30,19 +39,21 @@
   <div class="prof-panel" id="prof-panel" role="complementary" aria-label="Painel de controle">
     <div class="prof-context">Gráficos interativos · Informática 25</div>
 
+    <!-- 1. Fórmulas -->
     <div class="prof-section">
       <div class="prof-section-title">Fórmulas</div>
       <div id="formulas-rows"></div>
-      <button class="ctrl-btn" id="btn-add" style="width:100%;margin-top:.4rem;text-align:center" aria-label="Adicionar fórmula">+ linha</button>
+      <button class="ctrl-btn" id="btn-add" style="width:100%;margin-top:.4rem;text-align:center;min-height:36px" aria-label="Adicionar fórmula" title="Adicionar fórmula">+ linha</button>
     </div>
 
+    <!-- 2. Controles (π eixo, círculo, reset, download) -->
     <div class="prof-section">
       <div class="prof-controls">
-        <button class="ctrl-btn" id="btn-pi" aria-label="Eixo π">π eixo</button>
-        <button class="ctrl-btn" id="btn-circle" aria-label="Círculo unitário">⊙ círculo</button>
-        <button class="ctrl-btn" id="btn-reset" aria-label="Resetar vista">⌖</button>
+        <button class="ctrl-btn" id="btn-pi" aria-label="Alternar eixo em múltiplos de pi" title="Alternar eixo em múltiplos de pi">π eixo</button>
+        <button class="ctrl-btn" id="btn-circle" aria-label="Alternar círculo unitário" title="Alternar círculo unitário">Círculo</button>
+        <button class="ctrl-btn" id="btn-reset" aria-label="Resetar vista" title="Resetar vista">Reset</button>
         <div class="prof-download-wrap">
-          <button class="ctrl-btn" id="btn-download" aria-label="Baixar gráfico" aria-haspopup="true">⬇</button>
+          <button class="ctrl-btn" id="btn-download" aria-label="Baixar gráfico" aria-haspopup="true" title="Baixar gráfico">Baixar</button>
           <div class="prof-download-menu" id="download-menu" role="menu">
             <button role="menuitem" data-format="png">PNG (2x)</button>
             <button role="menuitem" data-format="svg">SVG vetorial</button>
@@ -51,7 +62,7 @@
       </div>
     </div>
 
-    <!-- Info do círculo unitário -->
+    <!-- Info do círculo unitário (exibida quando Círculo ativo) -->
     <div class="uc-info" id="uc-info" aria-label="Informações do círculo trigonométrico">
       <div class="uc-row"><span class="uc-k">cos θ</span><span class="uc-val" id="uc-cos">—</span></div>
       <div class="uc-row"><span class="uc-k">sin θ</span><span class="uc-val" id="uc-sin">—</span></div>
@@ -71,27 +82,30 @@
           <button id="uc-custom-btn" aria-label="Aplicar ângulo">→</button>
         </div>
       </div>
+      <button class="uc-tri-btn" id="uc-tri-btn" style="width:100%;margin-top:.5rem;padding:.35rem;background:var(--accent);color:#000;border:none;border-radius:6px;font-weight:700;font-size:.75rem;cursor:pointer">Triângulo no círculo</button>
     </div>
 
-    <!-- Ferramentas + Presets -->
+    <!-- 3. Ferramentas (grid 2 col mobile, 3 col em >480px) + 4. Camadas + 5. Presets — ordem lógica -->
     <div class="prof-presets-wrap" id="prof-presets-wrap">
+      <!-- 3. Ferramentas -->
       <details class="tools-details" id="tools-section">
-        <summary class="preset-group-title" style="cursor:pointer;padding:.3rem .25rem;list-style:none;display:flex;justify-content:space-between" aria-label="Ferramentas de anotação">
-          ✏️ Ferramentas <span style="opacity:.5">▾</span>
+        <summary class="preset-group-title" style="cursor:pointer;padding:.3rem .25rem;list-style:none;display:flex;justify-content:space-between" aria-label="Ferramentas de anotação" title="Ferramentas de anotação">
+          Ferramentas <span style="opacity:.5">▾</span>
         </summary>
         <div style="padding:.25rem 0">
           <div class="tools-grid" role="toolbar" aria-label="Ferramentas" aria-orientation="horizontal">
-            <button class="tool-btn" id="tool-marker" aria-pressed="false" aria-label="Marcar ponto">📍 Marcar ponto</button>
-            <button class="tool-btn" id="tool-vline" aria-pressed="false" aria-label="Linha vertical">| Linha vertical</button>
-            <button class="tool-btn" id="tool-hline" aria-pressed="false" aria-label="Linha horizontal">— Linha horizontal</button>
-            <button class="tool-btn" id="tool-area" aria-pressed="false" aria-label="Sombrear área">▓ Sombrear área</button>
-            <button class="tool-btn" id="tool-triangle" aria-pressed="false" aria-label="Triângulo">△ Triângulo</button>
-            <button class="tool-btn" id="tool-text" aria-pressed="false" aria-label="Texto livre">T Texto</button>
-            <button class="tool-btn" id="tool-arrow" aria-pressed="false" aria-label="Seta">→ Seta</button>
-            <button class="tool-btn" data-tool="eraser" id="tool-eraser" aria-pressed="false" aria-label="Borracha (apagar elemento)">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <button class="tool-btn" id="tool-marker" aria-pressed="false" aria-label="Marcar ponto" title="Marcar ponto"><span class="tool-dot" style="background:var(--accent);width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block"></span> Ponto</button>
+            <button class="tool-btn" id="tool-vline" aria-pressed="false" aria-label="Linha vertical" title="Linha vertical">Vertical</button>
+            <button class="tool-btn" id="tool-hline" aria-pressed="false" aria-label="Linha horizontal" title="Linha horizontal">Horizontal</button>
+            <button class="tool-btn" id="tool-area" aria-pressed="false" aria-label="Sombrear área" title="Sombrear área">Área</button>
+            <button class="tool-btn" id="tool-triangle" aria-pressed="false" aria-label="Triângulo" title="Triângulo">Triângulo</button>
+            <button class="tool-btn" id="tool-text" aria-pressed="false" aria-label="Adicionar texto" title="Adicionar texto">Texto</button>
+            <button class="tool-btn" id="tool-arrow" aria-pressed="false" aria-label="Desenhar seta" title="Desenhar seta">Seta</button>
+            <button class="tool-btn" id="tool-ruler" aria-pressed="false" aria-label="Régua para medir distância" title="Régua para medir distância">Régua</button>
+            <button class="tool-btn" data-tool="eraser" id="tool-eraser" aria-pressed="false" aria-label="Borracha para apagar" title="Borracha para apagar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M20 20H7L3 16c-.8-.8-.8-2 0-2.8L14.8 1.4c.8-.8 2-.8 2.8 0L22 5.8c.8.8.8 2 0 2.8L12 18"/>
-              </svg>
+              </svg> Borracha
             </button>
           </div>
           <div class="color-row" id="tool-colors" style="margin:.35rem 0" role="radiogroup" aria-label="Cor da ferramenta">
@@ -107,34 +121,44 @@
             <input type="range" id="area-opacity" min="5" max="60" value="25" aria-label="Opacidade">
             <span id="area-opacity-val">25%</span>
           </div>
-          <button class="tool-btn" id="tool-clear" style="margin-top:.3rem;width:100%;justify-content:center" aria-label="Limpar destaques">🗑 Limpar destaques</button>
+          <button class="tool-btn" id="tool-clear" style="margin-top:.3rem;width:100%;justify-content:center;min-height:36px" aria-label="Limpar destaques" title="Limpar destaques">Limpar destaques</button>
           <div style="display:flex;gap:.3rem;margin-top:.3rem">
-            <button class="tool-btn" id="tool-undo" style="flex:1;justify-content:center" aria-label="Desfazer (Ctrl+Z)">↩ Desfazer</button>
-            <button class="tool-btn" id="tool-redo" style="flex:1;justify-content:center" aria-label="Refazer (Ctrl+Y)">↪ Refazer</button>
+            <button class="tool-btn" id="tool-undo" style="flex:1;justify-content:center;min-height:36px" aria-label="Desfazer (Ctrl+Z)" title="Desfazer (Ctrl+Z)">Desfazer</button>
+            <button class="tool-btn" id="tool-redo" style="flex:1;justify-content:center;min-height:36px" aria-label="Refazer (Ctrl+Y)" title="Refazer (Ctrl+Y)">Refazer</button>
           </div>
         </div>
       </details>
+      <!-- 4. Camadas (com ocultar/mostrar) -->
+      <div class="layers-panel" id="layers-panel" style="margin-top:.6rem;border-top:1px solid var(--border);padding-top:.5rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem">
+          <span style="font-family:var(--font-mono);font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mut)">Camadas</span>
+          <span id="layers-count" style="font-size:.65rem;color:var(--text-mut)">0</span>
+        </div>
+        <div id="layers-list" style="display:flex;flex-direction:column;gap:.25rem;max-height:160px;overflow-y:auto"></div>
+      </div>
+      <!-- 5. Presets -->
       <div id="prof-presets"></div>
     </div>
 
+    <!-- 6. Readout -->
     <div class="prof-readout" id="readout">x = —   y = —</div>
   </div>
 </div>
 
 <!-- Bottom toolbar (mobile) -->
 <nav class="prof-bottom-bar" id="prof-bottom-bar" role="toolbar" aria-label="Barra de ferramentas móvel">
-  <button class="prof-bar-btn" data-panel="formulas" aria-label="Fórmulas" title="Fórmulas">📐</button>
-  <button class="prof-bar-btn" data-panel="tools" aria-label="Ferramentas" title="Ferramentas">🔧</button>
-  <button class="prof-bar-btn" data-panel="circle" aria-label="Círculo" title="Círculo">⭕</button>
-  <button class="prof-bar-btn" data-panel="download" aria-label="Baixar" title="Baixar">⬇️</button>
-  <button class="prof-bar-btn" data-action="reset" aria-label="Resetar" title="Resetar">🔄</button>
-  <button class="prof-bar-btn" data-action="theme" aria-label="Tema" title="Tema">🌙</button>
+  <button class="prof-bar-btn" data-panel="formulas" aria-label="Fórmulas" title="Fórmulas"><span style="font-family:var(--font-mono);font-size:.68rem;font-weight:700">f(x)</span></button>
+  <button class="prof-bar-btn" data-panel="tools" aria-label="Ferramentas" title="Ferramentas"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></button>
+  <button class="prof-bar-btn" data-panel="circle" aria-label="Círculo trigonométrico" title="Círculo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 12 L19 12"/><path d="M12 12 L15.5 8.5"/></svg></button>
+  <button class="prof-bar-btn" data-panel="download" aria-label="Baixar gráfico" title="Baixar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v13"/><path d="M8 11l4 4 4-4"/><path d="M3 17v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/></svg></button>
+  <button class="prof-bar-btn" data-action="reset" aria-label="Resetar vista" title="Resetar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v6h-6"/></svg></button>
+  <button class="prof-bar-btn" data-action="theme" aria-label="Alternar tema" title="Tema"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
 </nav>
 
-<!-- Bottom sheet overlay (mobile) -->
+<!-- Bottom sheet overlay (mobile) — camada de fundo para fechar painel móvel -->
 <div class="prof-sheet-overlay" id="sheet-overlay"></div>
 
-<!-- Bottom sheet content (mobile) -->
+<!-- Bottom sheet content (mobile) — mantido para navegação móvel; controlado via .prof-panel.open e openSheet/closeSheet (não é dead code, apenas oculto em desktop) -->
 <div class="prof-sheet" id="prof-sheet" role="dialog" aria-label="Painel de ferramentas">
   <div class="prof-sheet-handle"></div>
   <div id="sheet-content"></div>
@@ -378,7 +402,7 @@ function ucDraw() {
 
 function drawLabels() {
   const ctx = plot.ctx;
-  const activeFormulas = formulas.filter(f => f.inp.value.trim());
+  const activeFormulas = formulas.filter(f => !f.hidden && f.inp.value.trim());
   if (activeFormulas.length === 0) return;
 
   ctx.save();
@@ -551,6 +575,19 @@ document.getElementById("tab-neg").addEventListener("click", () => {
 
 ucBuildGrid("pos");
 
+document.getElementById("uc-tri-btn")?.addEventListener("click", () => {
+  if (!ucActive) return;
+  const c = Math.cos(ucTheta), s = Math.sin(ucTheta);
+  // Triângulo retângulo: origem (0,0), projeção X (c,0), ponto no círculo (c,s)
+  const pts = [{x:0,y:0},{x:c,y:0},{x:c,y:s}];
+  overlayMgr.add(OverlayType.TRIANGLE, "plot-main", { color: toolColor, opacity: 0.25, points: pts });
+  // Também marca os 3 vértices
+  overlayMgr.add(OverlayType.MARKER, "plot-main", { x:0, y:0, color: toolColor, radius:5, label:"O" });
+  overlayMgr.add(OverlayType.MARKER, "plot-main", { x:c, y:0, color: toolColor, radius:5, label: c.toFixed(2) });
+  overlayMgr.add(OverlayType.MARKER, "plot-main", { x:c, y:s, color: toolColor, radius:5, label: `(${c.toFixed(2)},${s.toFixed(2)})` });
+  plot.draw();
+});
+
 document.getElementById("uc-negate-btn").addEventListener("click", () => {
   ucSetAngle(-ucTheta);
   const goNeg = ucTheta < 0;
@@ -596,6 +633,7 @@ let toolMode  = null;
 let areaOpacity = 0.25;
 let areaStart = null;
 let arrowStart = null;
+let rulerStart = null;
 let trianglePoints = [];
 let lastMouseX = null;
 let lastMouseY = null;
@@ -624,6 +662,7 @@ function setTool(mode, btn) {
   trianglePoints = [];
   areaStart = null;
   arrowStart = null;
+  rulerStart = null;
   lastMouseX = null;
   lastMouseY = null;
 
@@ -646,11 +685,13 @@ document.getElementById("tool-area").addEventListener("click",  e => setTool("ar
 document.getElementById("tool-triangle").addEventListener("click", e => setTool("triangle", e.currentTarget));
 document.getElementById("tool-text").addEventListener("click", e => setTool("text", e.currentTarget));
 document.getElementById("tool-arrow").addEventListener("click", e => setTool("arrow", e.currentTarget));
+document.getElementById("tool-ruler").addEventListener("click", e => setTool("ruler", e.currentTarget));
 document.getElementById("tool-eraser").addEventListener("click", e => setTool("eraser", e.currentTarget));
 document.getElementById("tool-clear").addEventListener("click", () => {
   overlayMgr.clear();
   areaStart = null;
   arrowStart = null;
+  rulerStart = null;
   trianglePoints = [];
   lastMouseX = null;
   lastMouseY = null;
@@ -687,7 +728,7 @@ function hitTestOverlay(ov, cx, cy, plot) {
     if (cx >= Math.min(x1,x2) && cx <= Math.max(x1,x2)) return 0;
     return Math.min(Math.abs(cx - x1), Math.abs(cx - x2)) / tolX;
   }
-  if (type === "arrow" || type === "segment") {
+  if (type === "arrow" || type === "segment" || type === "ruler") {
     const x1=ov.x1??0, y1=ov.y1??0, x2=ov.x2??0, y2=ov.y2??0;
     const len2 = (x2-x1)**2 + (y2-y1)**2;
     if (len2 < 1e-12) return Math.hypot(cx - x1, cy - y1) / tol;
@@ -733,7 +774,26 @@ function snapToReference(x, y, plot) {
     const d = Math.abs(sy - y);
     if (d < bestYd && d < SNAP_RY) { bestYd = d; bestY = sy; }
   }
-  return { x: bestX, y: bestY, snapped: bestXd < SNAP_RX || bestYd < SNAP_RY };
+  // Snap à curva: testa y = f(x) para cada fórmula ativa
+  let curveSnapped = false;
+  for (const f of formulas) {
+    if (f.hidden) continue;
+    if (!f.inp.value.trim()) continue;
+    try {
+      const fn = compile(f.inp.value.trim()).fn;
+      if (!fn) continue;
+      const yCurve = fn(bestX);
+      if (!isFinite(yCurve)) continue;
+      if (yCurve < plot.ymin || yCurve > plot.ymax) continue;
+      const dCurve = Math.abs(yCurve - y);
+      if (dCurve < SNAP_RY && dCurve < bestYd) {
+        bestYd = dCurve;
+        bestY = yCurve;
+        curveSnapped = true;
+      }
+    } catch {}
+  }
+  return { x: bestX, y: bestY, snapped: bestXd < SNAP_RX || bestYd < SNAP_RY || curveSnapped, curveSnapped };
 }
 
 canvas.addEventListener("mousemove", e => {
@@ -876,6 +936,16 @@ canvas.addEventListener("click", e => {
       setTool(null, null);
       plot.draw();
     }
+  } else if (toolMode === "ruler") {
+    const snapped = snapToReference(x, y, plot);
+    if (rulerStart === null) {
+      rulerStart = { x: snapped.x, y: snapped.y };
+    } else {
+      overlayMgr.add(OverlayType.RULER, "plot-main", { x1: rulerStart.x, y1: rulerStart.y, x2: snapped.x, y2: snapped.y, color: toolColor, width: 2 });
+      rulerStart = null;
+      setTool(null, null);
+      plot.draw();
+    }
   }
 });
 
@@ -884,6 +954,7 @@ function drawOverlays() {
 
   const allOverlays = overlayMgr.getAll();
   for (const ov of allOverlays) {
+    if (ov.props.hidden) continue;
     const ovFlat = { ...ov.props, type: ov.type };
     renderOverlaysOnPlot(ctx, plot, [ovFlat], formatExactValue);
   }
@@ -930,6 +1001,20 @@ function drawOverlays() {
     }
   }
 
+  if (rulerStart !== null) {
+    const px = plot.X(rulerStart.x); const py = plot.Y(rulerStart.y);
+    ctx.fillStyle = toolColor; ctx.beginPath(); ctx.arc(px, py, 5, 0, 2*Math.PI); ctx.fill();
+    if (lastMouseX !== null) {
+      const px2 = plot.X(lastMouseX), py2 = plot.Y(lastMouseY);
+      ctx.strokeStyle = toolColor + "60"; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px2,py2); ctx.stroke(); ctx.setLineDash([]);
+      const dx = lastMouseX - rulerStart.x, dy = lastMouseY - rulerStart.y;
+      const d = Math.hypot(dx,dy).toFixed(2);
+      ctx.fillStyle = toolColor; ctx.font="11px monospace"; ctx.textAlign="center";
+      ctx.fillText(`d=${d}`, (px+px2)/2, (py+py2)/2 -8);
+    }
+  }
+
   if (currentSnap && toolMode && toolMode !== "eraser") {
     ctx.strokeStyle = toolColor + "60";
     ctx.lineWidth = 1;
@@ -941,6 +1026,12 @@ function drawOverlays() {
     ctx.moveTo(0, sy); ctx.lineTo(plot.W, sy);
     ctx.stroke();
     ctx.setLineDash([]);
+    if (currentSnap.curveSnapped) {
+      const py = plot.Y(currentSnap.y);
+      ctx.fillStyle = toolColor;
+      ctx.beginPath(); ctx.arc(sx, py, 4, 0, 2*Math.PI); ctx.fill();
+      ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.stroke();
+    }
   }
 }
 
@@ -1003,14 +1094,18 @@ function addFormula(expr="") {
   row.innerHTML = `
     <span class="frow-dot" style="background:${color}" title="Mudar cor"></span>
     <input class="frow-inp" name="f${idx}" autocomplete="off" placeholder="y=..." value="${expr}" spellcheck="false">
-    <button class="frow-del" aria-label="Remover fórmula">×</button>`;
+    <button class="frow-eye" aria-label="Mostrar/ocultar" title="Ocultar">◐</button>
+    <button class="frow-del" aria-label="Remover fórmula" title="Remover fórmula">×</button>`;
   const inp = row.querySelector("input");
   const dot = row.querySelector(".frow-dot");
+  const eye = row.querySelector(".frow-eye");
+  const del = row.querySelector(".frow-del");
   inp.addEventListener("input", updatePlot);
-  row.querySelector("button").addEventListener("click", () => {
+  del.addEventListener("click", () => {
     row.remove(); formulas = formulas.filter(f => f.inp !== inp); updatePlot();
   });
-  const formula = { inp, color, dot };
+  const formula = { inp, color, dot, eye, hidden:false };
+  eye.addEventListener("click", () => { formula.hidden = !formula.hidden; eye.textContent = formula.hidden ? "○" : "◐"; eye.style.opacity = formula.hidden ? ".4" : "1"; eye.title = formula.hidden ? "Mostrar" : "Ocultar"; updatePlot(); });
   dot.addEventListener("click", e => {
     e.stopPropagation();
     openPalette(dot, formula);
@@ -1021,13 +1116,13 @@ function addFormula(expr="") {
 }
 
 function updatePlot() {
-  const curves = formulas.map(({inp,color}) => {
+  const curves = formulas.filter(f=>!f.hidden).map(({inp,color}) => {
     const expr = inp.value.trim(); if (!expr) return null;
     try { const c=compile(expr); return (c&&!c.error)?{fn:c.fn,color}:null; } catch { return null; }
   }).filter(Boolean);
   plot.setCurves(curves);
-  // sync para SVG
-  if (plot.setLabels) plot.setLabels(formulas.filter(f=>f.inp.value.trim()).map(f=>({ text: f.inp.value.trim(), color: f.color })));
+  // sync para SVG (apenas visíveis)
+  if (plot.setLabels) plot.setLabels(formulas.filter(f=>!f.hidden && f.inp.value.trim()).map(f=>({ text: f.inp.value.trim(), color: f.color })));
 }
 
 function setView(v) {
@@ -1104,6 +1199,47 @@ presetsEl.querySelectorAll(".preset-btn").forEach(btn=>{
 window.addEventListener("themechange", ()=>{ plot.draw(); });
 
 overlayMgr.onChange(() => plot.draw());
+function renderLayers() {
+  const list = document.getElementById("layers-list");
+  const count = document.getElementById("layers-count");
+  const all = overlayMgr.getAll();
+  count.textContent = all.length;
+  if (all.length === 0) { list.innerHTML = '<span style="font-size:.7rem;color:var(--text-mut);padding:.2rem">Nenhuma anotação</span>'; return; }
+  list.innerHTML = all.map((o, idx) => {
+    const label = o.type === "marker" ? `Ponto (${(o.props.x??0).toFixed(1)},${(o.props.y??0).toFixed(1)})`
+      : o.type === "vline" ? `V x=${(o.props.x??0).toFixed(2)}`
+      : o.type === "hline" ? `H y=${(o.props.y??0).toFixed(2)}`
+      : o.type === "area" ? `Área [${(o.props.x??0).toFixed(1)},${(o.props.x2??o.props.x).toFixed(1)}]`
+      : o.type === "triangle" ? `Triângulo`
+      : o.type === "arrow" ? `Seta`
+      : o.type === "text" ? `Texto: ${(o.props.text||"").slice(0,12)}`
+      : o.type === "ruler" ? `Régua`
+      : o.type;
+    const isHidden = !!o.props.hidden;
+    const eyeIcon = isHidden ? "○" : "◐";
+    const eyeTitle = isHidden ? "Mostrar" : "Ocultar";
+    const rowOpacity = isHidden ? "0.55" : "1";
+    return `<div style="display:flex;align-items:center;gap:.3rem;padding:.25rem .3rem;background:var(--surface-2);border:1px solid var(--border);border-radius:5px;font-size:.7rem;opacity:${rowOpacity}">
+      <span style="width:8px;height:8px;border-radius:50%;background:${o.props.color||"#ffa500"};flex-shrink:0"></span>
+      <span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${label}</span>
+      <button data-layer-eye="${o.id}" aria-label="${eyeTitle} anotação" title="${eyeTitle}" style="background:transparent;border:1px solid var(--border);color:var(--text-mut);cursor:pointer;padding:.15rem .35rem;border-radius:4px;min-height:28px;min-width:28px;display:flex;align-items:center;justify-content:center;font-size:.75rem">${eyeIcon}</button>
+      <button data-layer-del="${o.id}" aria-label="Apagar anotação" title="Apagar" style="background:transparent;border:1px solid var(--border);color:var(--text-mut);cursor:pointer;padding:.15rem .35rem;border-radius:4px;min-height:28px;min-width:28px;display:flex;align-items:center;justify-content:center;font-size:.75rem">×</button>
+    </div>`;
+  }).join("");
+  list.querySelectorAll("[data-layer-eye]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const ov = overlayMgr.get(btn.dataset.layerEye);
+      if (!ov) return;
+      overlayMgr.update(btn.dataset.layerEye, { hidden: !ov.props.hidden });
+      plot.draw();
+    });
+  });
+  list.querySelectorAll("[data-layer-del]").forEach(btn => {
+    btn.addEventListener("click", () => { overlayMgr.remove(btn.dataset.layerDel); plot.draw(); });
+  });
+}
+overlayMgr.onChange(renderLayers);
+renderLayers();
 // Sincroniza OverlayManager -> plot._overlays para que exportSVG inclua anotacões
 overlayMgr.onChange(() => {
   plot._overlays = overlayMgr.getAll().map(o => ({ type: o.type, props: o.props }));

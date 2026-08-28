@@ -16,6 +16,7 @@ export const OverlayType = Object.freeze({
   TEXT:     "text",
   ARROW:    "arrow",
   CIRCLE:   "circle",
+  RULER:   "ruler",
 });
 
 /**
@@ -87,6 +88,7 @@ const DEFAULTS = {
     rx: 1,
     ry: 1,
   },
+  [OverlayType.RULER]: { color: "#ffa500", width: 2, x1:0, y1:0, x2:1, y2:0 },
 };
 
 /** @type {number} */
