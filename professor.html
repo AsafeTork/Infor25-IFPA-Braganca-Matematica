@@ -135,6 +135,9 @@
             <input type="range" id="area-opacity" min="5" max="60" value="25" aria-label="Opacidade">
             <span id="area-opacity-val">25%</span>
           </div>
+          <label style="display:flex;align-items:center;gap:.4rem;margin-top:.4rem;font-size:.72rem;color:var(--text-soft);cursor:pointer;user-select:none">
+            <input type="checkbox" id="tri-show-values" checked style="accent-color:var(--accent);width:14px;height:14px"> Mostrar medidas do triângulo
+          </label>
           <button class="tool-btn" id="tool-clear" style="margin-top:.3rem;width:100%;justify-content:center" aria-label="Limpar destaques" title="Limpar destaques">Limpar destaques</button>
           <div style="display:flex;gap:.3rem;margin-top:.3rem">
             <button class="tool-btn" id="tool-undo" style="flex:1;justify-content:center" aria-label="Desfazer (Ctrl+Z)" title="Desfazer (Ctrl+Z)">Desfazer</button>
@@ -232,6 +235,9 @@ plot.onProbe = (x, y) => {
 /* ──────────── OVERLAY MANAGER ──────────── */
 const overlayMgr = new OverlayManager();
 overlayMgr.registerTarget("plot-main", "plot", plot);
+// Exposição para testes Playwright (não afeta produção)
+window.__plot = plot;
+window.__overlayMgr = overlayMgr;
 
 /* ──────────── CÍRCULO UNITÁRIO ──────────── */
 const NOTABLE = [
@@ -599,7 +605,7 @@ document.getElementById("uc-tri-btn")?.addEventListener("click", () => {
   const c = Math.cos(ucTheta), s = Math.sin(ucTheta);
   // Triângulo retângulo: origem (0,0), projeção X (c,0), ponto no círculo (c,s)
   const pts = [{x:0,y:0},{x:c,y:0},{x:c,y:s}];
-  overlayMgr.add(OverlayType.TRIANGLE, "plot-main", { color: toolColor, opacity: 0.25, points: pts });
+  overlayMgr.add(OverlayType.TRIANGLE, "plot-main", { color: toolColor, opacity: 0.25, points: pts, showValues: triShowValues });
   // Também marca os 3 vértices
   overlayMgr.add(OverlayType.MARKER, "plot-main", { x:0, y:0, color: toolColor, radius:5, label:"O" });
   overlayMgr.add(OverlayType.MARKER, "plot-main", { x:c, y:0, color: toolColor, radius:5, label: c.toFixed(2) });
@@ -684,6 +690,7 @@ document.getElementById("uc-custom-inp").addEventListener("keydown", e => {
 let toolColor = "#ffa500";
 let toolMode  = null;
 let areaOpacity = 0.25;
+let triShowValues = true;
 let areaStart = null;
 let arrowStart = null;
 let rulerStart = null;
@@ -710,6 +717,7 @@ opSlider.addEventListener("input", () => {
   areaOpacity = +opSlider.value / 100;
   opVal.textContent = opSlider.value + "%";
 });
+document.getElementById("tri-show-values")?.addEventListener("change", e => { triShowValues = e.target.checked; plot.draw(); });
 
 function setTool(mode, btn) {
   trianglePoints = [];
@@ -876,7 +884,7 @@ canvas.addEventListener("mousemove", e => {
       if (d < bestDist) bestDist = d;
     }
     currentSnap = null;
-    plot.cv.style.cursor = bestDist < 1.5 ? "crosshair" : "default";
+    plot.cv.style.cursor = bestDist < 2 ? "crosshair" : "default";
   } else {
     const snapped = snapToReference(x, y, plot);
     currentSnap = snapped.snapped ? snapped : null;
@@ -902,10 +910,7 @@ canvas.addEventListener("click", e => {
       const dist = hitTestOverlay(ovFlat, x, y, plot);
       if (dist < bestDist) { bestDist = dist; bestIdx = i; }
     }
-    if (bestIdx >= 0 && bestDist < 1.5) {
-      overlayMgr.remove(all[bestIdx].id);
-      plot.draw();
-    }
+    if (bestIdx >= 0 && bestDist < 2) { overlayMgr.remove(all[bestIdx].id); plot.draw(); document.getElementById("readout").textContent="Anotação removida"; }
     return;
   }
 
@@ -933,6 +938,16 @@ canvas.addEventListener("click", e => {
       const h = plot.ymax - plot.ymin;
       const areaVal = (Math.abs(sx - areaStart) * h).toFixed(2);
       document.getElementById("readout").textContent = `Área retangular ≈ ${areaVal} (Δx=${Math.abs(sx-areaStart).toFixed(2)} × Δy=${h.toFixed(2)})`;
+      // Se houver triângulo visível, mostre sua área no readout
+      const tris = overlayMgr.getAll().filter(o=>o.type==="triangle" && !o.props.hidden);
+      if (tris.length>0) {
+        const pts = tris[tris.length-1].props.points;
+        const d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+        const la=d(pts[0],pts[1]), lb=d(pts[1],pts[2]), lc=d(pts[2],pts[0]);
+        const s=(la+lb+lc)/2;
+        const aTri=Math.sqrt(Math.max(0,s*(s-la)*(s-lb)*(s-lc))).toFixed(2);
+        document.getElementById("readout").textContent += ` · Triângulo área=${aTri}`;
+      }
       areaStart = null;
       setTool(null, null);
       plot.draw();
@@ -944,7 +959,7 @@ canvas.addEventListener("click", e => {
     if (trianglePoints.length === 3) {
       overlayMgr.add(OverlayType.TRIANGLE, "plot-main", {
         color: toolColor, opacity: 0.25,
-        points: trianglePoints,
+        points: trianglePoints, showValues: triShowValues
       });
       trianglePoints = [];
       setTool(null, null);
@@ -1014,6 +1029,10 @@ canvas.addEventListener("click", e => {
     }
   }
 });
+// Garante que pan do Plot não consuma clique da borracha (Plot verifica e.defaultPrevented)
+canvas.addEventListener("pointerdown", e => {
+  if (toolMode === "eraser" && !ucDragging) e.preventDefault();
+}, { capture: true });
 
 function drawOverlays() {
   const ctx = plot.ctx;
@@ -1203,6 +1222,26 @@ function setView(v) {
   plot.setView(v||def);
 }
 
+function animateView(target, ms=300) {
+  const start = {...plot.view};
+  const t0 = performance.now();
+  function tick(now) {
+    const t = Math.min(1, (now - t0)/ms);
+    const e = 1 - Math.pow(1-t,3); // easeOutCubic
+    plot.view.xmin = start.xmin + (target.xmin - start.xmin)*e;
+    plot.view.xmax = start.xmax + (target.xmax - start.xmax)*e;
+    plot.view.ymin = start.ymin + (target.ymin - start.ymin)*e;
+    plot.view.ymax = start.ymax + (target.ymax - start.ymax)*e;
+    plot.draw();
+    if (t<1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+window.__animateView = animateView;
+window.__setView = setView;
+window.__getUcTheta = () => ucTheta;
+window.__ucActive = () => ucActive;
+
 document.getElementById("btn-add").addEventListener("click", ()=>addFormula());
 
 const btnPi = document.getElementById("btn-pi");
@@ -1262,10 +1301,15 @@ presetsEl.querySelectorAll(".preset-btn").forEach(btn=>{
     circleActive=p.uc; btnCircle.classList.toggle("active",p.uc);
     ucActive=p.uc;
     document.getElementById("uc-info").classList.toggle("show",p.uc);
-    if (p.view) setView(p.view);
-    else if (p.uc) { /* só autoZoom se view é default e não há curvas ativas com zoom manual */
+    if (p.view) animateView(p.view);
+    else if (p.uc) { /* só autoZoom se view é default e não há curvas ativas com zoom manual — com transição suave */
       const isDefaultView = Math.abs(plot.view.xmin + 6) < 0.1 && Math.abs(plot.view.xmax - 6) < 0.1;
-      if (isDefaultView) ucAutoZoom();
+      if (isDefaultView) {
+        const W = canvas.clientWidth, H = canvas.clientHeight;
+        const yRange = 3.2;
+        const xRange = yRange * (W / H);
+        animateView({ xmin:-xRange/2, xmax:xRange/2, ymin:-yRange/2, ymax:yRange/2 });
+      }
     }
     // se p.uc sem view e não é default, mantém zoom atual
     if (p.uc) ucUpdateInfo();
@@ -1312,6 +1356,13 @@ function renderLayers() {
   });
   list.querySelectorAll("[data-layer-del]").forEach(btn => {
     btn.addEventListener("click", () => { overlayMgr.remove(btn.dataset.layerDel); plot.draw(); });
+  });
+  // remoção via clique duplo na linha (UX extra)
+  Array.from(list.children).forEach(row => {
+    row.addEventListener("dblclick", () => {
+      const delBtn = row.querySelector("[data-layer-del]");
+      if (delBtn) { overlayMgr.remove(delBtn.dataset.layerDel); plot.draw(); document.getElementById("readout").textContent="Anotação removida"; }
+    });
   });
 }
 overlayMgr.onChange(renderLayers);

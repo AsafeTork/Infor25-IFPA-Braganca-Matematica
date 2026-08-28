@@ -136,6 +136,35 @@ function renderTriangle(ctx, ov, toX, toY) {
   if (ov.fill !== false) ctx.fill();
   ctx.globalAlpha = Math.min(1, (ov.opacity ?? 0.35) + 0.5);
   ctx.stroke();
+  // Medidas opcionais no centróide (Heron)
+  if (ov.showValues !== false) {
+    const pts = ov.points;
+    if (pts && pts.length === 3) {
+      const d = (a,b) => Math.hypot(a.x-b.x, a.y-b.y);
+      const la = d(pts[0], pts[1]), lb = d(pts[1], pts[2]), lc = d(pts[2], pts[0]);
+      const s = (la+lb+lc)/2;
+      const area = Math.sqrt(Math.max(0, s*(s-la)*(s-lb)*(s-lc)));
+      const cx = (toX(pts[0].x)+toX(pts[1].x)+toX(pts[2].x))/3;
+      const cy = (toY(pts[0].y)+toY(pts[1].y)+toY(pts[2].y))/3;
+      ctx.fillStyle = ov.color || css("--accent") || "#ffa500";
+      ctx.font = "10px JetBrains Mono, monospace";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      // fundo para legibilidade (adapta tema)
+      const t1 = `a=${la.toFixed(2)} b=${lb.toFixed(2)} c=${lc.toFixed(2)}`;
+      const t2 = `Área=${area.toFixed(2)}`;
+      const w1 = ctx.measureText(t1).width, w2 = ctx.measureText(t2).width;
+      const bw = Math.max(w1,w2)+10;
+      const dark = document.documentElement.getAttribute("data-theme") !== "light";
+      ctx.fillStyle = dark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.85)";
+      ctx.fillRect(cx - bw/2, cy - 14, bw, 22);
+      ctx.strokeStyle = dark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
+      ctx.strokeRect(cx - bw/2, cy - 14, bw, 22);
+      ctx.fillStyle = ov.color || css("--accent") || "#ffa500";
+      ctx.fillText(t1, cx, cy - 6);
+      ctx.fillText(t2, cx, cy + 6);
+    }
+  }
   ctx.restore();
 }
 
