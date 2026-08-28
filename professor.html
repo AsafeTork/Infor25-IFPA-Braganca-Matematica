@@ -86,6 +86,10 @@
         </div>
       </div>
       <button class="uc-tri-btn" id="uc-tri-btn" style="width:100%;margin-top:.5rem;padding:.35rem;background:var(--accent);color:#000;border:none;border-radius:6px;font-weight:700;font-size:.75rem;cursor:pointer">Triângulo no círculo</button>
+      <div style="display:flex;gap:.4rem;margin-top:.4rem">
+        <button id="uc-play-btn" style="flex:1;padding:.35rem;background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-weight:600;font-size:.75rem;cursor:pointer">▶ Play</button>
+        <label style="display:flex;align-items:center;gap:.25rem;font-size:.7rem;color:var(--text-mut)"><span>voltas</span><input id="uc-play-limit" type="number" min="1" max="10" value="3" style="width:40px;padding:.2rem;border:1px solid var(--border);border-radius:4px;background:var(--surface-2);color:var(--text);text-align:center"></label>
+      </div>
     </div>
 
     <!-- 3. Ferramentas · 4. Camadas · 5. Presets — ordem canônica Fórmulas→Controles→Ferramentas→Camadas→Presets→Readout -->
@@ -426,8 +430,13 @@ function drawLabels() {
     const text = f.inp.value.trim();
     const metrics = ctx.measureText(text);
     const pw = metrics.width + 8;
-    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    const dark = document.documentElement.getAttribute("data-theme") !== "light";
+    ctx.fillStyle = dark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)";
     ctx.fillRect(8, y - 2, pw, fs + 4);
+    // texto já usa f.color, mas borda deve contrastar
+    ctx.strokeStyle = dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(8, y - 2, pw, fs + 4);
     ctx.fillStyle = f.color;
     ctx.fillText(text, 12, y);
     y += fs + 6;
@@ -596,6 +605,40 @@ document.getElementById("uc-tri-btn")?.addEventListener("click", () => {
   overlayMgr.add(OverlayType.MARKER, "plot-main", { x:c, y:0, color: toolColor, radius:5, label: c.toFixed(2) });
   overlayMgr.add(OverlayType.MARKER, "plot-main", { x:c, y:s, color: toolColor, radius:5, label: `(${c.toFixed(2)},${s.toFixed(2)})` });
   plot.draw();
+});
+
+let ucPlayRaf = null;
+let ucPlayStart = 0;
+let ucPlayTurns = 0;
+document.getElementById("uc-play-btn")?.addEventListener("click", () => {
+  const btn = document.getElementById("uc-play-btn");
+  if (ucPlayRaf) {
+    cancelAnimationFrame(ucPlayRaf); ucPlayRaf = null;
+    btn.textContent = "▶ Play";
+    return;
+  }
+  const limit = parseInt(document.getElementById("uc-play-limit").value) || 3;
+  const startTheta = ucTheta;
+  const targetTurns = limit;
+  let lastT = performance.now();
+  btn.textContent = "⏸ Pause";
+  function step(now) {
+    const dt = (now - lastT) / 1000; lastT = now;
+    ucTheta += dt * 1.2; // rad/s
+    const turns = (ucTheta - startTheta) / (2*Math.PI);
+    if (turns >= targetTurns) {
+      ucTheta = startTheta + targetTurns * 2*Math.PI;
+      ucSnapped = ucSnap(ucTheta, 0.12);
+      ucUpdateInfo(); plot.draw();
+      cancelAnimationFrame(ucPlayRaf); ucPlayRaf = null;
+      btn.textContent = "▶ Play";
+      return;
+    }
+    ucSnapped = ucSnap(ucTheta, 0.12);
+    ucUpdateInfo(); plot.draw();
+    ucPlayRaf = requestAnimationFrame(step);
+  }
+  ucPlayRaf = requestAnimationFrame(step);
 });
 
 document.getElementById("uc-negate-btn").addEventListener("click", () => {
@@ -883,8 +926,13 @@ canvas.addEventListener("click", e => {
     const sx = snapped.x;
     if (areaStart === null) {
       areaStart = sx;
+      const w = Math.abs(sx - areaStart);
+      document.getElementById("readout").textContent = `Área largura Δx=${w.toFixed(2)} — clique para sombrear triângulo também`;
     } else {
       overlayMgr.add(OverlayType.AREA, "plot-main", { color: toolColor, opacity: areaOpacity, x: Math.min(areaStart, sx), x2: Math.max(areaStart, sx) });
+      const h = plot.ymax - plot.ymin;
+      const areaVal = (Math.abs(sx - areaStart) * h).toFixed(2);
+      document.getElementById("readout").textContent = `Área retangular ≈ ${areaVal} (Δx=${Math.abs(sx-areaStart).toFixed(2)} × Δy=${h.toFixed(2)})`;
       areaStart = null;
       setTool(null, null);
       plot.draw();
@@ -996,6 +1044,11 @@ function drawOverlays() {
       ctx.setLineDash([2,2]);
       ctx.strokeRect(left, 0, right - left, plot.H);
       ctx.setLineDash([]);
+      const w = Math.abs(lastMouseX - areaStart).toFixed(2);
+      ctx.fillStyle = toolColor;
+      ctx.font = "11px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(`Δx=${w}`, (px + plot.X(lastMouseX))/2, 28);
     }
   }
 
@@ -1209,8 +1262,13 @@ presetsEl.querySelectorAll(".preset-btn").forEach(btn=>{
     circleActive=p.uc; btnCircle.classList.toggle("active",p.uc);
     ucActive=p.uc;
     document.getElementById("uc-info").classList.toggle("show",p.uc);
-    if (p.uc) { ucAutoZoom(); ucUpdateInfo(); }
-    else setView(p.view||null);
+    if (p.view) setView(p.view);
+    else if (p.uc) { /* só autoZoom se view é default e não há curvas ativas com zoom manual */
+      const isDefaultView = Math.abs(plot.view.xmin + 6) < 0.1 && Math.abs(plot.view.xmax - 6) < 0.1;
+      if (isDefaultView) ucAutoZoom();
+    }
+    // se p.uc sem view e não é default, mantém zoom atual
+    if (p.uc) ucUpdateInfo();
   });
 });
 
