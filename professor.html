@@ -90,6 +90,7 @@
         <button id="uc-play-btn" style="flex:1;padding:.35rem;background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-weight:600;font-size:.75rem;cursor:pointer">▶ Play</button>
         <label style="display:flex;align-items:center;gap:.25rem;font-size:.7rem;color:var(--text-mut)"><span>voltas</span><input id="uc-play-limit" type="number" min="1" max="10" value="3" style="width:40px;padding:.2rem;border:1px solid var(--border);border-radius:4px;background:var(--surface-2);color:var(--text);text-align:center"></label>
         <label style="display:flex;align-items:center;gap:.25rem;font-size:.7rem;color:var(--text-mut)"><span>vel</span><input id="uc-play-speed" type="range" min="0.2" max="3" step="0.2" value="1.2" style="width:60px;accent-color:var(--accent)"><span id="uc-speed-val" style="min-width:22px;text-align:center">1.2x</span></label>
+        <button id="uc-dir-btn" title="Direção: horário/anti-horário" style="padding:.35rem .5rem;background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-size:.75rem;cursor:pointer">↻ Horário</button>
       </div>
     </div>
 
@@ -573,6 +574,19 @@ function ucUpdateInfo() {
     const ba = +b.dataset.a;
     b.classList.toggle("active", Math.abs(tCurSigned - ba) < 0.02 || Math.abs(tCur - ba) < 0.02);
   });
+  if (ucActive) {
+    const xSync = ((ucTheta % (2*Math.PI)) + 2*Math.PI) % 2*Math.PI;
+    let xP = xSync;
+    const vx0 = plot.view.xmin, vx1 = plot.view.xmax;
+    if (xP < vx0 || xP > vx1) { const alt = xP - 2*Math.PI; if (alt >= vx0 && alt <= vx1) xP = alt; else { xP = ((ucTheta % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI); if (xP > Math.PI) xP -= 2*Math.PI; } }
+    let yP = NaN;
+    const f = formulas.find(f=>!f.hidden && f.inp.value.trim());
+    if (f) { try { const c=compile(f.inp.value.trim()); if(c&&!c.error&&c.fn) yP=c.fn(xP); } catch{} }
+    if (!isFinite(yP)) yP = Math.sin(ucTheta);
+    window._playPoint = { x: xP, y: yP, visible: true };
+  } else {
+    if (window._playPoint) window._playPoint.visible = false;
+  }
 }
 
 /* ── Ângulos notáveis ── */
@@ -651,27 +665,46 @@ document.getElementById("uc-tri-btn")?.addEventListener("click", () => {
 });
 
 let ucPlayRaf = null;
+let ucPlayDir = 1; // 1 horário, -1 anti-horário
 document.getElementById("uc-play-speed")?.addEventListener("input", e => {
   document.getElementById("uc-speed-val").textContent = parseFloat(e.target.value).toFixed(1) + "x";
+});
+document.getElementById("uc-dir-btn")?.addEventListener("click", () => {
+  ucPlayDir *= -1;
+  const btn = document.getElementById("uc-dir-btn");
+  btn.textContent = ucPlayDir === 1 ? "↻ Horário" : "↺ Anti";
+});
+document.getElementById("uc-play-limit")?.addEventListener("input", e => {
+  let v = parseInt(e.target.value);
+  if (isNaN(v) || v < 1) v = 1;
+  if (v > 10) v = 10;
+  e.target.value = v;
+});
+document.getElementById("uc-play-limit")?.addEventListener("change", e => {
+  let v = parseInt(e.target.value);
+  if (isNaN(v) || v < 1) v = 1;
+  if (v > 10) v = 10;
+  e.target.value = v;
 });
 let ucPlayStart = 0;
 let ucPlayTurns = 0;
 document.getElementById("uc-play-btn")?.addEventListener("click", () => {
+  if (!ucActive) { document.getElementById("readout").textContent = "Ative o círculo primeiro"; return; }
   const btn = document.getElementById("uc-play-btn");
   if (ucPlayRaf) {
     cancelAnimationFrame(ucPlayRaf); ucPlayRaf = null;
     btn.textContent = "▶ Play";
-    window._playPoint.visible = false; plot.draw();
+    plot.draw();
     return;
   }
-  const limit = parseInt(document.getElementById("uc-play-limit").value) || 3;
+  const limit = Math.max(1, Math.min(10, Number(document.getElementById("uc-play-limit").value) || 3));
   const startTheta = ucTheta;
   const targetTurns = limit;
   let lastT = performance.now();
   btn.textContent = "⏸ Pause";
   function step(now) {
     const dt = (now - lastT) / 1000; lastT = now;
-    ucTheta += dt * parseFloat(document.getElementById("uc-play-speed").value || 1.2);
+    ucTheta += dt * parseFloat(document.getElementById("uc-play-speed").value || 1.2) * ucPlayDir;
     // Ponto acompanha CERTAMENTE o ponto do círculo unitário: y = sin/cos do ângulo, x = ângulo (wrappado em 0-2π para ficar no view)
     const rawTheta = ucTheta;
     // Wrap x para ficar dentro do view padrão [-2π, 2π] ou [-6,6] — mantém ponto visível
@@ -717,35 +750,24 @@ document.getElementById("uc-play-btn")?.addEventListener("click", () => {
       }
     }
 
-    let yPlay = Math.sin(rawTheta); // segue CERTAMENTE o círculo: y = sin(theta)
-    // Se fórmula ativa é cos, use cos; se tan, use tan — detecta pela primeira fórmula trig, não exponencial
-    const firstTrig = formulas.find(f=>!f.hidden && f.inp.value.trim() && /sin|cos|tan/i.test(f.inp.value));
-    if (firstTrig) {
-      const expr = firstTrig.inp.value.trim().toLowerCase();
-      if (expr.includes("cos") && !expr.includes("sin")) yPlay = Math.cos(rawTheta);
-      else if (expr.includes("tan")) yPlay = Math.tan(rawTheta);
-      else yPlay = Math.sin(rawTheta);
+    let yPlay = NaN;
+    const firstAny = formulas.find(f=>!f.hidden && f.inp.value.trim());
+    if (firstAny) {
+      try {
+        const compiled = compile(firstAny.inp.value.trim());
+        if (compiled && !compiled.error && compiled.fn) yPlay = compiled.fn(xPlay);
+      } catch {}
     }
-    // Fallback: se yPlay fora do view, clamp para não clipar? Não, deixa guard clipar mas wrap garante y em [-1,1] sempre dentro de [-1.6,1.6]
-    if (!isFinite(yPlay)) yPlay = Math.sin(rawTheta);
-    // Garante y dentro do view e em [-1,1] (tan pode explodir e sair do view)
-    if (yPlay < plot.view.ymin || yPlay > plot.view.ymax || !isFinite(yPlay)) {
-      const yPad = 0.05;
-      yPlay = Math.max(plot.view.ymin + yPad, Math.min(plot.view.ymax - yPad, yPlay));
-      if (!isFinite(yPlay) || Math.abs(yPlay) > 1.6) yPlay = Math.sin(rawTheta);
-    }
-    if (Math.abs(yPlay) > 1) {
-      const exprIsTan = firstTrig && firstTrig.inp.value.toLowerCase().includes("tan");
-      if (exprIsTan && Math.abs(yPlay) > 1.5) yPlay = Math.sin(rawTheta);
-      yPlay = Math.max(-1, Math.min(1, yPlay));
+    if (!isFinite(yPlay)) {
+      // fallback para sin do círculo se compilação falhar ou não houver fórmula
+      yPlay = Math.sin(rawTheta);
     }
     window._playPoint = { x: xPlay, y: yPlay, visible: true };
-    const turns = (ucTheta - startTheta) / (2*Math.PI);
+    const turns = Math.abs(ucTheta - startTheta) / (2*Math.PI);
     if (turns >= targetTurns) {
-      ucTheta = startTheta + targetTurns * 2*Math.PI;
+      ucTheta = startTheta + targetTurns * 2*Math.PI * ucPlayDir;
       ucSnapped = ucSnap(ucTheta, 0.12);
       ucUpdateInfo(); plot.draw();
-      window._playPoint.visible = false;
       cancelAnimationFrame(ucPlayRaf); ucPlayRaf = null;
       btn.textContent = "▶ Play";
       return;

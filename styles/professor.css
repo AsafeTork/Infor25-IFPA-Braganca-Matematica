@@ -306,7 +306,7 @@
 }
 .uc-k { font-weight: 700; color: var(--text-mut); }
 .uc-val { color: var(--text); }
-.uc-snap { font-size: .65rem; color: var(--accent); text-align: right; margin-top: .2rem; }
+.uc-snap { font-size: .65rem; color: var(--accent); text-align: right; margin-top: .2rem; min-height: 14px; height: 14px; line-height: 14px; overflow: hidden; white-space: nowrap; }
 
 /* ── Tools ──────────────────────────────────────────────── */
 .tools-grid {
