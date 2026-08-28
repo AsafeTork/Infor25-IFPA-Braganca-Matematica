@@ -38,6 +38,7 @@ export class Plot {
   setMarkers(list) { this.markers = list || []; this.draw(); }
   setAsymptotes(list) { this.asymptotes = list || []; this.draw(); }
   setOverlays(list) { this._overlays = list || []; this.draw(); }
+  setLabels(list) { this._labels = list || []; }
 
   resize() {
     const dpr = window.devicePixelRatio || 1;
@@ -420,6 +421,16 @@ export class Plot {
         const o = { ...ov.props, type: ov.type };
         const s = this._renderOverlayToSVG(o, (v) => this.X(v), (v) => this.Y(v), this.W, this.H);
         if (s) svg += s;
+      }
+    }
+
+    // Labels (fórmulas) no topo esquerdo — espelha drawLabels() do professor
+    if (this._labels && this._labels.length > 0) {
+      let ly = 16;
+      for (const lab of this._labels) {
+        svg += `<rect x="8" y="${ly-10}" width="${lab.text.length*7+8}" height="14" fill="rgba(0,0,0,0.5)" rx="3"/>`;
+        svg += `<text x="12" y="${ly}" fill="${lab.color}" font-size="12" font-family="monospace" font-weight="bold">${lab.text}</text>`;
+        ly += 18;
       }
     }
 

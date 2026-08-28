@@ -594,6 +594,12 @@ document.getElementById("uc-custom-inp").addEventListener("keydown", e => {
 let toolColor = "#ffa500";
 let toolMode  = null;
 let areaOpacity = 0.25;
+let areaStart = null;
+let arrowStart = null;
+let trianglePoints = [];
+let lastMouseX = null;
+let lastMouseY = null;
+let currentSnap = null;
 
 document.querySelectorAll(".color-dot").forEach(dot => {
   dot.addEventListener("click", () => {
@@ -651,25 +657,22 @@ document.getElementById("tool-clear").addEventListener("click", () => {
   plot.draw();
 });
 
-let areaStart = null;
-let arrowStart = null;
-let trianglePoints = [];
-let lastMouseX = null;
-let lastMouseY = null;
-let currentSnap = null;
-
 function hitTestOverlay(ov, cx, cy, plot) {
   const type = ov.type;
+  // converte tolerância de 18px para unidades de dado
+  const tolX = (plot.xmax - plot.xmin) / plot.W * 18;
+  const tolY = (plot.ymax - plot.ymin) / plot.H * 18;
+  const tol = Math.max(tolX, tolY);
   if (type === "marker" || type === "point") {
     const dx = (ov.x ?? 0) - cx;
     const dy = (ov.y ?? 0) - cy;
-    return Math.sqrt(dx*dx + dy*dy);
+    return Math.sqrt(dx*dx + dy*dy) / tol;
   }
   if (type === "vline") {
-    return Math.abs((ov.x ?? 0) - cx);
+    return Math.abs((ov.x ?? 0) - cx) / tolX;
   }
   if (type === "hline") {
-    return Math.abs((ov.y ?? 0) - cy);
+    return Math.abs((ov.y ?? 0) - cy) / tolY;
   }
   if (type === "triangle" && ov.points) {
     let minD = Infinity;
@@ -677,57 +680,60 @@ function hitTestOverlay(ov, cx, cy, plot) {
       const d = Math.sqrt((p.x-cx)**2 + (p.y-cy)**2);
       if (d < minD) minD = d;
     }
-    return minD;
+    return minD / tol;
   }
   if (type === "area") {
     const x1 = ov.x ?? 0, x2 = ov.x2 ?? ov.x;
     if (cx >= Math.min(x1,x2) && cx <= Math.max(x1,x2)) return 0;
-    return Math.abs(cx - (cx < x1 ? x1 : x2));
+    return Math.min(Math.abs(cx - x1), Math.abs(cx - x2)) / tolX;
   }
   if (type === "arrow" || type === "segment") {
     const x1=ov.x1??0, y1=ov.y1??0, x2=ov.x2??0, y2=ov.y2??0;
-    const A = y2-y1, B = x1-x2, C = x2*y1-x1*y2;
-    return Math.abs(A*cx+B*cy+C) / Math.sqrt(A*A+B*B);
+    const len2 = (x2-x1)**2 + (y2-y1)**2;
+    if (len2 < 1e-12) return Math.hypot(cx - x1, cy - y1) / tol;
+    let t = ((cx - x1)*(x2-x1) + (cy - y1)*(y2-y1)) / len2;
+    t = Math.max(0, Math.min(1, t));
+    const px = x1 + t*(x2-x1), py = y1 + t*(y2-y1);
+    return Math.hypot(cx - px, cy - py) / tol;
   }
   if (type === "text") {
     const dx = (ov.x ?? 0) - cx;
     const dy = (ov.y ?? 0) - cy;
-    return Math.sqrt(dx*dx + dy*dy);
+    return Math.sqrt(dx*dx + dy*dy) / tol;
   }
   return Infinity;
 }
 
 function snapToReference(x, y, plot) {
-  const SNAP_R = (plot.xmax - plot.xmin) * 0.02;
-  const snapPoints = [];
-
-  const piValues = [];
-  for (let k = -20; k <= 20; k++) {
-    for (const frac of [0, Math.PI/6, Math.PI/4, Math.PI/3, Math.PI/2, Math.PI, 2*Math.PI]) {
+  const SNAP_RX = (plot.xmax - plot.xmin) * 0.015;
+  const SNAP_RY = (plot.ymax - plot.ymin) * 0.015;
+  const piFracs = [0, Math.PI/6, Math.PI/4, Math.PI/3, Math.PI/2, Math.PI];
+  const piSet = new Set();
+  for (let k = -12; k <= 12; k++) {
+    for (const frac of piFracs) {
       const v = k * Math.PI + frac;
-      if (v >= plot.xmin && v <= plot.xmax) piValues.push(v);
+      if (v >= plot.xmin - 1e-9 && v <= plot.xmax + 1e-9) piSet.add(Math.round(v*1e10)/1e10);
     }
   }
-
-  const commonY = [-2, -1, -0.5, 0, 0.5, 1, 2].filter(v => v >= plot.ymin && v <= plot.ymax);
-
+  // inteiros que não sejam já pi múltiplos
   for (let k = Math.ceil(plot.xmin); k <= Math.floor(plot.xmax); k++) {
-    piValues.push(k);
+    const rk = Math.round(k*1e10)/1e10;
+    if (!piSet.has(rk)) piSet.add(rk);
   }
+  const piValues = [...piSet].sort((a,b)=>a-b);
+  const commonY = [-2, -1, -0.5, 0, 0.5, 1, 2].filter(v => v >= plot.ymin && v <= plot.ymax);
 
   let bestX = x, bestXd = Infinity;
   for (const sx of piValues) {
     const d = Math.abs(sx - x);
-    if (d < bestXd && d < SNAP_R) { bestXd = d; bestX = sx; }
+    if (d < bestXd && d < SNAP_RX) { bestXd = d; bestX = sx; }
   }
-
   let bestY = y, bestYd = Infinity;
   for (const sy of commonY) {
     const d = Math.abs(sy - y);
-    if (d < bestYd && d < SNAP_R) { bestYd = d; bestY = sy; }
+    if (d < bestYd && d < SNAP_RY) { bestYd = d; bestY = sy; }
   }
-
-  return { x: bestX, y: bestY, snapped: bestXd < SNAP_R || bestYd < SNAP_R };
+  return { x: bestX, y: bestY, snapped: bestXd < SNAP_RX || bestYd < SNAP_RY };
 }
 
 canvas.addEventListener("mousemove", e => {
@@ -749,7 +755,7 @@ canvas.addEventListener("mousemove", e => {
       if (d < bestDist) bestDist = d;
     }
     currentSnap = null;
-    plot.cv.style.cursor = bestDist < 0.5 ? "crosshair" : "default";
+    plot.cv.style.cursor = bestDist < 1 ? "crosshair" : "default";
   } else {
     const snapped = snapToReference(x, y, plot);
     currentSnap = snapped.snapped ? snapped : null;
@@ -775,7 +781,7 @@ canvas.addEventListener("click", e => {
       const dist = hitTestOverlay(ovFlat, x, y, plot);
       if (dist < bestDist) { bestDist = dist; bestIdx = i; }
     }
-    if (bestIdx >= 0 && bestDist < 0.5) {
+    if (bestIdx >= 0 && bestDist < 1) {
       overlayMgr.remove(all[bestIdx].id);
       plot.draw();
     }
@@ -795,10 +801,12 @@ canvas.addEventListener("click", e => {
     overlayMgr.add(OverlayType.HLINE, "plot-main", { y: snapped.y, color: toolColor, width: 2 });
     plot.draw();
   } else if (toolMode === "area") {
+    const snapped = snapToReference(x, y, plot);
+    const sx = snapped.x;
     if (areaStart === null) {
-      areaStart = x;
+      areaStart = sx;
     } else {
-      overlayMgr.add(OverlayType.AREA, "plot-main", { color: toolColor, opacity: areaOpacity, x: Math.min(areaStart, x), x2: Math.max(areaStart, x) });
+      overlayMgr.add(OverlayType.AREA, "plot-main", { color: toolColor, opacity: areaOpacity, x: Math.min(areaStart, sx), x2: Math.max(areaStart, sx) });
       areaStart = null;
       setTool(null, null);
       plot.draw();
@@ -818,8 +826,7 @@ canvas.addEventListener("click", e => {
     } else {
       plot.draw();
       const ctx = plot.ctx;
-      const dpr = window.devicePixelRatio || 1;
-      ctx.save(); ctx.scale(dpr, dpr);
+      ctx.save();
       ctx.fillStyle = toolColor;
       for (const p of trianglePoints) {
         ctx.beginPath();
@@ -1019,6 +1026,8 @@ function updatePlot() {
     try { const c=compile(expr); return (c&&!c.error)?{fn:c.fn,color}:null; } catch { return null; }
   }).filter(Boolean);
   plot.setCurves(curves);
+  // sync para SVG
+  if (plot.setLabels) plot.setLabels(formulas.filter(f=>f.inp.value.trim()).map(f=>({ text: f.inp.value.trim(), color: f.color })));
 }
 
 function setView(v) {
@@ -1095,12 +1104,19 @@ presetsEl.querySelectorAll(".preset-btn").forEach(btn=>{
 window.addEventListener("themechange", ()=>{ plot.draw(); });
 
 overlayMgr.onChange(() => plot.draw());
+// Sincroniza OverlayManager -> plot._overlays para que exportSVG inclua anotacões
+overlayMgr.onChange(() => {
+  plot._overlays = overlayMgr.getAll().map(o => ({ type: o.type, props: o.props }));
+});
+ // inicializa já (caso tenha dados)
+plot._overlays = overlayMgr.getAll().map(o => ({ type: o.type, props: o.props }));
 document.getElementById("tool-undo").addEventListener("click", () => { overlayMgr.undo(); plot.draw(); });
 document.getElementById("tool-redo").addEventListener("click", () => { overlayMgr.redo(); plot.draw(); });
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") {
     downloadMenu.classList.remove("open");
     palette.classList.add("hidden");
+    if (activeSheetPanel) closeSheet();
   }
   if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
   if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) { e.preventDefault(); overlayMgr.undo(); plot.draw(); }
@@ -1112,13 +1128,14 @@ document.addEventListener("keydown", e => {
 /* ── Bottom sheet (mobile) ── */
 const bottomBar = document.getElementById("prof-bottom-bar");
 const sheetOverlay = document.getElementById("sheet-overlay");
-const profSheet = document.getElementById("prof-panel");
+const profPanel = document.getElementById("prof-panel");
+const profSheetEl = document.getElementById("prof-sheet");
 let activeSheetPanel = null;
 
 function openSheet(panelName) {
   if (activeSheetPanel === panelName) { closeSheet(); return; }
   activeSheetPanel = panelName;
-  profSheet.classList.add("open");
+  profPanel.classList.add("open");
   sheetOverlay.classList.add("open");
   bottomBar.querySelectorAll(".prof-bar-btn").forEach(b => {
     b.classList.toggle("active", b.dataset.panel === panelName);
@@ -1127,7 +1144,7 @@ function openSheet(panelName) {
 
 function closeSheet() {
   activeSheetPanel = null;
-  profSheet.classList.remove("open");
+  profPanel.classList.remove("open");
   sheetOverlay.classList.remove("open");
   bottomBar.querySelectorAll(".prof-bar-btn").forEach(b => b.classList.remove("active"));
 }
@@ -1142,6 +1159,7 @@ bottomBar.querySelectorAll("[data-action]").forEach(btn => {
   });
 });
 sheetOverlay.addEventListener("click", closeSheet);
+document.querySelector(".prof-sheet-handle")?.addEventListener("click", closeSheet);
 
 addFormula("y=2^x"); addFormula("y=(1/2)^x");
 </script>
