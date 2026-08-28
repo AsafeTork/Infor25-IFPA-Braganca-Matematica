@@ -465,6 +465,21 @@ function drawPlayPoint() {
   ctx.lineWidth = 2; ctx.stroke();
   ctx.fillStyle = (formulas.find(f=>!f.hidden)?.color || "#ffa500") + "33";
   ctx.beginPath(); ctx.arc(px, py, 10, 0, 2*Math.PI); ctx.fill();
+  // linha vertical pontilhada até o eixo X
+  ctx.strokeStyle = (formulas.find(f=>!f.hidden)?.color || "#ffa500") + "66";
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4,4]);
+  ctx.beginPath();
+  ctx.moveTo(px, plot.Y(0));
+  ctx.lineTo(px, py);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // linha horizontal opcional até Y
+  ctx.strokeStyle = (formulas.find(f=>!f.hidden)?.color || "#ffa500") + "44";
+  ctx.beginPath();
+  ctx.moveTo(plot.X(0), py);
+  ctx.lineTo(px, py);
+  ctx.stroke();
   ctx.fillStyle = dark ? "#fff" : "#000";
   ctx.font = "10px JetBrains Mono, monospace";
   ctx.textAlign = "center";
@@ -658,15 +673,19 @@ document.getElementById("uc-play-btn")?.addEventListener("click", () => {
     const dt = (now - lastT) / 1000; lastT = now;
     ucTheta += dt * parseFloat(document.getElementById("uc-play-speed").value || 1.2);
     const xPlay = ucTheta; // mantém voltas, ponto percorre além de 2π se necessário, acompanha certamente o círculo
-    let fnPlay = Math.sin;
+    let yPlay = NaN;
     const first = formulas.find(f=>!f.hidden && f.inp.value.trim());
     if (first) {
-      const expr = first.inp.value.trim().toLowerCase();
-      if (expr.includes("cos")) fnPlay = Math.cos;
-      else if (expr.includes("tan")) fnPlay = Math.tan;
-      else if (expr.includes("sin")) fnPlay = Math.sin;
+      try {
+        const compiled = compile(first.inp.value.trim());
+        if (compiled && !compiled.error && compiled.fn) yPlay = compiled.fn(xPlay);
+        else yPlay = Math.sin(xPlay);
+      } catch { yPlay = Math.sin(xPlay); }
+    } else {
+      yPlay = Math.sin(xPlay);
     }
-    const yPlay = fnPlay(xPlay);
+    // fallback se yPlay não é finito, usa sin
+    if (!isFinite(yPlay)) yPlay = Math.sin(xPlay);
     window._playPoint = { x: xPlay, y: yPlay, visible: true };
     const turns = (ucTheta - startTheta) / (2*Math.PI);
     if (turns >= targetTurns) {
