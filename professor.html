@@ -12,10 +12,12 @@
 <link rel="stylesheet" href="styles/professor.css">
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
 <style>
-/* Refatoração professor.html: grid responsivo e touch targets (integração com professor.css) */
+/* Refatoração professor.html: grid responsivo e touch targets (integração com professor.css) — mobile-first: base 320-480px */
 .tools-grid{grid-template-columns:1fr 1fr;gap:.3rem}
 @media(min-width:480px){.tools-grid{grid-template-columns:1fr 1fr 1fr}}
-.tool-btn,.ctrl-btn,.frow-eye,.frow-del{min-height:36px}
+.tool-btn,.ctrl-btn{min-height:44px}
+.frow-eye,.frow-del{min-height:36px}
+@media(min-width:481px){.tool-btn,.ctrl-btn{min-height:36px}}
 .tool-btn{font-size:.78rem}
 .frow-eye{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);background:var(--surface-2);color:var(--text-mut);border-radius:6px;cursor:pointer;font-size:.75rem;flex-shrink:0;transition:all .15s}
 .frow-eye:hover{border-color:var(--accent);color:var(--accent)}
@@ -85,7 +87,7 @@
       <button class="uc-tri-btn" id="uc-tri-btn" style="width:100%;margin-top:.5rem;padding:.35rem;background:var(--accent);color:#000;border:none;border-radius:6px;font-weight:700;font-size:.75rem;cursor:pointer">Triângulo no círculo</button>
     </div>
 
-    <!-- 3. Ferramentas (grid 2 col mobile, 3 col em >480px) + 4. Camadas + 5. Presets — ordem lógica -->
+    <!-- 3. Ferramentas · 4. Camadas · 5. Presets — ordem canônica Fórmulas→Controles→Ferramentas→Camadas→Presets→Readout -->
     <div class="prof-presets-wrap" id="prof-presets-wrap">
       <!-- 3. Ferramentas -->
       <details class="tools-details" id="tools-section">
@@ -101,7 +103,14 @@
             <button class="tool-btn" id="tool-triangle" aria-pressed="false" aria-label="Triângulo" title="Triângulo">Triângulo</button>
             <button class="tool-btn" id="tool-text" aria-pressed="false" aria-label="Adicionar texto" title="Adicionar texto">Texto</button>
             <button class="tool-btn" id="tool-arrow" aria-pressed="false" aria-label="Desenhar seta" title="Desenhar seta">Seta</button>
-            <button class="tool-btn" id="tool-ruler" aria-pressed="false" aria-label="Régua para medir distância" title="Régua para medir distância">Régua</button>
+            <button class="tool-btn" id="tool-ruler" aria-pressed="false" aria-label="Régua para medir distância" title="Régua para medir distância">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M3 17 L21 7 L17 3 L3 13 Z"/>
+                <path d="M7 13 L8 12"/>
+                <path d="M10 11 L11 10"/>
+                <path d="M13 9 L14 8"/>
+                <path d="M16 8 L17 7"/>
+              </svg> Régua</button>
             <button class="tool-btn" data-tool="eraser" id="tool-eraser" aria-pressed="false" aria-label="Borracha para apagar" title="Borracha para apagar">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M20 20H7L3 16c-.8-.8-.8-2 0-2.8L14.8 1.4c.8-.8 2-.8 2.8 0L22 5.8c.8.8.8 2 0 2.8L12 18"/>
@@ -158,7 +167,7 @@
 <!-- Bottom sheet overlay (mobile) — camada de fundo para fechar painel móvel -->
 <div class="prof-sheet-overlay" id="sheet-overlay"></div>
 
-<!-- Bottom sheet content (mobile) — mantido para navegação móvel; controlado via .prof-panel.open e openSheet/closeSheet (não é dead code, apenas oculto em desktop) -->
+<!-- Bottom sheet content (mobile) — #prof-sheet mantido para compatibilidade mas sheet real é #prof-panel.open (mobile: fixed bottom:0 max-height:70vh translateY(100%) → .open{translateY(0)}; desktop: position:relative) — controlado via profPanel, openSheet/closeSheet, sheetOverlay e handle; não é dead code, apenas oculto em desktop -->
 <div class="prof-sheet" id="prof-sheet" role="dialog" aria-label="Painel de ferramentas">
   <div class="prof-sheet-handle"></div>
   <div id="sheet-content"></div>
@@ -1240,12 +1249,12 @@ function renderLayers() {
 }
 overlayMgr.onChange(renderLayers);
 renderLayers();
-// Sincroniza OverlayManager -> plot._overlays para que exportSVG inclua anotacões
+// Sincroniza OverlayManager -> plot._overlays para SVG export (filtra hidden: SVG respeita ocultar)
 overlayMgr.onChange(() => {
-  plot._overlays = overlayMgr.getAll().map(o => ({ type: o.type, props: o.props }));
+  plot._overlays = overlayMgr.getAll().filter(o => !o.props.hidden).map(o => ({ type: o.type, props: o.props }));
 });
- // inicializa já (caso tenha dados)
-plot._overlays = overlayMgr.getAll().map(o => ({ type: o.type, props: o.props }));
+ // inicializa já (caso tenha dados) — filtra hidden
+plot._overlays = overlayMgr.getAll().filter(o => !o.props.hidden).map(o => ({ type: o.type, props: o.props }));
 document.getElementById("tool-undo").addEventListener("click", () => { overlayMgr.undo(); plot.draw(); });
 document.getElementById("tool-redo").addEventListener("click", () => { overlayMgr.redo(); plot.draw(); });
 document.addEventListener("keydown", e => {
