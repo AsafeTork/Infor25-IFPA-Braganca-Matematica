@@ -297,8 +297,10 @@ function ucSnap(t, thresh = 0.1) {
 
 function ucGetCXYR() {
   const cx = plot.X(0), cy = plot.Y(0);
-  // raio fixo em pixels, proporcional ao menor lado do canvas, não ao view
-  const r = Math.min(plot.W, plot.H) * 0.32;
+  // raio de 1 unidade de dado em pixels, usando menor escala para manter círculo perfeito
+  const sx = plot.W / (plot.view.xmax - plot.view.xmin);
+  const sy = plot.H / (plot.view.ymax - plot.view.ymin);
+  const r = Math.min(sx, sy) * 1;
   return { cx, cy, r };
 }
 
