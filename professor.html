@@ -571,34 +571,27 @@ function ucUpdateInfo() {
     b.classList.toggle("active", Math.abs(tCurSigned - ba) < 0.02 || Math.abs(tCur - ba) < 0.02);
   });
   if (ucActive) {
-    const xSync = ((ucTheta % (2*Math.PI)) + 2*Math.PI) % 2*Math.PI;
-    let xP = xSync;
-    const vx0 = plot.view.xmin, vx1 = plot.view.xmax;
-    if (xP < vx0 || xP > vx1) { const alt = xP - 2*Math.PI; if (alt >= vx0 && alt <= vx1) xP = alt; else { xP = ((ucTheta % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI); if (xP > Math.PI) xP -= 2*Math.PI; } }
+    const xP = ucTheta; // EXATO: x = θ sem wrap, sem mod
+    let yP = NaN;
+    const f = formulas.find(f=>!f.hidden && f.inp.value.trim());
+    if (f) { try { const c=compile(f.inp.value.trim()); if(c&&!c.error&&c.fn) yP=c.fn(xP); } catch{} }
+    if (!isFinite(yP)) yP = Math.sin(ucTheta);
+    window._playPoint = { x: xP, y: yP, visible: true };
+    // também para _playPoints múltiplos
     const activeFormulas = formulas.filter(f=>!f.hidden && f.inp.value.trim());
     if (activeFormulas.length) {
-      window._playPoints = activeFormulas.map(f => {
-        let y = NaN;
-        try {
-          const c = compile(f.inp.value.trim());
-          if (c && !c.error && c.fn) y = c.fn(xP);
-        } catch {}
-        if (!isFinite(y) || Math.abs(y) > 1e6) {
-          if (/cos/i.test(f.inp.value) && !/sin/i.test(f.inp.value)) y = Math.cos(ucTheta);
-          else if (/tan/i.test(f.inp.value)) y = Math.tan(ucTheta);
-          else y = Math.sin(ucTheta);
-        }
-        return { x: xP, y, visible: true, color: f.color };
+      window._playPoints = activeFormulas.map(ff => {
+        let yy = NaN;
+        try { const cc=compile(ff.inp.value.trim()); if(cc&&!cc.error&&cc.fn) yy=cc.fn(xP); } catch{}
+        if (!isFinite(yy)) yy = Math.sin(ucTheta);
+        return { x: xP, y: yy, visible: true, color: ff.color };
       });
     } else {
-      let yP = Math.sin(ucTheta);
-      if (!isFinite(yP) || Math.abs(yP) > 1e6) yP = Math.sin(ucTheta);
       window._playPoints = [{ x: xP, y: yP, visible: true, color: "#ffa500" }];
     }
-    window._playPoint = window._playPoints[0] || {visible:false};
   } else {
-    window._playPoints = [];
     if (window._playPoint) window._playPoint.visible = false;
+    window._playPoints = [];
   }
 }
 
@@ -718,42 +711,19 @@ document.getElementById("uc-play-btn")?.addEventListener("click", () => {
   function step(now) {
     const dt = (now - lastT) / 1000; lastT = now;
     ucTheta += dt * parseFloat(document.getElementById("uc-play-speed").value || 1.2) * ucPlayDir;
-    // Ponto acompanha CERTAMENTE o ponto do círculo unitário: y = sin/cos do ângulo, x = ângulo (wrappado em 0-2π para ficar no view)
     const rawTheta = ucTheta;
-    const twoPi = 2*Math.PI;
-    // xPlay congruente a rawTheta mod 2π e dentro do view atual (preserva sin(xPlay)==sin(rawTheta))
-    let xPlay = rawTheta;
-    const vx0 = plot.view.xmin, vx1 = plot.view.xmax;
-    while (xPlay < vx0) xPlay += twoPi;
-    while (xPlay > vx1) xPlay -= twoPi;
-    // se ainda fora (view estreito <2π), wrap para [-π,π] já estará dentro
-    if (xPlay < vx0 || xPlay > vx1) {
-      xPlay = ((rawTheta % twoPi) + twoPi) % twoPi;
-      if (xPlay > Math.PI) xPlay -= twoPi;
-      while (xPlay < vx0) xPlay += twoPi;
-      while (xPlay > vx1) xPlay -= twoPi;
-    }
-
+    const xPlay = rawTheta; // EXATO
     const activeFormulas = formulas.filter(f=>!f.hidden && f.inp.value.trim());
     window._playPoints = activeFormulas.map(f => {
       let y = NaN;
-      try {
-        const c = compile(f.inp.value.trim());
-        if (c && !c.error && c.fn) y = c.fn(xPlay);
-      } catch {}
-      if (!isFinite(y) || Math.abs(y) > 1e6) {
-        if (/cos/i.test(f.inp.value) && !/sin/i.test(f.inp.value)) y = Math.cos(rawTheta);
-        else if (/tan/i.test(f.inp.value)) y = Math.tan(rawTheta);
-        else y = Math.sin(rawTheta);
-      }
+      try { const c=compile(f.inp.value.trim()); if(c&&!c.error&&c.fn) y=c.fn(xPlay); } catch{}
+      if (!isFinite(y)) y = Math.sin(rawTheta);
       return { x: xPlay, y, visible: true, color: f.color };
     });
     if (!window._playPoints.length) {
-      let yFallback = Math.sin(rawTheta);
-      if (!isFinite(yFallback) || Math.abs(yFallback) > 1e6) yFallback = Math.sin(rawTheta);
-      window._playPoints = [{ x: xPlay, y: yFallback, visible: true, color: "#ffa500" }];
+      window._playPoints = [{ x: xPlay, y: Math.sin(rawTheta), visible: true, color: "#ffa500" }];
     }
-    window._playPoint = window._playPoints[0] || {visible:false};
+    window._playPoint = window._playPoints[0];
     const turns = Math.abs(ucTheta - startTheta) / (2*Math.PI);
     if (turns >= targetTurns) {
       ucTheta = startTheta + targetTurns * 2*Math.PI * ucPlayDir;
