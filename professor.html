@@ -1358,12 +1358,9 @@ const btnPi = document.getElementById("btn-pi");
 btnPi.addEventListener("click", ()=>{
   piActive=!piActive; btnPi.classList.toggle("active",piActive);
   plot.setPiAxis(piActive);
-  if (ucActive) {
-    ensureSquareView();
-    plot.draw();
-  } else {
-    setView(null);
-  }
+  setView(null);
+  if (ucActive) ensureSquareView();
+  plot.draw();
 });
 
 const btnCircle = document.getElementById("btn-circle");
@@ -1371,8 +1368,8 @@ btnCircle.addEventListener("click", ()=>{
   circleActive=!circleActive; btnCircle.classList.toggle("active",circleActive);
   ucActive = circleActive;
   document.getElementById("uc-info").classList.toggle("show",circleActive);
-  if (circleActive) { ensureSquareView(); ucUpdateInfo(); }
-  plot.draw();
+  if (circleActive) { ensureSquareView(); ucUpdateInfo(); plot.draw(); }
+  else { setView(null); plot.draw(); }
 });
 
 document.getElementById("btn-reset").addEventListener("click", ()=>{ setView(null); plot.draw(); });
