@@ -710,9 +710,13 @@ document.getElementById("tool-clear").addEventListener("click", () => {
 
 function hitTestOverlay(ov, cx, cy, plot) {
   const type = ov.type;
-  // converte tolerância de 18px para unidades de dado
-  const tolX = (plot.xmax - plot.xmin) / plot.W * 18;
-  const tolY = (plot.ymax - plot.ymin) / plot.H * 18;
+  // converte tolerância de 18px para unidades de dado — suporta plot.view (Plot) e plot.xmax legado
+  const _xmin = plot.view ? plot.view.xmin : plot.xmin;
+  const _xmax = plot.view ? plot.view.xmax : plot.xmax;
+  const _ymin = plot.view ? plot.view.ymin : plot.ymin;
+  const _ymax = plot.view ? plot.view.ymax : plot.ymax;
+  const tolX = (_xmax - _xmin) / plot.W * 18;
+  const tolY = (_ymax - _ymin) / plot.H * 18;
   const tol = Math.max(tolX, tolY);
   if (type === "marker" || type === "point") {
     const dx = (ov.x ?? 0) - cx;
@@ -756,23 +760,27 @@ function hitTestOverlay(ov, cx, cy, plot) {
 }
 
 function snapToReference(x, y, plot) {
-  const SNAP_RX = (plot.xmax - plot.xmin) * 0.015;
-  const SNAP_RY = (plot.ymax - plot.ymin) * 0.015;
+  const _xmin = plot.view ? plot.view.xmin : plot.xmin;
+  const _xmax = plot.view ? plot.view.xmax : plot.xmax;
+  const _ymin = plot.view ? plot.view.ymin : plot.ymin;
+  const _ymax = plot.view ? plot.view.ymax : plot.ymax;
+  const SNAP_RX = (_xmax - _xmin) * 0.015;
+  const SNAP_RY = (_ymax - _ymin) * 0.015;
   const piFracs = [0, Math.PI/6, Math.PI/4, Math.PI/3, Math.PI/2, Math.PI];
   const piSet = new Set();
   for (let k = -12; k <= 12; k++) {
     for (const frac of piFracs) {
       const v = k * Math.PI + frac;
-      if (v >= plot.xmin - 1e-9 && v <= plot.xmax + 1e-9) piSet.add(Math.round(v*1e10)/1e10);
+      if (v >= _xmin - 1e-9 && v <= _xmax + 1e-9) piSet.add(Math.round(v*1e10)/1e10);
     }
   }
   // inteiros que não sejam já pi múltiplos
-  for (let k = Math.ceil(plot.xmin); k <= Math.floor(plot.xmax); k++) {
+  for (let k = Math.ceil(_xmin); k <= Math.floor(_xmax); k++) {
     const rk = Math.round(k*1e10)/1e10;
     if (!piSet.has(rk)) piSet.add(rk);
   }
   const piValues = [...piSet].sort((a,b)=>a-b);
-  const commonY = [-2, -1, -0.5, 0, 0.5, 1, 2].filter(v => v >= plot.ymin && v <= plot.ymax);
+  const commonY = [-2, -1, -0.5, 0, 0.5, 1, 2].filter(v => v >= _ymin && v <= _ymax);
 
   let bestX = x, bestXd = Infinity;
   for (const sx of piValues) {
@@ -794,7 +802,7 @@ function snapToReference(x, y, plot) {
       if (!fn) continue;
       const yCurve = fn(bestX);
       if (!isFinite(yCurve)) continue;
-      if (yCurve < plot.ymin || yCurve > plot.ymax) continue;
+      if (yCurve < _ymin || yCurve > _ymax) continue;
       const dCurve = Math.abs(yCurve - y);
       if (dCurve < SNAP_RY && dCurve < bestYd) {
         bestYd = dCurve;

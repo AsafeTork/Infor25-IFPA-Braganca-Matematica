@@ -31,6 +31,15 @@ export class Plot {
     window.addEventListener("resize", this._onResize);
   }
 
+  get xmin() { return this.view.xmin; }
+  get xmax() { return this.view.xmax; }
+  get ymin() { return this.view.ymin; }
+  get ymax() { return this.view.ymax; }
+  set xmin(v) { this.view.xmin = v; }
+  set xmax(v) { this.view.xmax = v; }
+  set ymin(v) { this.view.ymin = v; }
+  set ymax(v) { this.view.ymax = v; }
+
   setPiAxis(v) { this.piAxis = v; this.draw(); }
   setView(v) { Object.assign(this.view, v); this.draw(); }
 
