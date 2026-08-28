@@ -18,6 +18,7 @@
 .tool-btn,.ctrl-btn{min-height:44px}
 .frow-eye,.frow-del{min-height:36px}
 @media(min-width:481px){.tool-btn,.ctrl-btn{min-height:36px}}
+@media(max-width:480px){.frow-eye,.frow-del{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important} #tool-clear,#tool-undo,#tool-redo{min-height:44px!important} [data-layer-eye],[data-layer-del]{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important}}
 .tool-btn{font-size:.78rem}
 .frow-eye{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);background:var(--surface-2);color:var(--text-mut);border-radius:6px;cursor:pointer;font-size:.75rem;flex-shrink:0;transition:all .15s}
 .frow-eye:hover{border-color:var(--accent);color:var(--accent)}
@@ -45,7 +46,7 @@
     <div class="prof-section">
       <div class="prof-section-title">Fórmulas</div>
       <div id="formulas-rows"></div>
-      <button class="ctrl-btn" id="btn-add" style="width:100%;margin-top:.4rem;text-align:center;min-height:36px" aria-label="Adicionar fórmula" title="Adicionar fórmula">+ linha</button>
+      <button class="ctrl-btn" id="btn-add" style="width:100%;margin-top:.4rem;text-align:center" aria-label="Adicionar fórmula" title="Adicionar fórmula">+ linha</button>
     </div>
 
     <!-- 2. Controles (π eixo, círculo, reset, download) -->
@@ -130,10 +131,10 @@
             <input type="range" id="area-opacity" min="5" max="60" value="25" aria-label="Opacidade">
             <span id="area-opacity-val">25%</span>
           </div>
-          <button class="tool-btn" id="tool-clear" style="margin-top:.3rem;width:100%;justify-content:center;min-height:36px" aria-label="Limpar destaques" title="Limpar destaques">Limpar destaques</button>
+          <button class="tool-btn" id="tool-clear" style="margin-top:.3rem;width:100%;justify-content:center" aria-label="Limpar destaques" title="Limpar destaques">Limpar destaques</button>
           <div style="display:flex;gap:.3rem;margin-top:.3rem">
-            <button class="tool-btn" id="tool-undo" style="flex:1;justify-content:center;min-height:36px" aria-label="Desfazer (Ctrl+Z)" title="Desfazer (Ctrl+Z)">Desfazer</button>
-            <button class="tool-btn" id="tool-redo" style="flex:1;justify-content:center;min-height:36px" aria-label="Refazer (Ctrl+Y)" title="Refazer (Ctrl+Y)">Refazer</button>
+            <button class="tool-btn" id="tool-undo" style="flex:1;justify-content:center" aria-label="Desfazer (Ctrl+Z)" title="Desfazer (Ctrl+Z)">Desfazer</button>
+            <button class="tool-btn" id="tool-redo" style="flex:1;justify-content:center" aria-label="Refazer (Ctrl+Y)" title="Refazer (Ctrl+Y)">Refazer</button>
           </div>
         </div>
       </details>
@@ -824,7 +825,7 @@ canvas.addEventListener("mousemove", e => {
       if (d < bestDist) bestDist = d;
     }
     currentSnap = null;
-    plot.cv.style.cursor = bestDist < 1 ? "crosshair" : "default";
+    plot.cv.style.cursor = bestDist < 1.5 ? "crosshair" : "default";
   } else {
     const snapped = snapToReference(x, y, plot);
     currentSnap = snapped.snapped ? snapped : null;
@@ -850,7 +851,7 @@ canvas.addEventListener("click", e => {
       const dist = hitTestOverlay(ovFlat, x, y, plot);
       if (dist < bestDist) { bestDist = dist; bestIdx = i; }
     }
-    if (bestIdx >= 0 && bestDist < 1) {
+    if (bestIdx >= 0 && bestDist < 1.5) {
       overlayMgr.remove(all[bestIdx].id);
       plot.draw();
     }
@@ -1249,12 +1250,14 @@ function renderLayers() {
 }
 overlayMgr.onChange(renderLayers);
 renderLayers();
-// Sincroniza OverlayManager -> plot._overlays para SVG export (filtra hidden: SVG respeita ocultar)
 overlayMgr.onChange(() => {
-  plot._overlays = overlayMgr.getAll().filter(o => !o.props.hidden).map(o => ({ type: o.type, props: o.props }));
+  plot._overlays = overlayMgr.getAll().filter(o => !o.props.hidden).map(o => ({
+    draw: (ctx, p) => renderOverlaysOnPlot(ctx, p, [{ ...o.props, type: o.type }], formatExactValue)
+  }));
 });
- // inicializa já (caso tenha dados) — filtra hidden
-plot._overlays = overlayMgr.getAll().filter(o => !o.props.hidden).map(o => ({ type: o.type, props: o.props }));
+plot._overlays = overlayMgr.getAll().filter(o => !o.props.hidden).map(o => ({
+  draw: (ctx, p) => renderOverlaysOnPlot(ctx, p, [{ ...o.props, type: o.type }], formatExactValue)
+}));
 document.getElementById("tool-undo").addEventListener("click", () => { overlayMgr.undo(); plot.draw(); });
 document.getElementById("tool-redo").addEventListener("click", () => { overlayMgr.redo(); plot.draw(); });
 document.addEventListener("keydown", e => {

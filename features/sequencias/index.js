@@ -117,8 +117,7 @@ export const sequenciasLessons = [
           <div id="cmp-seq" style="width:100%;height:300px;border-radius:12px;overflow:hidden;margin:.75rem 0;"></div>
           <p style="font-size:.85rem;color:var(--text-soft)">Laranja = PA (r=5) · Amarelo = PG (q=1,5) · a₁=5</p>
         </div>` +
-        think("A partir de qual índice a PG supera definitivamente a PA? Leia no gráfico.") +
-
+        think("A partir de qual índice a PG supera definitivamente a PA? Leia no gráfico.");
 
       const canvas = document.createElement("canvas");
       canvas.style.cssText = "width:100%;height:100%;display:block;";

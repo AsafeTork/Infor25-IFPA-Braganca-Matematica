@@ -560,6 +560,10 @@
 
   .ctrl-btn { height: 36px; min-height: 36px; }
   .tool-btn { min-height: 44px; }
+  #tool-clear, #tool-undo, #tool-redo { min-height: 44px !important; }
+  .frow-eye, .frow-del { min-width: 44px !important; min-height: 44px !important; width: 44px !important; height: 44px !important; }
+  .layers-eye { min-width: 44px !important; min-height: 44px !important; width: 44px !important; height: 44px !important; }
+  [data-layer-eye], [data-layer-del] { min-width: 44px !important; min-height: 44px !important; width: 44px !important; height: 44px !important; }
 }
 
 /* ============================================================

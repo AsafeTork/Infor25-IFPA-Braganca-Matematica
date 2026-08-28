@@ -1,0 +1,26 @@
+{
+  "name": "infor25-ifpa-braganca-matematica",
+  "version": "1.0.0",
+  "description": "Plataforma web interativa de Matemática desenvolvida para o **2.º e 3.º ano do Ensino Médio Técnico em Informática**, baseada no conteúdo do livro da professora e inspirada em ferramentas como Brilliant, Desmos e Khan Academy.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AsafeTork/Infor25-IFPA-Braganca-Matematica.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AsafeTork/Infor25-IFPA-Braganca-Matematica/issues"
+  },
+  "homepage": "https://github.com/AsafeTork/Infor25-IFPA-Braganca-Matematica#readme",
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  }
+}
