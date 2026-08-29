@@ -18,6 +18,22 @@
    - StackOverflow "How to make canvas responsive" + "Canvas zoom + pan":
      resize via getBoundingClientRect + devicePixelRatio, translate para centro,
      requestAnimationFrame para 60fps, offscreen bitmap para performance
+
+   Isolamento 30x graphScale vs view vs --info-scale:
+   - --graph-scale (CSS, 0.8–1.8): SOMENTE tipografia do canvas (labels, eixo,
+     triângulo). Lido em draw() para font-size calc(18px*graphScale). Nunca
+     aplica transform: scale() no canvas, nunca altera layout da sidebar.
+   - view (xmin/xmax/ymin/ymax): zoom GEOMÉTRICO isométrico. Alterado via
+     zoomAt(px,py,factor), panBy, animateView, pinch, wheel, resize. Sempre
+     mantém proporção H/W via _enforceIsometric() e limites via _clampViewRange().
+   - --info-scale (CSS, 0.8–1.8): SOMENTE sidebar (.prof-panel e filhos).
+     Escala font-size/padding/gap/radius via calc(base*var(--info-scale)),
+     max-height permanece em dvh (42dvh, 22dvh, 70dvh) para não sair da tela.
+   - Wheel/pinch e drag NÃO tocam --graph-scale nem --info-scale; apenas view.
+   - Botões +/- do gráfico alteram --graph-scale + animateView focal no centro,
+     com fator prev/next isométrico, sem afetar --info-scale.
+   - Botões +/- da UI alteram apenas --info-scale, sem afetar view.
+   - Resize preserva centro isométrico (cx,cy) e recalcula yRange = xRange*H/W.
    ============================================================ */
 
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
