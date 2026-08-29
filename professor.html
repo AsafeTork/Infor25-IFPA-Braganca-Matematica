@@ -246,7 +246,9 @@ const PRESET_GROUPS = [
 
 /* ──────────── PLOT ──────────── */
 const canvas = document.getElementById("plot-canvas");
-const plot   = new Plot(canvas, { xmin:-6, xmax:6, ymin:-4, ymax:4 });
+const _initW = canvas.clientWidth || 800, _initH = canvas.clientHeight || 600;
+const _xR = 12, _yR = _xR * _initH / _initW;
+const plot   = new Plot(canvas, { xmin:-_xR/2, xmax:_xR/2, ymin:-_yR/2, ymax:_yR/2 });
 
 plot.onProbe = (x, y) => {
   document.getElementById("readout").textContent =
@@ -1349,10 +1351,15 @@ function updatePlot() {
 }
 
 function setView(v) {
-  const def = piActive
-    ? {xmin:-2*Math.PI,xmax:2*Math.PI,ymin:-3,ymax:3}
-    : {xmin:-6,xmax:6,ymin:-4,ymax:4};
-  plot.setView(v||def);
+  if (v) { plot.setView(v); return; }
+  const W = canvas.clientWidth, H = canvas.clientHeight;
+  if (piActive) {
+    const xR = 4*Math.PI, yR = xR * H / W;
+    plot.setView({ xmin:-xR/2, xmax:xR/2, ymin:-yR/2, ymax:yR/2 });
+  } else {
+    const xR = 12, yR = xR * H / W;
+    plot.setView({ xmin:-xR/2, xmax:xR/2, ymin:-yR/2, ymax:yR/2 });
+  }
 }
 
 function animateView(target, ms=300) {
