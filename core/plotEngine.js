@@ -115,10 +115,10 @@ export class Plot {
     ctx.lineWidth = 1; ctx.strokeStyle = line;
     const xNumLabels = (xmax - xmin) / xStep;
     const graphScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--graph-scale")) || 1;
-    let xFs = 12 * graphScale;
-    if (xNumLabels > 15) xFs = 9 * graphScale;
-    else if (xNumLabels > 10) xFs = 10 * graphScale;
-    else if (xNumLabels < 5) xFs = 14 * graphScale;
+    let xFs = 14 * graphScale;
+    if (xNumLabels > 15) xFs = 11 * graphScale;
+    else if (xNumLabels > 10) xFs = 12 * graphScale;
+    else if (xNumLabels < 5) xFs = 16 * graphScale;
     ctx.font = `${xFs}px ${css("--font-mono") || "monospace"}`;
     ctx.textAlign = "center"; ctx.textBaseline = "top";
 
@@ -138,10 +138,10 @@ export class Plot {
     }
     ctx.textAlign = "right"; ctx.textBaseline = "middle";
     const yNumLabels = (ymax - ymin) / yStep;
-    let yFs = 12 * graphScale;
-    if (yNumLabels > 15) yFs = 9 * graphScale;
-    else if (yNumLabels > 10) yFs = 10 * graphScale;
-    else if (yNumLabels < 5) yFs = 14 * graphScale;
+    let yFs = 14 * graphScale;
+    if (yNumLabels > 15) yFs = 11 * graphScale;
+    else if (yNumLabels > 10) yFs = 12 * graphScale;
+    else if (yNumLabels < 5) yFs = 16 * graphScale;
     ctx.font = `${yFs}px ${css("--font-mono") || "monospace"}`;
     const yy0 = Math.ceil(ymin / yStep) * yStep;
     let lastPy = null;

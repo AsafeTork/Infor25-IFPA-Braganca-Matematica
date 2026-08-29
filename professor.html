@@ -221,17 +221,18 @@ function updateUiScale(v){
   const elUi = document.getElementById("font-val-ui");
   if (elUi) elUi.textContent = Math.round(uiScale*100) + "%";
 }
-function updateGraphScale(v){
-  graphScale = clampScale(Math.round(v*10)/10, 0.8, 1.8);
+function updateGraphScale(delta){
+  graphScale = Math.min(1.8, Math.max(0.8, graphScale + delta));
+  graphScale = Math.round(graphScale*10)/10;
   document.documentElement.style.setProperty("--graph-scale", graphScale);
   const elGraph = document.getElementById("font-val-graph");
   if (elGraph) elGraph.textContent = Math.round(graphScale*100) + "%";
-  plot.draw();
+  requestAnimationFrame(()=>plot.draw());
 }
 document.getElementById("font-dec-ui")?.addEventListener("click", () => updateUiScale(uiScale - 0.1));
 document.getElementById("font-inc-ui")?.addEventListener("click", () => updateUiScale(uiScale + 0.1));
-document.getElementById("font-dec-graph")?.addEventListener("click", () => updateGraphScale(graphScale - 0.1));
-document.getElementById("font-inc-graph")?.addEventListener("click", () => updateGraphScale(graphScale + 0.1));
+document.getElementById("font-dec-graph")?.addEventListener("click", () => updateGraphScale(-0.1));
+document.getElementById("font-inc-graph")?.addEventListener("click", () => updateGraphScale(0.1));
 
 const COLORS = ["#ffa500","#ffd23f","#60a5fa","#34d399","#a78bfa","#fb923c"];
 
