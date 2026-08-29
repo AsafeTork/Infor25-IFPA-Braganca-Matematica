@@ -215,6 +215,7 @@ fontScale?.addEventListener("input", e => {
   document.querySelectorAll(".prof-readout, .uc-info, .prof-section, .prof-context").forEach(el => {
     el.style.fontSize = `calc(1em * ${v})`;
   });
+  plot.draw();
 });
 
 const COLORS = ["#ffa500","#ffd23f","#60a5fa","#34d399","#a78bfa","#fb923c"];
@@ -444,7 +445,8 @@ function ucDraw() {
   ctx.strokeStyle = dark ? "rgba(8,8,20,.8)" : "rgba(255,255,255,.8)";
   ctx.lineWidth = 2; ctx.stroke();
 
-  const fs2 = ~~(r*.1);
+  const infoScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--info-scale")) || 1;
+  const fs2 = ~~(r*.1) * infoScale;
   ctx.font = `bold ${fs2}px monospace`;
   ctx.fillStyle = acc; ctx.textAlign = "center";
   ctx.fillText("cos θ", (cx+px)/2, cy + (si>=0?13:-10));
@@ -452,7 +454,7 @@ function ucDraw() {
   ctx.fillText("sin θ", px+(co>=0?6:-6), (cy+py)/2);
 
   const la=tN/2, lr=r*.28;
-  ctx.fillStyle = fg; ctx.font=`bold ${~~(r*.11)}px monospace`;
+  ctx.fillStyle = fg; ctx.font=`bold ${~~(r*.11) * infoScale}px monospace`;
   ctx.textAlign="left"; ctx.textBaseline="middle";
   const signedDeg = (ucTheta < 0 ? -1 : 1) * partial * 180 / Math.PI;
   let lbl = ucSnapped ? ucSnapped.l : `${signedDeg.toFixed(1)}°`;
@@ -468,7 +470,8 @@ function drawLabels() {
   if (activeFormulas.length === 0) return;
 
   ctx.save();
-  const fs = Math.max(9, Math.min(14, Math.floor(plot.W / 60)));
+  const infoScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--info-scale")) || 1;
+  const fs = Math.max(9, Math.min(14, Math.floor(plot.W / 60))) * infoScale;
   ctx.font = `bold ${fs}px monospace`;
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
@@ -516,8 +519,9 @@ function drawPlayPoint() {
     ctx.setLineDash([]);
     ctx.strokeStyle = (p.color || "#ffa500") + "44";
     ctx.beginPath(); ctx.moveTo(plot.X(0), py); ctx.lineTo(px, py); ctx.stroke();
+    const infoScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--info-scale")) || 1;
     ctx.fillStyle = dark ? "#fff" : "#000";
-    ctx.font = "10px JetBrains Mono, monospace";
+    ctx.font = `${10 * infoScale}px JetBrains Mono, monospace`;
     ctx.textAlign = "center";
     ctx.fillText(`(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`, px, py - 14);
     ctx.restore();

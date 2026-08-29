@@ -114,10 +114,11 @@ export class Plot {
     // grid
     ctx.lineWidth = 1; ctx.strokeStyle = line;
     const xNumLabels = (xmax - xmin) / xStep;
-    let xFs = 12;
-    if (xNumLabels > 15) xFs = 9;
-    else if (xNumLabels > 10) xFs = 10;
-    else if (xNumLabels < 5) xFs = 14;
+    const infoScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--info-scale")) || 1;
+    let xFs = 12 * infoScale;
+    if (xNumLabels > 15) xFs = 9 * infoScale;
+    else if (xNumLabels > 10) xFs = 10 * infoScale;
+    else if (xNumLabels < 5) xFs = 14 * infoScale;
     ctx.font = `${xFs}px ${css("--font-mono") || "monospace"}`;
     ctx.textAlign = "center"; ctx.textBaseline = "top";
 
@@ -137,10 +138,10 @@ export class Plot {
     }
     ctx.textAlign = "right"; ctx.textBaseline = "middle";
     const yNumLabels = (ymax - ymin) / yStep;
-    let yFs = 12;
-    if (yNumLabels > 15) yFs = 9;
-    else if (yNumLabels > 10) yFs = 10;
-    else if (yNumLabels < 5) yFs = 14;
+    let yFs = 12 * infoScale;
+    if (yNumLabels > 15) yFs = 9 * infoScale;
+    else if (yNumLabels > 10) yFs = 10 * infoScale;
+    else if (yNumLabels < 5) yFs = 14 * infoScale;
     ctx.font = `${yFs}px ${css("--font-mono") || "monospace"}`;
     const yy0 = Math.ceil(ymin / yStep) * yStep;
     let lastPy = null;
