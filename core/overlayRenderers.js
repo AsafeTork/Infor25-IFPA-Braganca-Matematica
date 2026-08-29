@@ -43,7 +43,8 @@ function renderMarker(ctx, ov, toX, toY, fmt) {
 
   /* label */
   if (ov.label) {
-    const fs = ov.fontSize || 13;
+    const graphScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--graph-scale")) || 1;
+    const fs = (ov.fontSize || 13) * graphScale;
     ctx.font = `${fs}px ${css("--font-mono") || "monospace"}`;
     ctx.fillStyle = ov.labelColor || css("--text") || "#e8e3da";
     ctx.textAlign = "left";
@@ -199,7 +200,8 @@ function renderArrow(ctx, ov, toX, toY) {
   ctx.fill();
 
   if (ov.label) {
-    const fs = ov.fontSize || 12;
+    const graphScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--graph-scale")) || 1;
+    const fs = (ov.fontSize || 12) * graphScale;
     ctx.font = `${fs}px ${css("--font-mono") || "monospace"}`;
     ctx.fillStyle = color;
     ctx.textAlign = "center";
@@ -244,7 +246,8 @@ function renderCircle(ctx, ov, toX, toY) {
 function renderText(ctx, ov, toX, toY) {
   const px = toX(ov.x);
   const py = toY(ov.y);
-  const fs = ov.fontSize || 16;
+  const graphScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--graph-scale")) || 1;
+  const fs = (ov.fontSize || 16) * graphScale;
   const color = ov.color || css("--text") || "#e8e3da";
 
   ctx.save();
@@ -320,7 +323,8 @@ function renderDistance(ctx, ov, toX, toY, fmt) {
   const label = ov.label || (fmt ? fmt(dist) : String(Math.round(dist * 100) / 100));
   const mx = (px1 + px2) / 2;
   const my = (py1 + py2) / 2;
-  const fs = ov.fontSize || 12;
+  const graphScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--graph-scale")) || 1;
+  const fs = (ov.fontSize || 12) * graphScale;
 
   ctx.font = `${fs}px ${css("--font-mono") || "monospace"}`;
   ctx.fillStyle = ov.labelColor || color;
@@ -358,7 +362,8 @@ function renderRuler(ctx, ov, toX, toY) {
   const dx=(ov.x2??0)-(ov.x1??0), dy=(ov.y2??0)-(ov.y1??0);
   const dist = Math.hypot(dx, dy).toFixed(2);
   const txt = `d=${dist}  Δx=${dx.toFixed(2)} Δy=${dy.toFixed(2)}`;
-  ctx.fillStyle = color; ctx.font = "11px monospace"; ctx.textAlign="center";
+  const graphScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--graph-scale")) || 1;
+  ctx.fillStyle = color; ctx.font = `${11 * graphScale}px monospace`; ctx.textAlign="center";
   const tw = ctx.measureText(txt).width;
   ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillRect(mx - tw/2 -4, my -18, tw+8, 14);
   ctx.fillStyle = color; ctx.fillText(txt, mx, my -8);

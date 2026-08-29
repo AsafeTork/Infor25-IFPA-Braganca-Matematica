@@ -217,24 +217,15 @@ let graphScale = 1;
 const clampScale = (v, min, max) => Math.min(max, Math.max(min, v));
 function updateUiScale(v){
   uiScale = clampScale(Math.round(v*10)/10, 0.8, 1.8);
-  graphScale = uiScale;
   document.documentElement.style.setProperty("--info-scale", uiScale);
-  document.documentElement.style.setProperty("--graph-scale", uiScale);
   const elUi = document.getElementById("font-val-ui");
   if (elUi) elUi.textContent = Math.round(uiScale*100) + "%";
-  const elGraph = document.getElementById("font-val-graph");
-  if (elGraph) elGraph.textContent = Math.round(uiScale*100) + "%";
-  plot.draw();
 }
 function updateGraphScale(v){
   graphScale = clampScale(Math.round(v*10)/10, 0.8, 1.8);
-  uiScale = graphScale;
-  document.documentElement.style.setProperty("--info-scale", graphScale);
   document.documentElement.style.setProperty("--graph-scale", graphScale);
-  const elUi2 = document.getElementById("font-val-ui");
-  if (elUi2) elUi2.textContent = Math.round(graphScale*100) + "%";
-  const elGraph2 = document.getElementById("font-val-graph");
-  if (elGraph2) elGraph2.textContent = Math.round(graphScale*100) + "%";
+  const elGraph = document.getElementById("font-val-graph");
+  if (elGraph) elGraph.textContent = Math.round(graphScale*100) + "%";
   plot.draw();
 }
 document.getElementById("font-dec-ui")?.addEventListener("click", () => updateUiScale(uiScale - 0.1));
@@ -1199,6 +1190,7 @@ canvas.addEventListener("pointerdown", e => {
 
 function drawOverlays() {
   const ctx = plot.ctx;
+  const graphScaleDraw = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--graph-scale")) || 1;
 
   const allOverlays = overlayMgr.getAll();
   for (const ov of allOverlays) {
@@ -1212,7 +1204,7 @@ function drawOverlays() {
     ctx.strokeStyle = toolColor + "bb"; ctx.lineWidth = 2; ctx.setLineDash([4,3]);
     ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, plot.H); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = toolColor; ctx.font = "10px monospace";
+    ctx.fillStyle = toolColor; ctx.font = `${10 * graphScaleDraw}px monospace`;
     ctx.textAlign = "center"; ctx.fillText("→ clique p/ fechar área", px, 14);
 
     if (lastMouseX !== null) {
@@ -1228,7 +1220,7 @@ function drawOverlays() {
       ctx.setLineDash([]);
       const w = Math.abs(lastMouseX - areaStart).toFixed(2);
       ctx.fillStyle = toolColor;
-      ctx.font = "11px monospace";
+      ctx.font = `${11 * graphScaleDraw}px monospace`;
       ctx.textAlign = "center";
       ctx.fillText(`Δx=${w}`, (px + plot.X(lastMouseX))/2, 28);
     }
@@ -1263,7 +1255,7 @@ function drawOverlays() {
       ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px2,py2); ctx.stroke(); ctx.setLineDash([]);
       const dx = lastMouseX - rulerStart.x, dy = lastMouseY - rulerStart.y;
       const d = Math.hypot(dx,dy).toFixed(2);
-      ctx.fillStyle = toolColor; ctx.font="11px monospace"; ctx.textAlign="center";
+      ctx.fillStyle = toolColor; ctx.font=`${11 * graphScaleDraw}px monospace`; ctx.textAlign="center";
       ctx.fillText(`d=${d}`, (px+px2)/2, (py+py2)/2 -8);
     }
   }
