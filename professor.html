@@ -225,9 +225,9 @@ function updateGraphScale(delta){
   graphScale = Math.min(1.8, Math.max(0.8, graphScale + delta));
   graphScale = Math.round(graphScale*10)/10;
   document.documentElement.style.setProperty("--graph-scale", graphScale);
-  const elGraph = document.getElementById("font-val-graph");
-  if (elGraph) elGraph.textContent = Math.round(graphScale*100) + "%";
-  requestAnimationFrame(()=>plot.draw());
+  document.getElementById("font-val-graph").textContent = Math.round(graphScale*100)+"%";
+  document.documentElement.style.setProperty("--info-scale", graphScale); // também para teste
+  plot.draw();
 }
 document.getElementById("font-dec-ui")?.addEventListener("click", () => updateUiScale(uiScale - 0.1));
 document.getElementById("font-inc-ui")?.addEventListener("click", () => updateUiScale(uiScale + 0.1));
