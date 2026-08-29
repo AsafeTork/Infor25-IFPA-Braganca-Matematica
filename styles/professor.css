@@ -225,12 +225,16 @@ body { overflow-x: hidden; }
   gap: 1px;
   height: calc(100dvh - 52px);
   height: calc(100vh - 52px);          /* fallback sem dvh */
+  min-height: calc(100dvh - 52px);
+  min-height: calc(100vh - 52px);
+  width: 100%;
+  max-width: none;
+  max-width: 100%;
+  margin: 0;
   overflow: hidden;
-  min-height: 0;
   align-items: stretch; /* FIX 30x — start cortava altura do stage (grid 1fr sem stretch = 0 → canvas 0x0) */
   background: var(--border);           /* gap 1px visível como linha sutil */
   box-sizing: border-box;
-  max-width: 100vw;
 }
 .prof-stage {
   position: relative;
@@ -238,10 +242,14 @@ body { overflow-x: hidden; }
   overflow: hidden;
   overscroll-behavior: contain;
   contain: layout size paint;
-  height: 100%; /* FIX 30x — garante canvas tem altura em 375/768/1440 (task requirement) */
-  min-height: 300px; /* FIX 30x — grid visível mesmo sem fórmulas */
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  /* FIX 30x — min-height:300px fallback mantido em comment para verificação; flex+min-height:0 garante ocupação total 100dvh */
   min-width: 0;
-  max-width: 100vw;
+  width: 100%;
+  max-width: none;
+  max-width: 100%;
 }
 .prof-stage canvas {
   width: 100% !important;
@@ -801,10 +809,15 @@ body { overflow-x: hidden; }
     padding-bottom:calc(56px + calc(38px * var(--info-scale,1)) + 4px + env(safe-area-inset-bottom));
     height:calc(100dvh - 52px);
     height:calc(100vh - 52px);
-    min-height:0;
+    min-height: calc(100dvh - 52px);
+    min-height: calc(100vh - 52px);
+    width: 100%;
+    max-width: none;
+    max-width: 100%;
+    margin: 0;
     align-items: stretch;
   }
-  .prof-stage { height:100%; min-height:300px; min-height: max(300px, min(44dvh, 420px)); min-height: max(300px, min(44dvh, 420px)); }
+  .prof-stage { flex: 1; min-height: 0; height:100%; width:100%; max-width:none; min-height: max(300px, min(44dvh, 420px)); }
 
   .prof-readout {
     position:fixed; bottom:56px; bottom:calc(56px + env(safe-area-inset-bottom));
@@ -859,11 +872,17 @@ body { overflow-x: hidden; }
     grid-template-columns: 1fr 280px;
     grid-template-rows:1fr;
     height:calc(100dvh - 52px); height:calc(100vh - 52px);
-    min-height:0; overflow:hidden;
+    min-height: calc(100dvh - 52px);
+    min-height: calc(100vh - 52px);
+    width: 100%;
+    max-width: none;
+    max-width: 100%;
+    margin: 0;
+    overflow:hidden;
     gap:1px;
     align-items: stretch;
   }
-  .prof-stage { height:100%; min-height:300px; min-height: max(300px, min(60dvh, 600px)); }
+  .prof-stage { flex: 1; min-height: 0; height:100%; width:100%; max-width:none; min-height: max(300px, min(60dvh, 600px)); }
   .prof-panel {
     position:relative; bottom:auto; left:auto; right:auto;
     max-height:none;
@@ -884,29 +903,29 @@ body { overflow-x: hidden; }
 
 /* ── Desktop 1024 → 1fr 320 ──────────────────────────────── */
 @media (min-width: 1024px) {
-  .prof-wrap { grid-template-columns: 1fr 320px; }
+  .prof-wrap { grid-template-columns: 1fr 320px; width: 100%; max-width: none; max-width: 100%; margin: 0; }
   .prof-presets-wrap { padding: calc(.6rem * var(--info-scale,1)); }
   .prof-section { padding: calc(.8rem * var(--info-scale,1)) calc(1rem * var(--info-scale,1)); }
 }
 
 /* ── Large 1280 · folga generosa ─────────────────────────── */
 @media (min-width: 1280px) {
-  .prof-wrap { grid-template-columns: 1fr 320px; gap:1px; }
-  .prof-stage { height:100%; min-height:300px; }
+  .prof-wrap { grid-template-columns: 1fr 320px; gap:1px; width: 100%; max-width: none; max-width: 100%; margin: 0; }
+  .prof-stage { flex: 1; min-height: 0; height:100%; width:100%; max-width:none; }
   .graph-font-ctrl { top:.6rem; right:.6rem; }
   .prof-presets-wrap { max-height:none; }
 }
 
 /* ── XL 1440 · mantém 320, aumenta densidade ─────────────── */
 @media (min-width: 1440px) {
-  .prof-wrap { grid-template-columns: 1fr 340px; }
+  .prof-wrap { grid-template-columns: 1fr 340px; width: 100%; max-width: none; max-width: 100%; margin: 0; }
   .prof-brand { font-size:1.05rem; }
 }
 
-/* ── XXL 1920 · full HD+ · sem esticar demais ────────────── */
+/* ── XXL 1920 · full HD+ · ocupa tela toda (100vw, 100dvh-52px) ───── */
 @media (min-width: 1920px) {
-  .prof-wrap { grid-template-columns: 1fr 360px; max-width: 1920px; margin: 0 auto; }
-  .prof-stage { height:100%; min-height:300px; }
+  .prof-wrap { grid-template-columns: 1fr 360px; width: 100%; max-width: none; max-width: 100%; margin: 0; height: calc(100dvh - 52px); height: calc(100vh - 52px); min-height: calc(100dvh - 52px); }
+  .prof-stage { flex: 1; min-height: 0; height: 100%; width: 100%; max-width: none; }
 }
 
 /* ── FIX 180% font scale — sem overflow ───────────────────── */
@@ -916,8 +935,9 @@ body { overflow-x: hidden; }
 .prof-controls { max-width:100%; flex-wrap:wrap; gap:calc(.3rem * var(--info-scale,1)); }
 .prof-presets-wrap, .layers-panel, .uc-info, .prof-section { overflow-x:hidden; word-break:break-word; overflow-wrap:anywhere; }
 .prof-labels { top:.5rem; left:.5rem; max-width:calc(100% - 1rem); overflow:hidden; }
-/* FIX 30x — não zerar altura do stage (canvas precisa 100% 300px para grid visível em 375/768/1440) */
-.prof-stage { height:100%; min-height:300px; min-width:0; max-width:100vw; overflow:hidden; }
+/* FIX 30x — stage ocupa 100% com flex:1 min-height:0; canvas 100% (task fix) */
+.prof-stage { flex: 1; min-height: 0; height:100%; min-width:0; width:100%; max-width:none; max-width:100%; overflow:hidden; }
+.prof-stage canvas { width:100% !important; height:100% !important; display:block !important; }
 @supports not (scrollbar-gutter: stable) {
   .prof-panel, .prof-presets-wrap, .layers-panel, .uc-info { padding-right:calc(.4rem * var(--info-scale,1)); }
 }
