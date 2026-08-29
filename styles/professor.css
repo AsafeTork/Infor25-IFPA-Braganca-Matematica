@@ -4,7 +4,7 @@
    + mobile-first responsive layout + bottom sheet + toolbar
    ============================================================ */
 
-:root { --info-scale: 1; }
+:root { --info-scale: 1; --graph-scale: 1; }
 
 /* ── Top bar ────────────────────────────────────────────── */
 .prof-top {
@@ -39,6 +39,65 @@
   transition: all .15s;
 }
 .prof-toplink:hover { background: var(--surface-2); color: var(--text); }
+
+/* ── Font controls (UI + Graph) ─────────────────────────── */
+.prof-font-ctrl {
+  display: flex;
+  align-items: center;
+  gap: .2rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .15rem .3rem;
+  flex-shrink: 0;
+}
+.graph-font-ctrl {
+  position: absolute;
+  top: .5rem;
+  right: .5rem;
+  display: flex;
+  align-items: center;
+  gap: .2rem;
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .15rem .3rem;
+  z-index: 10;
+  flex-shrink: 0;
+}
+.font-btn {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: .9rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+  flex-shrink: 0;
+  line-height: 1;
+  user-select: none;
+}
+.font-btn:hover { border-color: var(--accent); color: var(--accent); }
+.font-btn:active { transform: scale(.95); }
+.font-val {
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  color: var(--text);
+  min-width: 36px;
+  text-align: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+  user-select: none;
+}
 
 /* ── Layout ─────────────────────────────────────────────── */
 .prof-wrap {
@@ -78,6 +137,11 @@
   flex-direction: column;
   background: var(--surface);
   overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -98,7 +162,7 @@
   border-bottom: 1px solid var(--border);
   text-align: center;
 }
-.prof-section { padding: .75rem 1rem; border-bottom: 1px solid var(--border); }
+.prof-section { padding: .75rem 1rem; border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .prof-section-title {
   font-family: var(--font-mono);
   font-size: .6rem;
@@ -240,6 +304,8 @@
   flex: 0 1 auto;
   overflow-y: auto;
   min-height: 0;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   padding: .5rem;
   max-height: 42vh;
 }

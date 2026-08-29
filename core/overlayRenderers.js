@@ -146,9 +146,9 @@ function renderTriangle(ctx, ov, toX, toY) {
       const area = Math.sqrt(Math.max(0, s*(s-la)*(s-lb)*(s-lc)));
       const cx = (toX(pts[0].x)+toX(pts[1].x)+toX(pts[2].x))/3;
       const cy = (toY(pts[0].y)+toY(pts[1].y)+toY(pts[2].y))/3;
-      const infoScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--info-scale")) || 1;
+      const graphScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--graph-scale")) || 1;
       ctx.fillStyle = ov.color || css("--accent") || "#ffa500";
-      ctx.font = `${10 * infoScale}px JetBrains Mono, monospace`;
+      ctx.font = `${10 * graphScale}px JetBrains Mono, monospace`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       // fundo para legibilidade (adapta tema)

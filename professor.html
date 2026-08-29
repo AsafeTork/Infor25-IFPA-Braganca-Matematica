@@ -28,6 +28,11 @@
 
 <header class="prof-top" role="banner">
   <a class="prof-brand" href="index.html">Informática <b>25</b></a>
+  <div class="prof-font-ctrl" aria-label="Zoom interface">
+    <button class="font-btn" id="font-dec-ui" aria-label="Diminuir fonte">−</button>
+    <span class="font-val" id="font-val-ui">100%</span>
+    <button class="font-btn" id="font-inc-ui" aria-label="Aumentar fonte">+</button>
+  </div>
   <a href="aluno.html" class="prof-toplink">Aluno</a>
   <button class="theme-toggle" id="theme-btn" aria-label="Alternar tema"></button>
 </header>
@@ -36,6 +41,11 @@
   <div class="prof-stage" id="prof-stage">
     <canvas id="plot-canvas" style="touch-action:none"></canvas>
     <div class="prof-labels" id="prof-labels"></div>
+    <div class="graph-font-ctrl">
+      <button class="font-btn" id="font-dec-graph" aria-label="Diminuir gráfico">−</button>
+      <span class="font-val" id="font-val-graph">100%</span>
+      <button class="font-btn" id="font-inc-graph" aria-label="Aumentar gráfico">+</button>
+    </div>
   </div>
 
   <!-- Painel lateral (desktop/tablet) -->
@@ -63,11 +73,7 @@
           </div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:.4rem;margin-top:.4rem">
-        <span style="font-size:.68rem;color:var(--text-mut)">Fonte</span>
-        <input id="font-scale" type="range" min="0.8" max="1.8" step="0.1" value="1" style="flex:1;accent-color:var(--accent)">
-        <span id="font-scale-val" style="font-size:.68rem;color:var(--text);min-width:28px">100%</span>
-      </div>
+
       <label style="display:flex;align-items:center;gap:.3rem;margin-top:.3rem;font-size:.68rem;color:var(--text-mut);cursor:pointer">
         <input type="checkbox" id="toggle-magnet" checked style="accent-color:var(--accent)"> Magnetismo ângulos notáveis
       </label>
@@ -206,17 +212,26 @@ initTheme();
 mountThemeToggle(document.getElementById("theme-btn"));
 mountFloatingKeypad();
 
-const fontScale = document.getElementById("font-scale");
-const fontScaleVal = document.getElementById("font-scale-val");
-fontScale?.addEventListener("input", e => {
-  const v = parseFloat(e.target.value);
-  document.documentElement.style.setProperty("--info-scale", v);
-  if (fontScaleVal) fontScaleVal.textContent = Math.round(v*100) + "%";
-  document.querySelectorAll(".prof-readout, .uc-info, .prof-section, .prof-context").forEach(el => {
-    el.style.fontSize = `calc(1em * ${v})`;
-  });
+let uiScale = 1;
+let graphScale = 1;
+const clampScale = (v, min, max) => Math.min(max, Math.max(min, v));
+function updateUiScale(v){
+  uiScale = clampScale(Math.round(v*10)/10, 0.8, 1.8);
+  document.documentElement.style.setProperty("--info-scale", uiScale);
+  const el = document.getElementById("font-val-ui");
+  if (el) el.textContent = Math.round(uiScale*100) + "%";
+}
+function updateGraphScale(v){
+  graphScale = clampScale(Math.round(v*10)/10, 0.8, 1.8);
+  document.documentElement.style.setProperty("--graph-scale", graphScale);
+  const el = document.getElementById("font-val-graph");
+  if (el) el.textContent = Math.round(graphScale*100) + "%";
   plot.draw();
-});
+}
+document.getElementById("font-dec-ui")?.addEventListener("click", () => updateUiScale(uiScale - 0.1));
+document.getElementById("font-inc-ui")?.addEventListener("click", () => updateUiScale(uiScale + 0.1));
+document.getElementById("font-dec-graph")?.addEventListener("click", () => updateGraphScale(graphScale - 0.1));
+document.getElementById("font-inc-graph")?.addEventListener("click", () => updateGraphScale(graphScale + 0.1));
 
 const COLORS = ["#ffa500","#ffd23f","#60a5fa","#34d399","#a78bfa","#fb923c"];
 
@@ -445,8 +460,8 @@ function ucDraw() {
   ctx.strokeStyle = dark ? "rgba(8,8,20,.8)" : "rgba(255,255,255,.8)";
   ctx.lineWidth = 2; ctx.stroke();
 
-  const infoScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--info-scale")) || 1;
-  const fs2 = ~~(r*.1) * infoScale;
+  const graphScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--graph-scale")) || 1;
+  const fs2 = ~~(r*.1) * graphScale;
   ctx.font = `bold ${fs2}px monospace`;
   ctx.fillStyle = acc; ctx.textAlign = "center";
   ctx.fillText("cos θ", (cx+px)/2, cy + (si>=0?13:-10));
@@ -454,7 +469,7 @@ function ucDraw() {
   ctx.fillText("sin θ", px+(co>=0?6:-6), (cy+py)/2);
 
   const la=tN/2, lr=r*.28;
-  ctx.fillStyle = fg; ctx.font=`bold ${~~(r*.11) * infoScale}px monospace`;
+  ctx.fillStyle = fg; ctx.font=`bold ${~~(r*.11) * graphScale}px monospace`;
   ctx.textAlign="left"; ctx.textBaseline="middle";
   const signedDeg = (ucTheta < 0 ? -1 : 1) * partial * 180 / Math.PI;
   let lbl = ucSnapped ? ucSnapped.l : `${signedDeg.toFixed(1)}°`;
@@ -470,8 +485,8 @@ function drawLabels() {
   if (activeFormulas.length === 0) return;
 
   ctx.save();
-  const infoScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--info-scale")) || 1;
-  const fs = Math.max(9, Math.min(14, Math.floor(plot.W / 60))) * infoScale;
+  const graphScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--graph-scale")) || 1;
+  const fs = Math.max(9, Math.min(14, Math.floor(plot.W / 60))) * graphScale;
   ctx.font = `bold ${fs}px monospace`;
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
@@ -519,9 +534,9 @@ function drawPlayPoint() {
     ctx.setLineDash([]);
     ctx.strokeStyle = (p.color || "#ffa500") + "44";
     ctx.beginPath(); ctx.moveTo(plot.X(0), py); ctx.lineTo(px, py); ctx.stroke();
-    const infoScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--info-scale")) || 1;
+    const graphScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--graph-scale")) || 1;
     ctx.fillStyle = dark ? "#fff" : "#000";
-    ctx.font = `${10 * infoScale}px JetBrains Mono, monospace`;
+    ctx.font = `${10 * graphScale}px JetBrains Mono, monospace`;
     ctx.textAlign = "center";
     ctx.fillText(`(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`, px, py - 14);
     ctx.restore();
