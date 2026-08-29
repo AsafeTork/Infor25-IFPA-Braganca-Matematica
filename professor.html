@@ -41,7 +41,7 @@
   <div class="prof-stage" id="prof-stage">
     <canvas id="plot-canvas" style="touch-action:none"></canvas>
     <div class="prof-labels" id="prof-labels"></div>
-    <div class="al-zoom graph-font-ctrl" id="graph-zoom-ctrl" style="position:absolute;top:.5rem;left:.5rem;display:flex;align-items:center;gap:.3rem;background:color-mix(in srgb,var(--surface) 85%,transparent);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:8px;padding:.2rem .4rem;z-index:5">
+    <div class="al-zoom graph-font-ctrl" id="graph-zoom-ctrl">
       <button class="al-zoom-btn" id="font-dec-graph" aria-label="Diminuir gráfico">−</button>
       <span class="al-zoom-label" id="font-val-graph">100%</span>
       <button class="al-zoom-btn" id="font-inc-graph" aria-label="Aumentar gráfico">+</button>
@@ -217,15 +217,24 @@ let graphScale = 1;
 const clampScale = (v, min, max) => Math.min(max, Math.max(min, v));
 function updateUiScale(v){
   uiScale = clampScale(Math.round(v*10)/10, 0.8, 1.8);
+  graphScale = uiScale;
   document.documentElement.style.setProperty("--info-scale", uiScale);
-  const el = document.getElementById("font-val-ui");
-  if (el) el.textContent = Math.round(uiScale*100) + "%";
+  document.documentElement.style.setProperty("--graph-scale", uiScale);
+  const elUi = document.getElementById("font-val-ui");
+  if (elUi) elUi.textContent = Math.round(uiScale*100) + "%";
+  const elGraph = document.getElementById("font-val-graph");
+  if (elGraph) elGraph.textContent = Math.round(uiScale*100) + "%";
+  plot.draw();
 }
 function updateGraphScale(v){
   graphScale = clampScale(Math.round(v*10)/10, 0.8, 1.8);
+  uiScale = graphScale;
+  document.documentElement.style.setProperty("--info-scale", graphScale);
   document.documentElement.style.setProperty("--graph-scale", graphScale);
-  const el = document.getElementById("font-val-graph");
-  if (el) el.textContent = Math.round(graphScale*100) + "%";
+  const elUi2 = document.getElementById("font-val-ui");
+  if (elUi2) elUi2.textContent = Math.round(graphScale*100) + "%";
+  const elGraph2 = document.getElementById("font-val-graph");
+  if (elGraph2) elGraph2.textContent = Math.round(graphScale*100) + "%";
   plot.draw();
 }
 document.getElementById("font-dec-ui")?.addEventListener("click", () => updateUiScale(uiScale - 0.1));

@@ -26,10 +26,10 @@
 }
 .al-brand b { color: var(--accent); }
 .al-topright { display: flex; align-items: center; gap: .4rem; }
-.al-zoom { display: flex; align-items: center; gap: .25rem; }
-.al-zoom-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-weight: 700; font-size: .9rem; transition: all .15s; }
+.al-zoom { display:flex; align-items:center; gap:.3rem; }
+.al-zoom-btn { width:28px; height:28px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:.9rem; }
 .al-zoom-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
-.al-zoom-label { font-family: var(--font-mono); font-size: .7rem; color: var(--text-mut); min-width: 35px; text-align: center; }
+.al-zoom-label { font-family:var(--font-mono); font-size:.75rem; color:var(--text); min-width:36px; text-align:center; }
 @media (min-width: 900px) { .al-zoom { display: flex; } }
 @media (max-width: 600px) { .al-zoom { display: none; } }
 .al-toplink {
