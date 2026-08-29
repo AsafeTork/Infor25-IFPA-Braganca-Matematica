@@ -12,12 +12,12 @@
 <link rel="stylesheet" href="styles/professor.css">
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
 <style>
-/* Refatoração professor.html: grid responsivo e touch targets (integração com professor.css) — mobile-first: base 320-480px */
-.tools-grid{grid-template-columns:1fr 1fr;gap:.3rem}
-@media(min-width:480px){.tools-grid{grid-template-columns:1fr 1fr 1fr}}
-.tool-btn,.ctrl-btn{min-height:44px}
+/* Refatoração professor.html: icon-only toolbar 30x — 3×3 grid, 44×44 touch, 18×18 stroke 1.8 (Lucide 24×24 + SubUX/W3C) */
+.tools-grid{grid-template-columns:1fr 1fr 1fr;gap:.42rem}
+.tools-grid .tool-btn{min-width:44px;min-height:44px;height:44px;padding:0;justify-content:center;gap:0;aspect-ratio:1}
+.ctrl-btn{min-height:44px}
 .frow-eye,.frow-del{min-height:36px}
-@media(min-width:481px){.tool-btn,.ctrl-btn{min-height:36px}}
+@media(min-width:481px){.ctrl-btn{min-height:36px} .tools-grid .tool-btn{min-height:44px}}
 @media(max-width:480px){.frow-eye,.frow-del{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important} #tool-clear,#tool-undo,#tool-redo{min-height:44px!important} [data-layer-eye],[data-layer-del]{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important}}
 .tool-btn{font-size:calc(.78rem * var(--info-scale,1))}
 .frow-eye{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);background:var(--surface-2);color:var(--text-mut);border-radius:6px;cursor:pointer;font-size:.75rem;flex-shrink:0;transition:all .15s}
@@ -117,25 +117,69 @@
         </summary>
         <div style="padding:.25rem 0">
           <div class="tools-grid" role="toolbar" aria-label="Ferramentas" aria-orientation="horizontal">
-            <button class="tool-btn" id="tool-marker" aria-pressed="false" aria-label="Marcar ponto" title="Marcar ponto"><span class="tool-dot" style="background:var(--accent);width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block"></span> Ponto</button>
-            <button class="tool-btn" id="tool-vline" aria-pressed="false" aria-label="Linha vertical" title="Linha vertical">Vertical</button>
-            <button class="tool-btn" id="tool-hline" aria-pressed="false" aria-label="Linha horizontal" title="Linha horizontal">Horizontal</button>
-            <button class="tool-btn" id="tool-area" aria-pressed="false" aria-label="Sombrear área" title="Sombrear área">Área</button>
-            <button class="tool-btn" id="tool-triangle" aria-pressed="false" aria-label="Triângulo" title="Triângulo">Triângulo</button>
-            <button class="tool-btn" id="tool-text" aria-pressed="false" aria-label="Adicionar texto" title="Adicionar texto">Texto</button>
-            <button class="tool-btn" id="tool-arrow" aria-pressed="false" aria-label="Desenhar seta" title="Desenhar seta">Seta</button>
-            <button class="tool-btn" id="tool-ruler" aria-pressed="false" aria-label="Régua para medir distância" title="Régua para medir distância">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path d="M3 17 L21 7 L17 3 L3 13 Z"/>
-                <path d="M7 13 L8 12"/>
-                <path d="M10 11 L11 10"/>
-                <path d="M13 9 L14 8"/>
-                <path d="M16 8 L17 7"/>
-              </svg> Régua</button>
-            <button class="tool-btn" data-tool="eraser" id="tool-eraser" aria-pressed="false" aria-label="Borracha para apagar" title="Borracha para apagar">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path d="M20 20H7L3 16c-.8-.8-.8-2 0-2.8L14.8 1.4c.8-.8 2-.8 2.8 0L22 5.8c.8.8.8 2 0 2.8L12 18"/>
-              </svg> Borracha
+            <button class="tool-btn" type="button" id="tool-marker" aria-pressed="false" aria-label="Marcar ponto" title="Marcar ponto">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <circle cx="12" cy="12" r="7.2"></circle>
+                <circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"></circle>
+              </svg>
+            </button>
+            <button class="tool-btn" type="button" id="tool-vline" aria-pressed="false" aria-label="Linha vertical" title="Linha vertical">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M12 4.8 L12 19.2"></path>
+                <path d="M8.6 8.2 L12 4.8 L15.4 8.2"></path>
+                <path d="M8.6 15.8 L12 19.2 L15.4 15.8"></path>
+              </svg>
+            </button>
+            <button class="tool-btn" type="button" id="tool-hline" aria-pressed="false" aria-label="Linha horizontal" title="Linha horizontal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M4.8 12 H19.2"></path>
+                <path d="M7.2 9 V15"></path>
+                <path d="M16.8 9 V15"></path>
+              </svg>
+            </button>
+            <button class="tool-btn" type="button" id="tool-area" aria-pressed="false" aria-label="Sombrear área" title="Sombrear área">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <rect x="3.8" y="6.2" width="16.4" height="11.6" rx="1.2"></rect>
+                <path d="M6.6 14.2 L10 10.8"></path>
+                <path d="M9.8 17.2 L14.2 12.8"></path>
+                <path d="M13.4 17.8 L17.8 13.4"></path>
+              </svg>
+            </button>
+            <button class="tool-btn" type="button" id="tool-triangle" aria-pressed="false" aria-label="Triângulo" title="Triângulo">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M12 4.2 L3.8 19.2 L20.2 19.2 Z"></path>
+                <circle cx="12" cy="4.2" r="1.35" fill="currentColor" stroke="none"></circle>
+                <circle cx="3.8" cy="19.2" r="1.35" fill="currentColor" stroke="none"></circle>
+                <circle cx="20.2" cy="19.2" r="1.35" fill="currentColor" stroke="none"></circle>
+              </svg>
+            </button>
+            <button class="tool-btn" type="button" id="tool-text" aria-pressed="false" aria-label="Adicionar texto" title="Adicionar texto">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M6.5 6.2 H17.5"></path>
+                <path d="M12 6.2 V15.2"></path>
+                <path d="M5.5 17.8 H18.5"></path>
+              </svg>
+            </button>
+            <button class="tool-btn" type="button" id="tool-arrow" aria-pressed="false" aria-label="Desenhar seta" title="Desenhar seta">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M5.2 18.8 L18.8 5.2"></path>
+                <path d="M11.2 5.2 H18.8 V12.8"></path>
+              </svg>
+            </button>
+            <button class="tool-btn" type="button" id="tool-ruler" aria-pressed="false" aria-label="Régua para medir distância" title="Régua para medir distância">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M3.2 16.8 L20.8 7.2 L16.8 3.2 L3.2 12.8 Z"></path>
+                <path d="M6.8 12.8 L8 11.6"></path>
+                <path d="M10 10.8 L11.2 9.6"></path>
+                <path d="M13.2 8.8 L14.4 7.6"></path>
+                <path d="M16.2 7 L17.4 5.8"></path>
+              </svg>
+            </button>
+            <button class="tool-btn" type="button" data-tool="eraser" id="tool-eraser" aria-pressed="false" aria-label="Borracha para apagar" title="Borracha para apagar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M19.2 19.2 H6.2 L2.8 15.8 C2.1 15.1 2.1 13.9 2.8 13.2 L13.8 2.2 C14.5 1.5 15.7 1.5 16.4 2.2 L20.6 6.4 C21.3 7.1 21.3 8.3 20.6 9 L12.5 17.1"></path>
+                <path d="M6.2 15.8 L12.5 9.5"></path>
+              </svg>
             </button>
           </div>
           <div class="color-row" id="tool-colors" style="margin:.35rem 0" role="radiogroup" aria-label="Cor da ferramenta">
@@ -212,6 +256,7 @@ initTheme();
 mountThemeToggle(document.getElementById("theme-btn"));
 mountFloatingKeypad();
 
+// 30x — UI scale (CSS) separado de graph zoom (view isométrico) — best practice grafana/hcg
 let uiScale = 1;
 let graphScale = 1;
 function updateUiScale(delta){
@@ -221,11 +266,29 @@ function updateUiScale(delta){
   document.getElementById("font-val-ui").textContent = Math.round(uiScale*100)+"%";
 }
 function updateGraphScale(delta){
+  const prev = graphScale;
   graphScale = Math.min(1.8, Math.max(0.8, graphScale + delta));
   graphScale = Math.round(graphScale*10)/10;
   document.documentElement.style.setProperty("--graph-scale", graphScale);
   document.getElementById("font-val-graph").textContent = Math.round(graphScale*100)+"%";
-  plot.draw();
+  // zoom isométrico suave no centro do canvas (separa fonte de view, sem quebrar layout)
+  // factor = prev / next : >1 quando diminui (zoom out), <1 quando aumenta (zoom in)
+  if (typeof plot !== "undefined" && plot.W && plot.H) {
+    const factor = prev / graphScale;
+    const cx = (plot.view.xmin + plot.view.xmax) / 2;
+    const cy = (plot.view.ymin + plot.view.ymax) / 2;
+    const vw = plot.view.xmax - plot.view.xmin;
+    const targetW = vw * factor;
+    const targetH = targetW * plot.H / plot.W; // isométrico
+    const target = {
+      xmin: cx - targetW/2, xmax: cx + targetW/2,
+      ymin: cy - targetH/2, ymax: cy + targetH/2
+    };
+    if (typeof animateView === "function") animateView(target, 260);
+    else plot.draw();
+  } else {
+    plot.draw();
+  }
 }
 document.getElementById("font-dec-ui")?.addEventListener("click", () => updateUiScale(-0.1));
 document.getElementById("font-inc-ui")?.addEventListener("click", () => updateUiScale(0.1));
@@ -1182,9 +1245,10 @@ canvas.addEventListener("click", e => {
     }
   }
 });
-// Garante que pan do Plot não consuma clique da borracha (Plot verifica e.defaultPrevented)
+// 30x — evita conflito pan vs ferramentas: quando ferramenta ativa, plot não deve pan
+// (Plot verifica e.defaultPrevented no pointerdown; tigerabrodi usa ctrlKey para separar)
 canvas.addEventListener("pointerdown", e => {
-  if (toolMode === "eraser" && !ucDragging) e.preventDefault();
+  if (toolMode && !ucDragging) e.preventDefault();
 }, { capture: true });
 
 function drawOverlays() {
@@ -1369,32 +1433,52 @@ function updatePlot() {
   if (plot.setLabels) plot.setLabels(formulas.filter(f=>!f.hidden && f.inp.value.trim()).map(f=>({ text: f.inp.value.trim(), color: f.color })));
 }
 
-function setView(v) {
-  if (v) { plot.setView(v); return; }
-  const W = canvas.clientWidth, H = canvas.clientHeight;
-  if (piActive) {
-    const xR = 4*Math.PI, yR = xR * H / W;
-    plot.setView({ xmin:-xR/2, xmax:xR/2, ymin:-yR/2, ymax:yR/2 });
-  } else {
-    const xR = 12, yR = xR * H / W;
-    plot.setView({ xmin:-xR/2, xmax:xR/2, ymin:-yR/2, ymax:yR/2 });
+// 30x — view sempre isométrico: W/H = xRange / yRange  (preserva círculo)
+// v=null => reset animado por padrão; v explícito => imediato salvo opts.animated=true
+function setView(v, opts = {}) {
+  if (v) {
+    const animated = !!opts.animated;
+    if (animated && plot.animateView) plot.animateView(v, opts.ms || 320);
+    else plot.setView(v);
+    return;
   }
+  const animated = opts.animated !== false; // reset padrão animado
+  const W = canvas.clientWidth || plot.W || 800;
+  const H = canvas.clientHeight || plot.H || 600;
+  let xR, yR;
+  if (piActive) { xR = 4*Math.PI; yR = xR * H / W; }
+  else { xR = 12; yR = xR * H / W; }
+  const target = { xmin:-xR/2, xmax:xR/2, ymin:-yR/2, ymax:yR/2 };
+  if (animated && plot.animateView) plot.animateView(target, opts.ms || 320);
+  else plot.setView(target);
 }
 
-function animateView(target, ms=300) {
+let _animRaf = null;
+function animateView(target, ms=320) {
+  if (_animRaf) cancelAnimationFrame(_animRaf);
+  // normaliza alvo para isométrico (círculo não distorce) — usa plot.W/H atuais
+  const W = plot.W || canvas.clientWidth || 800;
+  const H = plot.H || canvas.clientHeight || 600;
+  const vw = target.xmax - target.xmin;
+  const isoVh = vw * H / W;
+  const cy = (target.ymin + target.ymax) / 2;
+  const isoTarget = { xmin: target.xmin, xmax: target.xmax, ymin: cy - isoVh/2, ymax: cy + isoVh/2 };
+  // se já tem método no Plot, delega (garante cancelamento e rAF interno)
+  if (plot.animateView && plot.animateView !== animateView) { plot.animateView(isoTarget, ms); return; }
   const start = {...plot.view};
   const t0 = performance.now();
   function tick(now) {
     const t = Math.min(1, (now - t0)/ms);
-    const e = 1 - Math.pow(1-t,3); // easeOutCubic
-    plot.view.xmin = start.xmin + (target.xmin - start.xmin)*e;
-    plot.view.xmax = start.xmax + (target.xmax - start.xmax)*e;
-    plot.view.ymin = start.ymin + (target.ymin - start.ymin)*e;
-    plot.view.ymax = start.ymax + (target.ymax - start.ymax)*e;
+    const e = 1 - Math.pow(1-t,3); // easeOutCubic — suave 60fps (numberanalytics best practice)
+    plot.view.xmin = start.xmin + (isoTarget.xmin - start.xmin)*e;
+    plot.view.xmax = start.xmax + (isoTarget.xmax - start.xmax)*e;
+    plot.view.ymin = start.ymin + (isoTarget.ymin - start.ymin)*e;
+    plot.view.ymax = start.ymax + (isoTarget.ymax - start.ymax)*e;
     plot.draw();
-    if (t<1) requestAnimationFrame(tick);
+    if (t<1) _animRaf = requestAnimationFrame(tick);
+    else _animRaf = null;
   }
-  requestAnimationFrame(tick);
+  _animRaf = requestAnimationFrame(tick);
 }
 window.__animateView = animateView;
 window.__setView = setView;
@@ -1419,7 +1503,7 @@ btnCircle.addEventListener("click", ()=>{
   else { plot.draw(); }
 });
 
-document.getElementById("btn-reset").addEventListener("click", ()=>{ setView(null); plot.draw(); });
+document.getElementById("btn-reset").addEventListener("click", ()=>{ setView(null, { animated: true, ms: 340 }); });
 
 /* ── Download ── */
 const btnDownload = document.getElementById("btn-download");
@@ -1542,7 +1626,7 @@ document.addEventListener("keydown", e => {
   if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) { e.preventDefault(); overlayMgr.undo(); plot.draw(); }
   if ((e.ctrlKey || e.metaKey) && (e.key === "y" || (e.key === "z" && e.shiftKey))) { e.preventDefault(); overlayMgr.redo(); plot.draw(); }
   if (e.key === "d" || e.key === "D") { e.preventDefault(); plot.exportPNG(2); }
-  if (e.key === "r" || e.key === "R") { e.preventDefault(); setView(null); plot.draw(); }
+  if (e.key === "r" || e.key === "R") { e.preventDefault(); setView(null, { animated: true, ms: 340 }); }
 });
 
 /* ── Bottom sheet (mobile) ── */
@@ -1574,7 +1658,7 @@ bottomBar.querySelectorAll("[data-panel]").forEach(btn => {
 });
 bottomBar.querySelectorAll("[data-action]").forEach(btn => {
   btn.addEventListener("click", () => {
-    if (btn.dataset.action === "reset") { setView(null); plot.draw(); }
+    if (btn.dataset.action === "reset") { setView(null, { animated: true, ms: 340 }); }
     if (btn.dataset.action === "theme") { document.getElementById("theme-btn").click(); }
   });
 });

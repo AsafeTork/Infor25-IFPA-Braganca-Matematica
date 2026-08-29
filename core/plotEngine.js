@@ -3,6 +3,21 @@
    Plano cartesiano interativo (canvas) com notação matemática real:
    eixos, malha, rótulos em π (radianos) quando solicitado, frações,
    pan/zoom, interceptos, assíntotas e leitura de coordenadas.
+
+   Zoom 30x — isométrico, focal, suave e responsivo
+   Fontes / best practices 2025-2026:
+   - MDN "Pinch zoom gestures" – PointerEvent cache, evCache.length===2,
+     https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events/Pinch_zoom_gestures
+   - tigerabrodi.blog "Handle Trackpad Pinch vs Scroll" (2026-03-04):
+     ctrlKey separa zoom/pan, clamp deltaY ±60, factor = 2^(-clamped*0.01),
+     passive:false + preventDefault (hcg-pinch-zoom, zoompinch)
+   - Grafana Canvas pan/zoom improvements 2025-07-31: root container mantém
+     constraints, zoom-to-content, âncoras estáveis
+   - numberanalytics.com Zooming/Panning Strategies: geometric zoom escala
+     uniforme, semantic vs geometric, feedback visual, hardware acceleration
+   - StackOverflow "How to make canvas responsive" + "Canvas zoom + pan":
+     resize via getBoundingClientRect + devicePixelRatio, translate para centro,
+     requestAnimationFrame para 60fps, offscreen bitmap para performance
    ============================================================ */
 
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -22,9 +37,19 @@ export class Plot {
     };
     this.onProbe = null;
     this.onDraw  = null;
+    // zoom/pan state
     this._pointers = new Map();
     this._pinchInitialDist = 0;
-    this._pinchInitialZoom = 1;
+    this._pinchInitialView = null;
+    this._isDragging = false;
+    this._dragStart = { x: 0, y: 0 };
+    this._dragStartView = null;
+    this._rafPending = false;
+    this._animRaf = null;
+    // limites isométricos: xRange evita degeneração e estouro
+    this._limits = { minXRange: 0.4, maxXRange: 120 };
+    // garante que style impeça scroll nativo durante pinch/pan
+    this.cv.style.touchAction = "none";
     this._bind();
     this.resize();
     this._onResize = () => this.resize();
@@ -41,7 +66,13 @@ export class Plot {
   set ymax(v) { this.view.ymax = v; }
 
   setPiAxis(v) { this.piAxis = v; this.draw(); }
-  setView(v) { Object.assign(this.view, v); this.draw(); }
+  setView(v) {
+    if (!v) return;
+    Object.assign(this.view, v);
+    this._enforceIsometric();
+    this._clampViewRange();
+    this.draw();
+  }
 
   setCurves(list) { this.curves = list; this.draw(); }
   setMarkers(list) { this.markers = list || []; this.draw(); }
@@ -52,9 +83,28 @@ export class Plot {
   resize() {
     const dpr = window.devicePixelRatio || 1;
     const r = this.cv.getBoundingClientRect();
+    if (r.width === 0 || r.height === 0) return;
+    const oldW = this.W, oldH = this.H;
+    const oldView = oldW && oldH ? { ...this.view } : null;
     this.W = r.width; this.H = r.height;
     this.cv.width = r.width * dpr; this.cv.height = r.height * dpr;
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // Responsive canvas best practice: preservar centro e escala isométrica ao redimensionar
+    // (StackOverflow responsive canvas + Grafana root-container)
+    if (oldView) {
+      const cx = (oldView.xmin + oldView.xmax) / 2;
+      const cy = (oldView.ymin + oldView.ymax) / 2;
+      const xRange = oldView.xmax - oldView.xmin;
+      // yRange isométrico para nova razão W/H
+      const newYRange = xRange * this.H / this.W;
+      this.view.xmin = cx - xRange / 2;
+      this.view.xmax = cx + xRange / 2;
+      this.view.ymin = cy - newYRange / 2;
+      this.view.ymax = cy + newYRange / 2;
+      this._clampViewRange();
+    } else {
+      this._enforceIsometric();
+    }
     this.draw();
   }
 
@@ -63,6 +113,93 @@ export class Plot {
   Y(y) { const { ymin, ymax } = this.view; return this.H - ((y - ymin) / (ymax - ymin)) * this.H; }
   invX(px) { const { xmin, xmax } = this.view; return xmin + (px / this.W) * (xmax - xmin); }
   invY(py) { const { ymin, ymax } = this.view; return ymin + ((this.H - py) / this.H) * (ymax - ymin); }
+  // helpers que operam sobre view arbitrária (usado no pinch mid-calc)
+  _invXForView(view, px) { return view.xmin + (px / this.W) * (view.xmax - view.xmin); }
+  _invYForView(view, py) { return view.ymin + ((this.H - py) / this.H) * (view.ymax - view.ymin); }
+
+  // ---- isometria & limites ----
+  _enforceIsometric() {
+    if (!this.W || !this.H) return;
+    const vw = this.view.xmax - this.view.xmin;
+    const desiredVh = vw * this.H / this.W;
+    const cy = (this.view.ymax + this.view.ymin) / 2;
+    this.view.ymin = cy - desiredVh / 2;
+    this.view.ymax = cy + desiredVh / 2;
+  }
+  _clampViewRange() {
+    const vw = this.view.xmax - this.view.xmin;
+    const { minXRange, maxXRange } = this._limits;
+    if (vw < minXRange || vw > maxXRange) {
+      const cx = (this.view.xmin + this.view.xmax) / 2;
+      const cy = (this.view.ymin + this.view.ymax) / 2;
+      const clamped = Math.max(minXRange, Math.min(maxXRange, vw));
+      const newVh = clamped * this.H / this.W;
+      this.view.xmin = cx - clamped / 2;
+      this.view.xmax = cx + clamped / 2;
+      this.view.ymin = cy - newVh / 2;
+      this.view.ymax = cy + newVh / 2;
+      return true;
+    }
+    return false;
+  }
+  // zoom focal isométrico: factor <1 zoom in, >1 zoom out (geometric zoom)
+  zoomAt(px, py, factor) {
+    if (!isFinite(px) || !isFinite(py) || !isFinite(factor)) return;
+    factor = Math.max(0.1, Math.min(10, factor));
+    const cx = this.invX(px);
+    const cy = this.invY(py);
+    const v = this.view;
+    // aplica fator uniforme em X e Y (isométrico)
+    const nxmin = cx + (v.xmin - cx) * factor;
+    const nxmax = cx + (v.xmax - cx) * factor;
+    const nymin = cy + (v.ymin - cy) * factor;
+    const nymax = cy + (v.ymax - cy) * factor;
+    v.xmin = nxmin; v.xmax = nxmax; v.ymin = nymin; v.ymax = nymax;
+    this._clampViewRange();
+    this._enforceIsometric();
+  }
+  // pan por delta em px
+  panBy(dxPx, dyPx) {
+    const sx = (this.view.xmax - this.view.xmin) / this.W;
+    const sy = (this.view.ymax - this.view.ymin) / this.H;
+    this.view.xmin -= dxPx * sx; this.view.xmax -= dxPx * sx;
+    this.view.ymin += dyPx * sy; this.view.ymax += dyPx * sy;
+  }
+  _requestDraw() {
+    if (this._rafPending) return;
+    this._rafPending = true;
+    requestAnimationFrame(() => {
+      this._rafPending = false;
+      this.draw();
+    });
+  }
+  // animação suave isométrica (easeOutCubic) — usado por reset e controles +/- e setView animado
+  animateView(target, ms = 320) {
+    if (this._animRaf) cancelAnimationFrame(this._animRaf);
+    // normaliza alvo para isométrico antes de animar
+    const W = this.W, H = this.H;
+    const vw = target.xmax - target.xmin;
+    const vhIso = vw * H / W;
+    const cy = (target.ymin + target.ymax) / 2;
+    const isoTarget = {
+      xmin: target.xmin, xmax: target.xmax,
+      ymin: cy - vhIso / 2, ymax: cy + vhIso / 2
+    };
+    const start = { ...this.view };
+    const t0 = performance.now();
+    const tick = (now) => {
+      const t = Math.min(1, (now - t0) / ms);
+      const e = 1 - Math.pow(1 - t, 3);
+      this.view.xmin = start.xmin + (isoTarget.xmin - start.xmin) * e;
+      this.view.xmax = start.xmax + (isoTarget.xmax - start.xmax) * e;
+      this.view.ymin = start.ymin + (isoTarget.ymin - start.ymin) * e;
+      this.view.ymax = start.ymax + (isoTarget.ymax - start.ymax) * e;
+      this.draw();
+      if (t < 1) this._animRaf = requestAnimationFrame(tick);
+      else this._animRaf = null;
+    };
+    this._animRaf = requestAnimationFrame(tick);
+  }
 
   // ---- nice tick spacing ----
   _step(range, target = 8, canvasPx) {
@@ -87,8 +224,6 @@ export class Plot {
       if (Math.abs(r * d - n) < 1e-6 && n !== 0) {
         const sign = n < 0 ? "−" : "";
         const an = Math.abs(n);
-        let num = an === d ? "" : (an === 1 ? "" : an);
-        let pis = "π";
         if (d === 1) return `${sign}${an === 1 ? "" : an}π`;
         const top = (an === 1 ? "" : an) + "π";
         return `${sign}${top}/${d}`;
@@ -99,6 +234,7 @@ export class Plot {
 
   draw() {
     const ctx = this.ctx, { W, H } = this;
+    if (!W || !H) return;
     ctx.clearRect(0, 0, W, H);
 
     // background
@@ -225,23 +361,26 @@ export class Plot {
     ctx.stroke();
   }
 
-  // ---- interaction: pan, zoom, probe ----
+  // ---- interaction: pan, zoom, probe (Pointer Events + Wheel + Pinch) ----
   _bind() {
-    let dragging = false, lx = 0, ly = 0;
     this.cv.style.cursor = "crosshair";
+    this.cv.style.touchAction = "none";
 
+    // Pointer down: inicia pan ou pinch
     this.cv.addEventListener("pointerdown", (e) => {
       if (e.defaultPrevented) return;
-      e.preventDefault();
-      dragging = true;
-      const rect = this.cv.getBoundingClientRect();
-      lx = e.clientX - rect.left;
-      ly = e.clientY - rect.top;
-      this.cv.style.cursor = "grabbing";
-      this.cv.setPointerCapture(e.pointerId);
-
       this._pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      if (this._pointers.size === 2) {
+      if (this._pointers.size === 1) {
+        this._isDragging = true;
+        const rect = this.cv.getBoundingClientRect();
+        this._dragStart.x = e.clientX - rect.left;
+        this._dragStart.y = e.clientY - rect.top;
+        this._dragStartView = { ...this.view };
+        this.cv.style.cursor = "grabbing";
+        try { this.cv.setPointerCapture(e.pointerId); } catch {}
+      } else if (this._pointers.size === 2) {
+        // segundo dedo: inicia pinch, cancela pan momentaneamente
+        this._isDragging = false;
         const pts = [...this._pointers.values()];
         this._pinchInitialDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
         this._pinchInitialView = { ...this.view };
@@ -253,71 +392,129 @@ export class Plot {
       const mx = e.clientX - rect.left;
       const my = e.clientY - rect.top;
 
-      if (this._pointers.size === 2 && this._pointers.has(e.pointerId)) {
+      if (this._pointers.has(e.pointerId)) {
         this._pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      }
+
+      // --- PINCH a 2 dedos (MDN pinch gesture, Konva multi-touch pattern) ---
+      if (this._pointers.size === 2 && this._pinchInitialView) {
+        e.preventDefault();
         const pts = [...this._pointers.values()];
-        const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-        const scale = this._pinchInitialDist / dist;
+        const curDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+        if (curDist < 10 || this._pinchInitialDist < 10) return;
+        const scale = this._pinchInitialDist / curDist; // <1 zoom in, >1 zoom out
+        const clampedScale = Math.max(0.15, Math.min(6, scale));
         const midX = (pts[0].x + pts[1].x) / 2;
         const midY = (pts[0].y + pts[1].y) / 2;
-        const rect2 = this.cv.getBoundingClientRect();
-        const cx = ((midX - rect2.left) / rect2.width);
-        const cy = ((midY - rect2.top) / rect2.height);
+        const midPxX = midX - rect.left;
+        const midPxY = midY - rect.top;
         const iv = this._pinchInitialView;
         const vw = iv.xmax - iv.xmin;
-        const vh = iv.ymax - iv.ymin;
-        const nw = vw * scale;
-        const nh = vh * scale;
-        this.view.xmin = iv.xmin + cx * (vw - nw);
-        this.view.xmax = this.view.xmin + nw;
-        this.view.ymin = iv.ymin + (1 - cy) * (vh - nh);
-        this.view.ymax = this.view.ymin + nh;
-        this.draw();
-        e.preventDefault();
+        // foco no midpoint: mantém ponto sob dedos fixo (focal-point zoom)
+        const midDataX = this._invXForView(iv, midPxX);
+        const midDataY = this._invYForView(iv, midPxY);
+        const nw = vw * clampedScale;
+        const nhIso = nw * this.H / this.W; // isométrico
+        const nxmin = midDataX - (midPxX / this.W) * nw;
+        const nymin = midDataY - ((this.H - midPxY) / this.H) * nhIso;
+        this.view.xmin = nxmin;
+        this.view.xmax = nxmin + nw;
+        this.view.ymin = nymin;
+        this.view.ymax = nymin + nhIso;
+        this._clampViewRange();
+        this._requestDraw();
         return;
       }
 
-      if (this.cv.hasPointerCapture(e.pointerId)) {
-        if (dragging && this._pointers.size < 2) {
-          const dx = mx - lx, dy = my - ly;
-          const { xmin, xmax, ymin, ymax } = this.view;
-          const sx = (xmax - xmin) / this.W, sy = (ymax - ymin) / this.H;
-          this.view.xmin -= dx * sx; this.view.xmax -= dx * sx;
-          this.view.ymin += dy * sy; this.view.ymax += dy * sy;
-          lx = mx; ly = my; this.draw();
+      // --- PAN com 1 dedo/mouse (drag) ---
+      if (this._isDragging && this._pointers.size === 1 && this._dragStartView) {
+        // só inicia pan se botão pressionado (evita hover)
+        if (e.buttons === 0 && e.pointerType === "mouse") {
+          // mouse move sem botão: probe
+          if (this.onProbe) this.onProbe(this.invX(mx), this.invY(my));
+          return;
         }
-      } else if (this.onProbe) {
+        e.preventDefault();
+        const dx = mx - this._dragStart.x;
+        const dy = my - this._dragStart.y;
+        const sv = this._dragStartView;
+        const sx = (sv.xmax - sv.xmin) / this.W;
+        const sy = (sv.ymax - sv.ymin) / this.H;
+        this.view.xmin = sv.xmin - dx * sx;
+        this.view.xmax = sv.xmax - dx * sx;
+        this.view.ymin = sv.ymin + dy * sy;
+        this.view.ymax = sv.ymax + dy * sy;
+        this._requestDraw();
+        return;
+      }
+
+      // --- HOVER probe (sem drag/pinch) ---
+      if (this._pointers.size === 0 && this.onProbe && e.buttons === 0) {
+        this.onProbe(this.invX(mx), this.invY(my));
+      } else if (this._pointers.size === 1 && !this._isDragging && this.onProbe) {
+        // pointermove sem capture (mouse hover)
         this.onProbe(this.invX(mx), this.invY(my));
       }
     });
 
-    this.cv.addEventListener("pointerup", (e) => {
+    const endPointer = (e) => {
+      const hadTwo = this._pointers.size === 2;
       this._pointers.delete(e.pointerId);
-      if (this._pointers.size < 2) {
-        dragging = false;
+      if (this._pointers.size === 0) {
+        this._isDragging = false;
+        this._dragStartView = null;
+        this._pinchInitialView = null;
         if (!this._externalCursor) this.cv.style.cursor = "crosshair";
-        this.cv.releasePointerCapture(e.pointerId);
+        try { this.cv.releasePointerCapture(e.pointerId); } catch {}
+      } else if (this._pointers.size === 1 && hadTwo) {
+        // transição pinch -> pan: reinicia drag a partir do dedo restante
+        const remaining = [...this._pointers.values()][0];
+        const rect = this.cv.getBoundingClientRect();
+        this._dragStart.x = remaining.x - rect.left;
+        this._dragStart.y = remaining.y - rect.top;
+        this._dragStartView = { ...this.view };
+        this._isDragging = true;
+        this._pinchInitialView = null;
+      }
+    };
+    this.cv.addEventListener("pointerup", endPointer);
+    this.cv.addEventListener("pointercancel", endPointer);
+    // pointerleave não finaliza pinch, apenas probe
+    this.cv.addEventListener("pointerleave", (e) => {
+      if (this._pointers.size === 0 && this.onProbe) {
+        // opcional: manter último probe
       }
     });
 
-    this.cv.addEventListener("pointercancel", (e) => {
-      this._pointers.delete(e.pointerId);
-      if (this._pointers.size < 2) {
-        dragging = false;
-        if (!this._externalCursor) this.cv.style.cursor = "crosshair";
-        this.cv.releasePointerCapture(e.pointerId);
-      }
-    });
-
+    // --- WHEEL zoom focal (tigerabrodi + hcg-pinch-zoom best practice) ---
     this.cv.addEventListener("wheel", (e) => {
       e.preventDefault();
-      const f = e.deltaY > 0 ? 1.12 : 0.89;
-      const cx = this.invX(e.offsetX), cy = this.invY(e.offsetY);
-      const v = this.view;
-      v.xmin = cx + (v.xmin - cx) * f; v.xmax = cx + (v.xmax - cx) * f;
-      v.ymin = cy + (v.ymin - cy) * f; v.ymax = cy + (v.ymax - cy) * f;
-      this.draw();
+      const rect = this.cv.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      let delta = e.deltaY;
+      if (e.deltaMode === 1) delta *= 16;
+      else if (e.deltaMode === 2) delta *= 100;
+      // Clamp delta para normalizar trackpad (0.5-3) vs mouse wheel (100+) — tigerabrodi
+      const MAX_DELTA = 24;
+      const clamped = Math.max(-MAX_DELTA, Math.min(MAX_DELTA, delta));
+      // Sensibilidade: trackpad pinch (ctrlKey) mais sensível que roda
+      const sensitivity = (e.ctrlKey || e.metaKey) ? 0.015 : 0.008;
+      const factor = Math.pow(2, clamped * sensitivity);
+      const limited = Math.max(0.5, Math.min(2, factor));
+      this.zoomAt(mx, my, limited);
+      this._requestDraw();
     }, { passive: false });
+
+    // double-click zoom in focal
+    this.cv.addEventListener("dblclick", (e) => {
+      e.preventDefault();
+      const rect = this.cv.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      this.zoomAt(mx, my, 0.68);
+      this._requestDraw();
+    });
   }
 
   exportPNG(pixelRatio = 2) {
@@ -497,6 +694,7 @@ export class Plot {
 
   destroy() {
     window.removeEventListener("resize", this._onResize);
+    if (this._animRaf) cancelAnimationFrame(this._animRaf);
   }
 
   _afterDraw() {
