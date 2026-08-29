@@ -28,10 +28,10 @@
 
 <header class="prof-top" role="banner">
   <a class="prof-brand" href="index.html">Informática <b>25</b></a>
-  <div class="prof-font-ctrl" aria-label="Zoom interface">
-    <button class="font-btn" id="font-dec-ui" aria-label="Diminuir fonte">−</button>
-    <span class="font-val" id="font-val-ui">100%</span>
-    <button class="font-btn" id="font-inc-ui" aria-label="Aumentar fonte">+</button>
+  <div class="al-zoom prof-font-ctrl" aria-label="Zoom interface">
+    <button class="al-zoom-btn" id="font-dec-ui" aria-label="Diminuir fonte">−</button>
+    <span class="al-zoom-label" id="font-val-ui">100%</span>
+    <button class="al-zoom-btn" id="font-inc-ui" aria-label="Aumentar fonte">+</button>
   </div>
   <a href="aluno.html" class="prof-toplink">Aluno</a>
   <button class="theme-toggle" id="theme-btn" aria-label="Alternar tema"></button>
@@ -41,10 +41,10 @@
   <div class="prof-stage" id="prof-stage">
     <canvas id="plot-canvas" style="touch-action:none"></canvas>
     <div class="prof-labels" id="prof-labels"></div>
-    <div class="graph-font-ctrl">
-      <button class="font-btn" id="font-dec-graph" aria-label="Diminuir gráfico">−</button>
-      <span class="font-val" id="font-val-graph">100%</span>
-      <button class="font-btn" id="font-inc-graph" aria-label="Aumentar gráfico">+</button>
+    <div class="al-zoom graph-font-ctrl" id="graph-zoom-ctrl" style="position:absolute;top:.5rem;left:.5rem;display:flex;align-items:center;gap:.3rem;background:color-mix(in srgb,var(--surface) 85%,transparent);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:8px;padding:.2rem .4rem;z-index:5">
+      <button class="al-zoom-btn" id="font-dec-graph" aria-label="Diminuir gráfico">−</button>
+      <span class="al-zoom-label" id="font-val-graph">100%</span>
+      <button class="al-zoom-btn" id="font-inc-graph" aria-label="Aumentar gráfico">+</button>
     </div>
   </div>
 
