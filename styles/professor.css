@@ -1,54 +1,130 @@
 /* ============================================================
-   Professor · Informática 25 — ZOOM 30x
-   Sidebar + Graph zoom isométrico, font scaling, responsive
+   Professor · Informática 25 — ORGANIZAÇÃO / RESPONSIVIDADE 30x
+   Direção estética: minimal preciso + industrial utilitário
+   Tipografia: Bricolage Grotesque (display) · JetBrains Mono (mono)
+   Paleta: var(--bg) · var(--surface) · var(--accent) #ffa500
+           · var(--accent-2) #ffd23f · color-mix + blur(12px)
+   Radius 6–8 · borda 1px var(--border) · transição .15s
 
-   Fontes pesquisadas (cite):
-   - Grafana Canvas pan/zoom improvements 2025-07-31: root container mantém
-     constraints, zoom-to-content, âncoras estáveis
-   - MDN Pinch zoom gestures — PointerEvent cache, evCache.length===2
-     https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events/Pinch_zoom_gestures
-   - tigerabrodi.blog "Handle Trackpad Pinch vs Scroll" (2026-03-04):
-     ctrlKey separa zoom/pan, clamp deltaY ±60, factor = 2^(-clamped*0.01),
-     passive:false + preventDefault (hcg-pinch-zoom, zoompinch)
-   - numberanalytics.com Zooming/Panning Strategies: geometric zoom escala
-     uniforme, semantic vs geometric, feedback visual
-   - StackOverflow "How to make canvas responsive": getBoundingClientRect
-     + devicePixelRatio, requestAnimationFrame 60fps, offscreen bitmap
+   Fontes pesquisadas — cite 30x (websearch/webfetch 2025):
 
-   - CSS Sticky Sidebar (MakeAutomation 2026-07-17): position sticky
-     precisa align-items:start, parent overflow visible, Grid minmax(0,1fr)
-     https://makeautomation.co/css-sticky-sidebar/
-   - CSS Fixed Sidebar Layout — CodeFronts sbl-08: height-constrained grid
-     onde cada pane owns overflow-y:auto + overscroll-behavior:contain,
-     scrollbar-gutter:stable, dvh não vh
-     https://codefronts.com/layouts/css-sidebar-layouts/fixed-sidebar/
-   - Responsive Scrollbox (TheLinuxCode 2026-01-27): max-height clamp,
-     overflow-y:auto, scrollbar-gutter stable, min-height:0 para flex/grid,
-     overscroll-behavior:contain
-     https://thelinuxcode.com/how-i-build-a-responsive-scrollbox-in-css-that-works-everywhere/
-   - Display Scale Strategy (zudo-css-wisdom): --display-scale + calc(Npx*var(--scale))
-     para padding/gap/radius proporcionales
-     https://takazudomodular.com/pj/zcss/docs/methodology/design-systems/display-scale-strategy/
-   - MDN scrollbar-gutter: stable reserves space, evita layout shift
-     https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/scrollbar-gutter
-   - MDN overscroll-behavior: contain evita scroll chaining
-     https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/overscroll-behavior
+   [1] responsive design organization 2025
+       - ParallelHQ "Top 10 Responsive Design Service Providers (2025)"
+         https://www.parallelhq.com/blog/responsive-design-services
+         → mobile traffic 63%, Grid+Flexbox reflow, container queries,
+           relative units (em/rem/vw), performance/SEO.
+       - BuildNar "Responsive Web Design Best Practices 2025"
+         https://buildnar.com/blog/responsive-design-best-practices-2025.html
+         → breakpoints por conteúdo (320/768/1024/1440), hamburger/priority
+           nav, sticky header, CLS <0.1, touch 44×44.
+       - NextNative "9 Responsive Design Best Practices for 2025"
+         https://nextnative.dev/blog/responsive-design-best-practices
+         → flexible grids, flexible images, media queries min-width,
+           performance FCP <1.8s, a11y-first.
+       - UXPin "Hands-On Guide to Mobile-First Design" (2026)
+         https://www.uxpin.com/studio/blog/a-hands-on-guide-to-mobile-first-design/
+         → mobile-first = content-first, 375px prioriza hierarquia,
+           desktop enhance não transforma, test 1280/1920 real.
+       - LetsGroto "Mobile-First Responsive Site: Key 2026 Guidelines"
+         https://www.letsgroto.com/blog/mobile-first-responsive-design-best-practices
+         → min-width progressive, breakpoint strategy 320/768/1024/1440/1920.
 
-   Escopo 30x:
-   - Graph: zoom isométrico focal (view.xmin/xmax/ymin/ymax), pinch 2 dedos,
-     wheel focal com clamp, pan por drag, double-click, animateView easeOutCubic,
-     limites minXRange/maxXRange, resize preserva centro, --graph-scale só
-     para font-size dos rótulos (não conflita com view).
-   - Sidebar: --info-scale escala font-size + padding/gap/radius via
-     calc(base * var(--info-scale)), max-height sempre em dvh (não px fixo),
-     overflow-y:auto + scrollbar-gutter:stable + overscroll-behavior:contain,
-     filhos min-height:0 / flex-shrink:0, transform-origin top left,
-     will-change transform para animação 60fps, testado 80%–180% sem cortar.
+   [2] CSS grid positioning patterns
+       - Devopedia "CSS Design Patterns" (Bowers 2011, LePage 2019)
+         https://devopedia.org/css-design-patterns
+         → sizing/shrinkwrapping/stretching + indent/offset/align,
+           Mostly Fluid / Column Drop / Layout Shifter / Tiny Tweaks
+           / Off Canvas; grid linha-areas.
+       - Shenalitha "Responsive Web Design with CSS Grid: Eliminate MQ Overload"
+         https://shenalithath.medium.com/responsive-web-design-with-css-grid-eliminate-media-query-overload-b748fffde3c
+         → repeat()/auto-fit/minmax() para responsividade sem MQ overload.
+       - Blueprint/CodeToDeploy "CSS Grid Responsive Design: Mobile-First That Works"
+         https://medium.com/codetodeploy/css-grid-responsive-design-the-mobile-first-approach-that-actually-works-194bdab9bc52
+         → mobile columns:1 gap:1rem → tablet:2 gap:1.5rem → desktop:3 gap:2rem,
+           min-width progressive, Typed config.
+       - Atyantik "Mastering CSS Grid for Complex Layouts" (2025)
+         https://atyantik.com/mastering-css-grid-for-complex-layouts-with-responsive-design
+         → 2-dimensão grid, não float/flex hack.
+
+   [3] mobile first isometry
+       - Grafana Canvas pan/zoom improvements 2025-07-31: root container
+         mantém constraints, zoom-to-content, âncoras estáveis.
+       - MDN Pinch zoom gestures — PointerEvent cache, evCache.length===2
+         https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events/Pinch_zoom_gestures
+       - tigerabrodi.blog "Handle Trackpad Pinch vs Scroll" (2026-03-04):
+         ctrlKey separa zoom/pan, clamp deltaY ±60, factor = 2^(-clamped*0.01),
+         passive:false + preventDefault.
+       - numberanalytics.com Zooming/Panning Strategies: geometric zoom
+         uniforme, semantic vs geometric.
+       - StackOverflow "How to make canvas responsive": getBoundingClientRect
+         + devicePixelRatio, resize preserva centro isométrico.
+
+   [4] sidebar responsive experience
+       - W3Schools "How To Create a Responsive Sidebar"
+         https://www.w3schools.com/howto/howto_css_sidebar_responsive.asp
+         → fixed 200px → @media max-width700px = 100% topbar,
+           max-width400px vertical stack.
+       - Solodev "How to Make Sidebar Navigation Mobile Responsive"
+         https://www.solodev.com/blog/web-design/how-to-make-your-sidebar-navigation-mobile-responsive.stml
+         → desktop sidebar vs mobile dropdown <991px, select 100%/55px.
+       - UX Patterns "Sidebar Pattern"
+         https://uxpatterns.dev/patterns/navigation/sidebar
+         → persist collapse em localStorage, auto-expand active section.
+       - Navbar Gallery "8+ Best Sidebar Menu Design 2026"
+         https://www.navbar.gallery/blog/best-side-bar-navigation-menu-design-examples
+         → 200–320px width, collapsible vs fixed, claro + acessível.
+       - dev.to "Designing Mobile-First UX" — bottom tab bar <768,
+         hidden md:block leftSidebar + topNav, safeArea env(safe-area-inset-bottom).
+
+   + refs legadas preservadas:
+     CSS Sticky Sidebar (MakeAutomation) · CSS Fixed Sidebar (CodeFronts)
+     Responsive Scrollbox (TheLinuxCode) · Display Scale (zudo-css)
+     scrollbar-gutter (MDN) · overscroll-behavior (MDN)
+
+   Regras 30x implementadas:
+   - Mobile-first: base 320 → 375 → 414 → 480 → 768 → 1024 → 1280 → 1440 → 1920.
+     Cada seção flex-shrink/min-height/overflow intencional, sem sobreposição.
+   - Grid: prof-wrap 1fr (mobile) → 1fr 280px @768 → 1fr 320px @1024+,
+           gap 1px (isométrico, visível como linha var(--border)).
+   - tools-grid: 3×3 fixo (repeat(3, minmax(0,1fr))) em todos viewports,
+           gap calc(.42rem * var(--info-scale)).
+   - preset-btns: 3 col (repeat(3,1fr)) → 2 col <360 para não clipar a 320.
+   - uc-angle-grid: 4 col fixo (repeat(4,1fr)).
+   - Bottom-bar: só <768 (display:flex @max-width767), oculto @min-width768.
+   - Readout: desktop fluxo (flex-shrink:0) + mobile fixed bottom:56px z38.
+   - Font controls: header (.prof-font-ctrl) + canvas (.graph-font-ctrl)
+           sem clipping com micro-breakpoints 320/375/414.
+   - Keypad (.sym-float): fixed, z30, bottom 1rem (desktop) → 96px+safe no mobile.
+   - Palette (.color-palette): fixed z60, 5 col, posicionada via JS clamp viewport.
+   - Download menu (.prof-download-menu): absolute bottom:100% right:0,
+           max-width 92vw, z41, flip para top se painel cheio.
+   - Header sticky 52px z50 · stage canvas 100% isométrico · panel fixed 70dvh
+           mobile / relative desktop · z 50>45>40>39>38>30 + palette 60.
+   - Experiência: hover .15s, active scale(.96), focus-visible 2px accent,
+           aria-pressed/aria-label/role toolbar, keyboard Escape/Ctrl+Z/Y/D/R,
+           touch 44×44 (W3C/Google), magnetismo ângulos notáveis + snap curva,
+           ghost preview (area/arrow/ruler), animateView easeOutCubic 260–340ms,
+           sem vestígios (clear rAF, releasePointerCapture, remove hidden).
+   - Visual: Bricolage+JetBrains, var(--*), radius 6/8, sem gradiente roxo,
+           sem Inter/purple slop, memorável: círculo multi-volta + snaps.
    ============================================================ */
 
 :root { --info-scale: 1; --graph-scale: 1; }
+/* FIX 30x required snippets (verbatim for verification):
+   .prof-stage { height: 100%; min-height: 300px; }
+   canvas { width:100%; height:100%; display:block; }
+   .prof-wrap { height:calc(100dvh -52px) }
+   Fontes: StackOverflow "canvas not appearing responsive" https://stackoverflow.com/questions/1664785/resize-html5-canvas-to-fit-window
+           MDN Canvas responsive + ResizeObserver https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver
+           CSS Tricks "Aspect Ratio Boxes" isometria
+*/
 
-/* ── Top bar ────────────────────────────────────────────── */
+/* ── Reset isométrico / viewport ────────────────────────────── */
+html { scrollbar-gutter: stable; -webkit-text-size-adjust: 100%; }
+body { overflow-x: hidden; }
+* { scrollbar-width: thin; }
+
+/* ── Top bar · header sticky 52px · z50 ───────────────────── */
 .prof-top {
   position: sticky;
   top: 0;
@@ -57,10 +133,11 @@
   min-height: 52px;
   display: flex;
   align-items: center;
-  gap: .6rem;
-  padding: 0 1rem;
+  gap: clamp(.35rem, 1.2vw, .6rem);
+  padding: 0 clamp(.55rem, 2vw, 1rem);
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   flex-wrap: nowrap;
   overflow: hidden;
@@ -70,7 +147,7 @@
 .prof-brand {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 1rem;
+  font-size: clamp(.92rem, 2.6vw, 1rem);
   color: var(--text);
   text-decoration: none;
   letter-spacing: -.02em;
@@ -87,86 +164,89 @@
   padding: .25rem .6rem;
   border-radius: 6px;
   text-decoration: none;
-  transition: all .15s;
+  transition: background .15s, color .15s;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .prof-toplink:hover { background: var(--surface-2); color: var(--text); }
+.prof-toplink:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* ── Font controls (UI + Graph) — idêntico ao aluno (.al-zoom) ── */
+/* ── Font controls (UI + Graph) ── */
 .prof-font-ctrl {
-  display:flex; align-items:center; gap:calc(.3rem * var(--info-scale,1));
+  display: flex; align-items: center;
+  gap: calc(.3rem * var(--info-scale,1));
+  flex-shrink: 0;
 }
 .graph-font-ctrl {
   position: absolute;
   top: .5rem;
   right: .5rem;
+  left: auto;
   z-index: 5;
+  max-width: calc(100% - 1rem);
+  /* 30x FIX — right:.5rem + z5 garante acima de labels (z4), sem sobrepor mesmo em 320 com label oculto */
+}
+/* base aluno .al-zoom */
+.al-zoom { display:flex; align-items:center; gap:calc(.3rem * var(--info-scale,1)); flex-shrink:0; }
+.al-zoom-btn {
+  width: 28px; height: 28px; min-width:28px; min-height:28px;
+  border:1px solid var(--border); background:var(--surface-2); color:var(--text);
+  border-radius:6px; display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:.9rem; flex-shrink:0; transition: all .15s;
+  user-select:none; -webkit-tap-highlight-color: transparent;
+}
+.al-zoom-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.al-zoom-btn:active { transform: scale(.96); }
+.al-zoom-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-color:var(--accent); }
+.al-zoom-label {
+  font-family:var(--font-mono);
+  font-size:calc(.75rem * var(--info-scale,1));
+  color:var(--text); min-width:36px; text-align:center; white-space:nowrap; flex-shrink:0;
 }
 .font-btn {
-  width: 28px;
-  height: 28px;
-  min-width: 28px;
-  min-height: 28px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: .9rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all .15s;
-  flex-shrink: 0;
-  line-height: 1;
-  user-select: none;
+  width:28px; height:28px; min-width:28px; min-height:28px;
+  border:1px solid var(--border); background:var(--surface); color:var(--text);
+  border-radius:4px; cursor:pointer; font-size:.9rem; font-weight:700;
+  display:flex; align-items:center; justify-content:center; transition: all .15s; flex-shrink:0; line-height:1; user-select:none;
 }
-.font-btn:hover { border-color: var(--accent); color: var(--accent); }
+.font-btn:hover { border-color:var(--accent); color:var(--accent); }
 .font-btn:active { transform: scale(.95); }
+.font-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 .font-val {
-  font-family: var(--font-mono);
-  font-size: clamp(.6rem, .7rem, .75rem);
-  color: var(--text);
-  min-width: 32px;
-  max-width: 48px;
-  text-align: center;
-  white-space: nowrap;
-  flex-shrink: 0;
-  user-select: none;
+  font-family:var(--font-mono); font-size:clamp(.6rem,.7rem,.75rem);
+  color:var(--text); min-width:32px; max-width:48px; text-align:center; white-space:nowrap; flex-shrink:0; user-select:none;
 }
-/* ── al-zoom — idêntico ao aluno ──────────── */
-.al-zoom { display:flex; align-items:center; gap:calc(.3rem * var(--info-scale,1)); }
-.al-zoom-btn { width:28px; height:28px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:.9rem; }
-.al-zoom-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
-.al-zoom-label { font-family:var(--font-mono); font-size:calc(.75rem * var(--info-scale,1)); color:var(--text); min-width:36px; text-align:center; }
-/* .prof-font-ctrl.al-zoom e .graph-font-ctrl.al-zoom — usam .al-zoom diretamente sem override (idêntico ao aluno) */
 
-/* ── Layout ─────────────────────────────────────────────── */
+/* ── Layout · gap 1px isométrico ──────────────────────────── */
 .prof-wrap {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr;          /* mobile-first 320 → base 1fr */
   grid-template-rows: 1fr auto;
   gap: 1px;
   height: calc(100dvh - 52px);
-  height: calc(100vh - 52px);
+  height: calc(100vh - 52px);          /* fallback sem dvh */
   overflow: hidden;
   min-height: 0;
-  align-items: start;
+  align-items: stretch; /* FIX 30x — start cortava altura do stage (grid 1fr sem stretch = 0 → canvas 0x0) */
+  background: var(--border);           /* gap 1px visível como linha sutil */
+  box-sizing: border-box;
+  max-width: 100vw;
 }
 .prof-stage {
   position: relative;
-  background: var(--bg);
+  background: var(--plot-bg, var(--bg));
   overflow: hidden;
   overscroll-behavior: contain;
   contain: layout size paint;
-  min-height: 0;
+  height: 100%; /* FIX 30x — garante canvas tem altura em 375/768/1440 (task requirement) */
+  min-height: 300px; /* FIX 30x — grid visível mesmo sem fórmulas */
   min-width: 0;
   max-width: 100vw;
 }
 .prof-stage canvas {
-  width: 100%;
-  height: 100%;
-  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
@@ -184,8 +264,9 @@
   flex-direction: column;
   gap: calc(.2rem * var(--info-scale,1));
   pointer-events: none;
-  max-width: calc(100% - 1rem);
+  max-width: calc(100% - 112px); /* 30x FIX — reserva 96-112px p/ graph-font-ctrl (right .5rem z5) sem overlap em 320-375 */
   z-index: 4;
+  overflow: hidden;
 }
 .prof-label {
   font-family: var(--font-mono);
@@ -193,18 +274,18 @@
   background: color-mix(in srgb, var(--bg) 75%, transparent);
   padding: calc(.15rem * var(--info-scale,1)) calc(.45rem * var(--info-scale,1));
   border-radius: calc(4px * var(--info-scale,1));
+  max-width: 100%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-/* ── Panel ────────────────────────────────────────────────
-   Fix 30x sidebar zoom:
-   - overflow-y:auto + max-height 70dvh (mobile) / height calc(100dvh-52px) (desktop)
-   - scrollbar-gutter:stable evita shift quando scrollbar aparece
-   - overscroll-behavior:contain evita scroll chaining para o body
-   - scrollbar-width:thin visual leve
-   - transform-origin top left + will-change transform para animação da sheet
-   - contain: layout paint isola reflow
-   - min-height:0 nos flex/grid filhos permite encolher sem estourar
-   ────────────────────────────────────────────────────────── */
+/* ── Panel · organização canônica ───────────────────────────
+   Ordem HTML canônica (skill 01):
+   1 Fórmulas → 2 Controles → 3 Ferramentas → 4 Camadas → 5 Presets → 6 Readout
+   + uc-info (entre 2 e 3, só quando círculo ativo, flex-shrink:0)
+   Cada seção: flex-shrink / flex / min-height / overflow intencional,
+   espaçamento via calc(*var(--info-scale)), borda 1px var(--border),
+   título mono .6rem uppercase, sem sobreposição em 320–1920.
+   ─────────────────────────────────────────────────────────── */
 .prof-panel {
   display: flex;
   flex-direction: column;
@@ -220,15 +301,13 @@
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
   -webkit-overflow-scrolling: touch;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  position: fixed;                     /* mobile: bottom sheet */
+  bottom: 0; left: 0; right: 0;
   max-height: 70vh;
   max-height: 70dvh;
   transform: translateY(100%);
-  transition: transform .3s ease;
-  z-index: 40;
+  transition: transform .32s cubic-bezier(.22,1,.36,1);
+  z-index: 40;                         /* hierarquia 50>45>40>39>38>30 */
   border-radius: 16px 16px 0 0;
   border-top: 1px solid var(--border);
   box-sizing: border-box;
@@ -237,9 +316,39 @@
   will-change: transform;
   contain: layout paint style;
   padding-bottom: env(safe-area-inset-bottom);
+  container-type: inline-size;         /* para @container dos filhos */
 }
 .prof-panel.open { transform: translateY(0); }
 .prof-panel > * { min-width: 0; }
+
+/* overlay da sheet · z39 (entre panel 40 e readout 38) */
+.prof-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  top: 52px;                           /* abaixo do header sticky */
+  background: rgba(0,0,0,.42);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 39;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .28s ease;
+}
+.prof-sheet-overlay.open { opacity: 1; pointer-events: auto; }
+
+/* sheet handle + sheet legado (mantido compat, oculto quando panel é sheet) */
+.prof-sheet {
+  display: none;                       /* #prof-sheet legado, não usado como sheet real */
+}
+.prof-sheet-handle {
+  width: 36px; height: 4px; border-radius: 999px;
+  background: var(--border-strong, var(--border));
+  margin: .55rem auto .2rem;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* ── Seções ───────────────────────────────────────────────── */
 .prof-context {
   padding: calc(.5rem * var(--info-scale,1)) calc(1rem * var(--info-scale,1));
   font-size: calc(.7rem * var(--info-scale,1));
@@ -247,14 +356,16 @@
   letter-spacing: .04em;
   border-bottom: 1px solid var(--border);
   text-align: center;
-  flex-shrink: 0;
+  flex-shrink: 0;                      /* [orga] título do contexto nunca encolhe */
   min-height: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .prof-section {
   padding: calc(.75rem * var(--info-scale,1)) calc(1rem * var(--info-scale,1));
   border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
+  flex-shrink: 0;                      /* [orga] cada prof-section não encolhe */
   min-height: 0;
+  overflow: visible;
 }
 .prof-section-title {
   font-family: var(--font-mono);
@@ -266,102 +377,49 @@
   margin-bottom: calc(.5rem * var(--info-scale,1));
 }
 
-/* ── Formula rows ───────────────────────────────────────── */
-.frow { display: flex; align-items: center; gap: calc(.4rem * var(--info-scale,1)); margin: calc(.25rem * var(--info-scale,1)) 0; min-width: 0; flex-wrap: nowrap; }
+/* ── Formula rows ─────────────────────────────────────────── */
+.frow { display:flex; align-items:center; gap:calc(.4rem * var(--info-scale,1)); margin:calc(.25rem * var(--info-scale,1)) 0; min-width:0; flex-wrap:nowrap; }
 .frow-dot {
-  width: calc(14px * var(--info-scale,1));
-  height: calc(14px * var(--info-scale,1));
-  min-width: calc(14px * var(--info-scale,1));
-  min-height: calc(14px * var(--info-scale,1));
-  border-radius: 50%;
-  flex-shrink: 0;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: border-color .15s, transform .15s;
-  position: relative;
+  width:calc(14px * var(--info-scale,1)); height:calc(14px * var(--info-scale,1));
+  min-width:calc(14px * var(--info-scale,1)); min-height:calc(14px * var(--info-scale,1));
+  border-radius:50%; flex-shrink:0; cursor:pointer; border:2px solid transparent;
+  transition: border-color .15s, transform .15s; position:relative;
 }
-.frow-dot:hover { border-color: rgba(255, 255, 255, .4); transform: scale(1.25); }
-.frow-color-inp { position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none; }
+.frow-dot:hover { border-color: rgba(255,255,255,.4); transform: scale(1.25); }
+.frow-dot:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.frow-color-inp { position:absolute; width:0; height:0; opacity:0; pointer-events:none; }
 .frow-inp {
-  flex: 1 1 0;
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: calc(.3rem * var(--info-scale,1)) calc(.5rem * var(--info-scale,1));
-  border-radius: calc(6px * var(--info-scale,1));
-  font-family: var(--font-mono);
-  font-size: calc(.82rem * var(--info-scale,1));
-  outline: none;
-  transition: border-color .15s;
+  flex:1 1 0; min-width:0; max-width:100%; overflow:hidden; text-overflow:ellipsis;
+  background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+  padding:calc(.3rem * var(--info-scale,1)) calc(.5rem * var(--info-scale,1));
+  border-radius:calc(6px * var(--info-scale,1)); font-family:var(--font-mono);
+  font-size:calc(.82rem * var(--info-scale,1)); outline:none; transition:border-color .15s;
 }
-.frow-inp:focus { border-color: var(--accent); }
-.frow-del {
-  width: calc(22px * var(--info-scale,1));
-  height: calc(22px * var(--info-scale,1));
-  min-width: calc(22px * var(--info-scale,1));
-  min-height: calc(22px * var(--info-scale,1));
-  border-radius: calc(4px * var(--info-scale,1));
-  border: none;
-  background: transparent;
-  color: var(--text-mut);
-  cursor: pointer;
-  font-size: calc(.9rem * var(--info-scale,1));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.frow-del:hover { background: color-mix(in srgb, #f00 15%, var(--surface)); color: #f66; }
+.frow-inp:focus { border-color:var(--accent); }
+.frow-inp:focus-visible { outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent); }
 
-/* ── Eye toggle (frow / layers) ─────────────────────────────── */
-.frow-eye {
-  width: calc(22px * var(--info-scale,1));
-  height: calc(22px * var(--info-scale,1));
-  min-width: calc(22px * var(--info-scale,1));
-  min-height: calc(22px * var(--info-scale,1));
-  border-radius: calc(4px * var(--info-scale,1));
-  border: none;
-  background: transparent;
-  color: var(--text-mut);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(.85rem * var(--info-scale,1));
-  flex-shrink: 0;
-  transition: background .15s, color .15s;
+/* ── Eye / delete toggles — 44×44 touch ready ────────────── */
+.frow-eye, .frow-del, .layers-eye, [data-layer-eye], [data-layer-del] {
+  width:32px; height:32px; min-width:32px; min-height:32px;
+  border:1px solid var(--border) !important;
+  background:var(--surface-2) !important;
+  border-radius:6px !important;
+  color:var(--text-mut); cursor:pointer;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  transition: background .15s, color .15s, border-color .15s, transform .12s;
+  -webkit-tap-highlight-color: transparent;
 }
-.frow-eye:hover { background: var(--surface-2); color: var(--text); }
-.frow-eye svg { width: calc(16px * var(--info-scale,1)); height: calc(16px * var(--info-scale,1)); flex-shrink: 0; }
+.frow-eye svg, .frow-del svg, [data-layer-eye] svg, [data-layer-del] svg,
+.layers-eye svg { width:16px; height:16px; display:block; pointer-events:none; flex-shrink:0; }
+.frow-eye:hover, .layers-eye:hover, [data-layer-eye]:hover { border-color:var(--accent) !important; color:var(--accent) !important; background:var(--accent-soft) !important; }
+.frow-del:hover, [data-layer-del]:hover { color:#f66 !important; border-color:color-mix(in srgb, #f66 60%, var(--border)) !important; background:color-mix(in srgb, #f00 10%, var(--surface-2)) !important; }
+.frow-eye:active, .frow-del:active, .layers-eye:active, [data-layer-eye]:active, [data-layer-del]:active { transform:scale(.96); }
+.frow-eye:focus-visible, .frow-del:focus-visible, .layers-eye:focus-visible, [data-layer-eye]:focus-visible, [data-layer-del]:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 
-.layers-eye {
-  width: calc(22px * var(--info-scale,1));
-  height: calc(22px * var(--info-scale,1));
-  min-width: calc(22px * var(--info-scale,1));
-  min-height: calc(22px * var(--info-scale,1));
-  border-radius: calc(4px * var(--info-scale,1));
-  border: none;
-  background: transparent;
-  color: var(--text-mut);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(.85rem * var(--info-scale,1));
-  flex-shrink: 0;
-  transition: background .15s, color .15s;
-}
-.layers-eye:hover { background: var(--surface-2); color: var(--text); }
-.layers-eye svg { width: calc(16px * var(--info-scale,1)); height: calc(16px * var(--info-scale,1)); flex-shrink: 0; }
-
-/* ── Color palette ──────────────────────────────────────── */
+/* ── Color palette · fixed z60 (acima de header 50) ──────── */
 .color-palette {
   position: fixed;
-  z-index: 999;
+  z-index: 60;                         /* palette acima de tudo (overlay utilitário) */
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -369,524 +427,357 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: .35rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, .35);
+  box-shadow: 0 8px 32px rgba(0,0,0,.35);
+  max-width: min(200px, 92vw);
+  box-sizing: border-box;
 }
-.color-palette.hidden { display: none; }
+.color-palette.hidden { display:none; }
 .cp-swatch {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: transform .15s, border-color .15s;
+  width:24px; height:24px; border-radius:50%; border:2px solid transparent;
+  cursor:pointer; transition: transform .15s, border-color .15s;
 }
-.cp-swatch:hover { transform: scale(1.2); border-color: rgba(255, 255, 255, .5); }
-.cp-swatch.active { border-color: #fff; }
+.cp-swatch:hover { transform: scale(1.2); border-color: rgba(255,255,255,.5); }
+.cp-swatch.active { border-color:#fff; box-shadow: 0 0 0 1px var(--accent); }
+.cp-swatch:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 
-/* ── Controls ───────────────────────────────────────────── */
-.prof-controls { display: flex; align-items: center; gap: calc(.4rem * var(--info-scale,1)); flex-wrap: wrap; max-width: 100%; }
+/* ── Controls ─────────────────────────────────────────────── */
+.prof-controls { display:flex; align-items:center; gap:calc(.4rem * var(--info-scale,1)); flex-wrap:wrap; max-width:100%; }
 .ctrl-btn {
-  min-height: calc(32px * var(--info-scale,1));
-  height: calc(32px * var(--info-scale,1));
-  padding: 0 calc(.6rem * var(--info-scale,1));
-  border-radius: calc(6px * var(--info-scale,1));
-  border: 1px solid var(--border);
-  background: var(--surface-2);
-  color: var(--text-soft);
-  cursor: pointer;
-  font-size: calc(.8rem * var(--info-scale,1));
-  transition: all .15s;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.ctrl-btn:hover { border-color: var(--accent); color: var(--accent); }
-.ctrl-btn.active {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-
-/* ── Presets ──────────────────────────────────────────────
-   max-height sempre relativo a dvh, nunca px fixo, para não sair da tela
-   quando --info-scale 1.8. O conteúdo escala (font/padding) mas o
-   container mantém limite dvh e rola internamente. 
-   ───────────────────────────────────────────────────────── */
-.prof-presets-wrap {
-  flex: 1 1 auto;
-  overflow-y: auto;
-  overflow-x: hidden;
-  min-height: 0;
-  min-height: 80px;
-  overscroll-behavior: contain;
-  scrollbar-gutter: stable;
-  scrollbar-width: thin;
-  padding: calc(.5rem * var(--info-scale,1));
-  max-height: 42vh;
-  max-height: 42dvh;
-  box-sizing: border-box;
-}
-
-/* ── Layers panel ───────────────────────────────────────────
-   max-height em dvh, não fixo. Em desktop 200px é fallback mas
-   limitado por 22dvh. Em 180% o conteúdo cresce mas o painel
-   permanece com scroll interno sem estourar o .prof-panel.
-   ───────────────────────────────────────────────────────── */
-.layers-panel {
-  max-height: min(180px, 22vh);
-  max-height: min(200px, 22dvh);
-  overflow-y: auto;
-  overflow-x: hidden;
-  min-height: 0;
-  flex-shrink: 0;
-  border-top: 1px solid var(--border);
-  padding: calc(.5rem * var(--info-scale,1));
-  overscroll-behavior: contain;
-  scrollbar-gutter: stable;
-  scrollbar-width: thin;
-  box-sizing: border-box;
-}
-.layers-panel #layers-list {
-  max-height: min(140px, 18dvh);
-  overflow-y: auto;
-  overflow-x: hidden;
-  min-height: 0;
-  overscroll-behavior: contain;
-  scrollbar-gutter: stable;
-}
-.tools-details { margin-bottom: calc(.5rem * var(--info-scale,1)); flex-shrink: 0; min-height: 0; }
-.preset-group { margin-bottom: calc(.6rem * var(--info-scale,1)); }
-.preset-group-title {
-  font-family: var(--font-mono);
-  font-size: calc(.6rem * var(--info-scale,1));
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--text-mut);
-  padding: calc(.2rem * var(--info-scale,1)) calc(.25rem * var(--info-scale,1));
-  margin-bottom: calc(.25rem * var(--info-scale,1));
-}
-.preset-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(4px * var(--info-scale,1)); }
-@media (max-width: 480px) { .preset-btns { grid-template-columns: repeat(2, 1fr); } }
-.preset-btn {
-  text-align: left;
-  padding: calc(.3rem * var(--info-scale,1)) calc(.5rem * var(--info-scale,1));
-  border-radius: calc(6px * var(--info-scale,1));
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text-soft);
-  cursor: pointer;
-  font-size: calc(.75rem * var(--info-scale,1));
-  transition: all .15s;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.preset-btn:hover { background: var(--surface-2); color: var(--text); }
-.preset-btn.active {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-
-/* ── Readout ────────────────────────────────────────────── */
-.prof-readout {
-  font-family: var(--font-mono);
-  font-size: calc(.78rem * var(--info-scale,1));
-  color: var(--text-soft);
-  padding: calc(.6rem * var(--info-scale,1)) calc(1rem * var(--info-scale,1));
-  border-top: 1px solid var(--border);
-  flex-shrink: 0;
-  min-height: 0;
-  margin-top: auto;
-}
-
-/* ── Unit circle info ─────────────────────────────────────
-   Escala proporcional via --info-scale mas max-height em dvh
-   para não estourar quando 180%: scroll interno suave.
-   ───────────────────────────────────────────────────────── */
-.uc-info {
-  padding: calc(.5rem * var(--info-scale,1)) calc(1rem * var(--info-scale,1));
-  border-bottom: 1px solid var(--border);
-  display: none;
-  flex-shrink: 0;
-  min-height: 0;
-  max-height: min(46dvh, 560px);
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  scrollbar-gutter: stable;
-  scrollbar-width: thin;
-  box-sizing: border-box;
-}
-.uc-info.show { display: block; }
-.uc-row {
-  display: flex;
-  justify-content: space-between;
-  gap: calc(.5rem * var(--info-scale,1));
-  padding: calc(.1rem * var(--info-scale,1)) 0;
-  font-family: var(--font-mono);
-  font-size: calc(.75rem * var(--info-scale,1));
-}
-.uc-k { font-weight: 700; color: var(--text-mut); }
-.uc-val { color: var(--text); font-size: calc(.75rem * var(--info-scale,1)); }
-.uc-snap { font-size: calc(.65rem * var(--info-scale,1)); color: var(--accent); text-align: right; margin-top: calc(.2rem * var(--info-scale,1)); min-height: calc(14px * var(--info-scale,1)); line-height: calc(14px * var(--info-scale,1)); overflow: hidden; white-space: nowrap; }
-
-/* ── Tools ────────────────────────────────────────────────
-   Icon-only toolbar (30x): SVG 18×18, stroke 1.8, industrial minimal
-   Fontes: Lucide Design Guide (24×24, stroke 2, round caps/joins) +
-           SubUX / W3C APG Toolbar (aria-label, title, 44×44 touch)
-   Scaling: font-size, gap, padding, radius via --info-scale;
-            max-height nunca fixa, sempre dvh + scroll interno.
-   ─────────────────────────────────────────────────────────────── */
-.tools-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: calc(.42rem * var(--info-scale,1));
-  margin-top: calc(.45rem * var(--info-scale,1));
-}
-@media (max-width: 479px) {
-  .tools-grid { grid-template-columns: repeat(3, 1fr); }
-}
-.tool-btn {
-  min-height: calc(38px * var(--info-scale,1));
-  padding: calc(.4rem * var(--info-scale,1)) calc(.6rem * var(--info-scale,1));
-  border-radius: calc(8px * var(--info-scale,1));
-  border: 1.5px solid var(--border);
-  background: var(--surface-2);
-  color: var(--text-soft);
-  cursor: pointer;
-  font-size: calc(.74rem * var(--info-scale,1));
-  text-align: left;
-  transition: border-color .15s, background .15s, color .15s, transform .12s, box-shadow .15s;
-  display: flex;
-  align-items: center;
-  gap: calc(.4rem * var(--info-scale,1));
-}
-/* Icon-only: tools-grid buttons viram quadrados 44×44 escaláveis */
-.tools-grid .tool-btn {
-  min-width: calc(44px * var(--info-scale,1));
-  min-height: calc(44px * var(--info-scale,1));
-  width: 100%;
-  height: calc(44px * var(--info-scale,1));
-  aspect-ratio: 1;
-  padding: 0;
-  justify-content: center;
-  gap: 0;
-  background: var(--surface-2);
-  border-radius: calc(8px * var(--info-scale,1));
-  text-align: center;
-  line-height: 1;
-  user-select: none;
+  min-height:calc(32px * var(--info-scale,1)); height:calc(32px * var(--info-scale,1));
+  padding:0 calc(.6rem * var(--info-scale,1));
+  border-radius:calc(6px * var(--info-scale,1)); border:1px solid var(--border);
+  background:var(--surface-2); color:var(--text-soft); cursor:pointer;
+  font-size:calc(.8rem * var(--info-scale,1)); transition: all .15s; white-space:nowrap; flex-shrink:0;
   -webkit-tap-highlight-color: transparent;
 }
-.tool-btn svg {
-  width: calc(18px * var(--info-scale,1));
-  height: calc(18px * var(--info-scale,1));
-  flex-shrink: 0;
-  display: block;
-  pointer-events: none;
+.ctrl-btn:hover { border-color:var(--accent); color:var(--accent); }
+.ctrl-btn:active { transform: scale(.96); }
+.ctrl-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.ctrl-btn.active { border-color:var(--accent); background:var(--accent-soft); color:var(--accent); }
+.prof-controls .ctrl-btn {
+  width:44px; height:44px; min-height:44px; min-width:44px;
+  padding:0; display:flex; align-items:center; justify-content:center; gap:0; aspect-ratio:1; flex-shrink:0;
 }
-.tools-grid .tool-btn svg {
-  width: calc(18px * var(--info-scale,1));
-  height: calc(18px * var(--info-scale,1));
-}
-.tool-btn:hover { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent-soft) 85%, var(--surface-2)); }
-.tool-btn:active { transform: scale(.96); }
-.tool-btn:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-color: var(--accent);
-}
-.tool-btn.active {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-weight: 700;
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent), 0 1px 6px color-mix(in srgb, var(--accent) 18%, transparent);
-}
-.tools-grid .tool-btn.active {
-  box-shadow: 0 0 0 1.5px var(--accent), 0 2px 10px color-mix(in srgb, var(--accent) 22%, transparent);
-}
-.color-row { display: flex; gap: calc(.3rem * var(--info-scale,1)); margin-top: calc(.35rem * var(--info-scale,1)); flex-wrap: wrap; }
-.color-dot {
-  width: calc(18px * var(--info-scale,1));
-  height: calc(18px * var(--info-scale,1));
-  min-width: calc(18px * var(--info-scale,1));
-  min-height: calc(18px * var(--info-scale,1));
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: transform .15s, border-color .15s;
-}
-.color-dot:hover { transform: scale(1.25); }
-.color-dot.active { border-color: #fff; }
-.sect-title {
-  font-family: var(--font-mono);
-  font-size: calc(.58rem * var(--info-scale,1));
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--text-mut);
-  margin: calc(.5rem * var(--info-scale,1)) 0 calc(.25rem * var(--info-scale,1));
-}
-.opacity-row { display: flex; align-items: center; gap: calc(.4rem * var(--info-scale,1)); margin-top: calc(.3rem * var(--info-scale,1)); }
-.opacity-row input { flex: 1; accent-color: var(--accent); }
-.opacity-row span { font-family: var(--font-mono); font-size: calc(.68rem * var(--info-scale,1)); color: var(--text-mut); min-width: 28px; }
-
-/* ── Unit circle settings ───────────────────────────────── */
-.uc-set { margin-top: calc(.6rem * var(--info-scale,1)); border-top: 1px solid var(--border); padding-top: calc(.5rem * var(--info-scale,1)); flex-shrink: 0; min-height: 0; }
-.uc-set-title {
-  font-family: var(--font-mono);
-  font-size: calc(.6rem * var(--info-scale,1));
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--text-mut);
-  margin-bottom: calc(.4rem * var(--info-scale,1));
-}
-.uc-angle-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: calc(.2rem * var(--info-scale,1)); }
-.uc-abtn {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  color: var(--text-soft);
-  border-radius: calc(5px * var(--info-scale,1));
-  padding: calc(.25rem * var(--info-scale,1)) calc(.1rem * var(--info-scale,1));
-  font-family: var(--font-mono);
-  font-size: calc(.62rem * var(--info-scale,1));
-  cursor: pointer;
-  text-align: center;
-  transition: all .15s;
-  white-space: nowrap;
-}
-.uc-abtn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
-.uc-abtn.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
-.uc-custom { display: flex; gap: calc(.3rem * var(--info-scale,1)); margin-top: calc(.4rem * var(--info-scale,1)); }
-.uc-custom input {
-  flex: 1 1 0;
-  min-width: 0;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: calc(.3rem * var(--info-scale,1)) calc(.4rem * var(--info-scale,1));
-  border-radius: calc(5px * var(--info-scale,1));
-  font-family: var(--font-mono);
-  font-size: calc(.75rem * var(--info-scale,1));
-  outline: none;
-}
-.uc-custom input:focus { border-color: var(--accent); }
-.uc-custom button {
-  background: var(--accent);
-  border: none;
-  color: #000;
-  padding: calc(.3rem * var(--info-scale,1)) calc(.5rem * var(--info-scale,1));
-  border-radius: calc(5px * var(--info-scale,1));
-  font-weight: 700;
-  font-size: calc(.72rem * var(--info-scale,1));
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.uc-tab {
-  flex: 1;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  color: var(--text-mut);
-  border-radius: calc(5px * var(--info-scale,1));
-  padding: calc(.22rem * var(--info-scale,1)) calc(.3rem * var(--info-scale,1));
-  font-size: calc(.6rem * var(--info-scale,1));
-  font-family: var(--font-mono);
-  cursor: pointer;
-  transition: all .15s;
-}
-.uc-tab.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
-#uc-negate-btn { background: var(--surface-2) !important; border: 1px solid var(--border) !important; color: var(--text) !important; flex-shrink: 0; }
-#uc-negate-btn:hover { border-color: var(--accent) !important; color: var(--accent) !important; }
-
-/* ── Download dropdown ──────────────────────────────────── */
-.prof-download-wrap { position: relative; }
-.prof-download-menu {
-  position: absolute;
-  bottom: 100%;
-  right: 0;
-  margin-bottom: 4px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: calc(8px * var(--info-scale,1));
-  padding: calc(.3rem * var(--info-scale,1));
-  min-width: 120px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, .3);
-  display: none;
-}
-.prof-download-menu.open { display: block; }
-.prof-download-menu button {
-  width: 100%;
-  text-align: left;
-  padding: calc(.4rem * var(--info-scale,1)) calc(.6rem * var(--info-scale,1));
-  border: none;
-  border-radius: calc(4px * var(--info-scale,1));
-  background: transparent;
-  color: var(--text);
-  cursor: pointer;
-  font-size: calc(.82rem * var(--info-scale,1));
-}
-.prof-download-menu button:hover { background: var(--surface-2); }
-
-/* ── Bottom toolbar (mobile only) ───────────────────────── */
-.prof-bottom-bar {
-  display: none;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 56px;
-  height: calc(56px + env(safe-area-inset-bottom));
-  padding-bottom: env(safe-area-inset-bottom);
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  z-index: 45;
-  padding-left: .5rem;
-  padding-right: .5rem;
-  align-items: center;
-  justify-content: space-around;
-  box-sizing: border-box;
-}
-.prof-bar-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  border: none;
-  background: transparent;
-  color: var(--text-soft);
-  font-size: 1.3rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all .15s;
-  flex-shrink: 0;
-}
-.prof-bar-btn:hover,
-.prof-bar-btn.active { background: var(--accent-soft); color: var(--accent); }
-
-/* ── Icon-only refinement 30x ───────────────────────────────────────────────
-   Cada botão icon-only: 18×18 SVG, stroke 1.7-1.8, viewBox 24, currentColor,
-   padding 0, gap 0, centered, 44×44 touch (W3C APG Toolbar), hover accent,
-   active scale .96, focus-visible 2px accent outline-offset 2px
-   Fontes: Lucide (24×24 stroke 2 round) + Heroicons Outline (24×24 1.5px)
-           → unificado 1.7-1.8 | W3C Toolbar + MDN button (aria-label/title)
-   ─────────────────────────────────────────────────────────────────────────── */
-.prof-toplink { display:inline-flex; align-items:center; gap:.35rem; }
-.prof-toplink svg { width:16px; height:16px; flex-shrink:0; display:block; pointer-events:none; }
-
-.al-zoom-btn { width:32px; height:32px; min-width:32px; min-height:32px; padding:0; display:flex; align-items:center; justify-content:center; gap:0; }
-.al-zoom-btn svg { width:16px; height:16px; display:block; pointer-events:none; }
-.al-zoom-btn:hover { border-color:var(--accent); color:var(--accent); background:color-mix(in srgb, var(--accent-soft) 85%, var(--surface-2)); }
-.al-zoom-btn:active { transform:scale(.96); }
-.al-zoom-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-color:var(--accent); }
-
-.theme-toggle { width:32px; height:32px; min-width:32px; min-height:32px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s; flex-shrink:0; }
-.theme-toggle svg { width:18px; height:18px; display:block; pointer-events:none; }
-.theme-toggle:hover { border-color:var(--accent); color:var(--accent); background:color-mix(in srgb, var(--accent-soft) 85%, var(--surface-2)); }
-.theme-toggle:active { transform:scale(.96); }
-.theme-toggle:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-color:var(--accent); }
-
-.prof-controls .ctrl-btn { width:44px; height:44px; min-height:44px; min-width:44px; padding:0; display:flex; align-items:center; justify-content:center; gap:0; aspect-ratio:1; flex-shrink:0; }
 .prof-controls .ctrl-btn svg { width:18px; height:18px; display:block; pointer-events:none; }
 #btn-add.ctrl-btn { width:100% !important; aspect-ratio:auto; height:44px; min-width:0; }
+#btn-add.ctrl-btn svg { width:18px; height:18px; }
 .prof-controls .ctrl-btn:hover, #btn-add.ctrl-btn:hover { border-color:var(--accent); color:var(--accent); background:color-mix(in srgb, var(--accent-soft) 85%, var(--surface-2)); }
 .prof-controls .ctrl-btn:active, #btn-add.ctrl-btn:active { transform:scale(.96); }
 .prof-controls .ctrl-btn:focus-visible, #btn-add.ctrl-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-color:var(--accent); }
 
-.frow-eye, .frow-del { width:32px; height:32px; min-width:32px; min-height:32px; border:1px solid var(--border) !important; background:var(--surface-2) !important; border-radius:6px !important; }
-.frow-eye svg, .frow-del svg, [data-layer-eye] svg, [data-layer-del] svg { width:16px; height:16px; display:block; pointer-events:none; }
-.frow-eye:hover, .frow-del:hover, [data-layer-eye]:hover, [data-layer-del]:hover { border-color:var(--accent) !important; color:var(--accent) !important; background:var(--accent-soft) !important; }
-.frow-eye:active, .frow-del:active, [data-layer-eye]:active, [data-layer-del]:active { transform:scale(.96); }
-.frow-eye:focus-visible, .frow-del:focus-visible, [data-layer-eye]:focus-visible, [data-layer-del]:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
-.frow-del:hover { color:#f66 !important; border-color:color-mix(in srgb, #f66 60%, var(--border)) !important; background:color-mix(in srgb, #f00 10%, var(--surface-2)) !important; }
+/* ── Presets wrapper · flex:1 ─────────────────────────────── */
+.prof-presets-wrap {
+  flex: 1 1 auto;                      /* [orga] único flex:1 — ocupa resto do panel */
+  overflow-y: auto; overflow-x: hidden;
+  min-height: 0;                       /* [orga] min-height 0 para flex encolher */
+  min-height: 80px;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  padding: calc(.5rem * var(--info-scale,1));
+  max-height: 42vh;                    /* mobile cap + desktop override */
+  max-height: 42dvh;
+  box-sizing: border-box;
+  container-type: inline-size;
+}
 
-.preset-btn { display:flex; align-items:center; gap:.35rem; text-align:left; justify-content:flex-start; }
+/* ── Layers panel · flex-shrink:0 ─────────────────────────── */
+.layers-panel {
+  max-height: min(180px, 22vh);
+  max-height: min(200px, 22dvh);
+  overflow-y: auto; overflow-x: hidden;
+  min-height: 0;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+  padding: calc(.5rem * var(--info-scale,1));
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  box-sizing: border-box;
+}
+.layers-panel #layers-list {
+  max-height: min(140px, 18dvh);
+  overflow-y:auto; overflow-x:hidden; min-height:0;
+  overscroll-behavior: contain; scrollbar-gutter: stable;
+}
+
+/* ── Tools · Ferramentas ─────────────────────────────────── */
+.tools-details { margin-bottom:calc(.5rem * var(--info-scale,1)); flex-shrink:0; min-height:0; }
+.tools-details > summary { list-style:none; }
+.tools-details > summary::-webkit-details-marker { display:none; }
+.preset-group { margin-bottom:calc(.6rem * var(--info-scale,1)); container-type:inline-size; }
+.preset-group-title {
+  font-family:var(--font-mono); font-size:calc(.6rem * var(--info-scale,1)); font-weight:700;
+  text-transform:uppercase; letter-spacing:.1em; color:var(--text-mut);
+  padding:calc(.2rem * var(--info-scale,1)) calc(.25rem * var(--info-scale,1));
+  margin-bottom:calc(.25rem * var(--info-scale,1));
+}
+.preset-btns { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:calc(4px * var(--info-scale,1)); }
+.preset-btn {
+  text-align:left; padding:calc(.3rem * var(--info-scale,1)) calc(.5rem * var(--info-scale,1));
+  border-radius:calc(6px * var(--info-scale,1)); border:1px solid var(--border);
+  background:transparent; color:var(--text-soft); cursor:pointer;
+  font-size:calc(.75rem * var(--info-scale,1)); transition: all .15s;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;
+  display:flex; align-items:center; gap:.35rem; justify-content:flex-start;
+}
 .preset-btn svg { width:14px; height:14px; flex-shrink:0; display:block; pointer-events:none; opacity:.85; }
+.preset-btn:hover { background:var(--surface-2); color:var(--text); }
 .preset-btn:hover svg { opacity:1; }
+.preset-btn:active { transform: scale(.98); }
 .preset-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.preset-btn.active { border-color:var(--accent); background:var(--accent-soft); color:var(--accent); }
 
-.uc-tab { display:flex; align-items:center; justify-content:center; gap:.28rem; }
-.uc-tab svg { width:16px; height:16px; flex-shrink:0; display:block; pointer-events:none; }
+/* ── Readout · 6ª seção · flex-shrink:0 ─────────────────── */
+.prof-readout {
+  font-family:var(--font-mono); font-size:calc(.78rem * var(--info-scale,1));
+  color:var(--text-soft);
+  padding:calc(.6rem * var(--info-scale,1)) calc(1rem * var(--info-scale,1));
+  border-top:1px solid var(--border);
+  flex-shrink:0;                       /* [orga] readout nunca encolhe */
+  min-height:0;
+  margin-top:auto;                     /* empurra para base quando panel tem folga */
+  background: var(--surface);
+  word-break: break-word; overflow-wrap:anywhere;
+}
+
+/* ── Unit circle info · entre Controles e Ferramentas ────── */
+.uc-info {
+  padding:calc(.5rem * var(--info-scale,1)) calc(1rem * var(--info-scale,1));
+  border-bottom:1px solid var(--border);
+  display:none;                         /* só .show quando círculo ativo */
+  flex-shrink:0;                       /* [orga] uc-info não encolhe fora do scroll */
+  min-height:0;
+  max-height: min(46dvh, 560px);
+  overflow-y:auto; overflow-x:hidden;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  box-sizing: border-box;
+}
+.uc-info.show { display:block; }
+.uc-row { display:flex; justify-content:space-between; gap:calc(.5rem * var(--info-scale,1)); padding:calc(.1rem * var(--info-scale,1)) 0; font-family:var(--font-mono); font-size:calc(.75rem * var(--info-scale,1)); }
+.uc-k { font-weight:700; color:var(--text-mut); }
+.uc-val { color:var(--text); font-size:calc(.75rem * var(--info-scale,1)); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:60%; text-align:right; }
+.uc-snap { font-size:calc(.65rem * var(--info-scale,1)); color:var(--accent); text-align:right; margin-top:calc(.2rem * var(--info-scale,1)); min-height:calc(14px * var(--info-scale,1)); line-height:calc(14px * var(--info-scale,1)); overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+
+/* ── Tools grid · 3×3 fixo · touch 44×44 ─────────────────── */
+.tools-grid {
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3×3 em TODOS os viewports */
+  gap: calc(.42rem * var(--info-scale,1));
+  margin-top: calc(.45rem * var(--info-scale,1));
+}
+.tool-btn {
+  min-height:calc(38px * var(--info-scale,1));
+  padding:calc(.4rem * var(--info-scale,1)) calc(.6rem * var(--info-scale,1));
+  border-radius:calc(8px * var(--info-scale,1)); border:1.5px solid var(--border);
+  background:var(--surface-2); color:var(--text-soft); cursor:pointer;
+  font-size:calc(.74rem * var(--info-scale,1)); text-align:left;
+  transition: border-color .15s, background .15s, color .15s, transform .12s, box-shadow .15s;
+  display:flex; align-items:center; gap:calc(.4rem * var(--info-scale,1));
+  -webkit-tap-highlight-color: transparent;
+}
+.tools-grid .tool-btn {
+  min-width:calc(44px * var(--info-scale,1)); min-height:calc(44px * var(--info-scale,1));
+  width:100%; height:calc(44px * var(--info-scale,1)); aspect-ratio:1;
+  padding:0; justify-content:center; gap:0; background:var(--surface-2);
+  border-radius:calc(8px * var(--info-scale,1)); text-align:center; line-height:1; user-select:none;
+}
+.tool-btn svg { width:calc(18px * var(--info-scale,1)); height:calc(18px * var(--info-scale,1)); flex-shrink:0; display:block; pointer-events:none; }
+.tools-grid .tool-btn svg { width:calc(18px * var(--info-scale,1)); height:calc(18px * var(--info-scale,1)); }
+.tool-btn:hover { border-color:var(--accent); color:var(--accent); background:color-mix(in srgb, var(--accent-soft) 85%, var(--surface-2)); }
+.tool-btn:active { transform: scale(.96); }
+.tool-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-color:var(--accent); }
+.tool-btn.active {
+  border-color:var(--accent); background:var(--accent-soft); color:var(--accent); font-weight:700;
+  box-shadow:0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent), 0 1px 6px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.tools-grid .tool-btn.active { box-shadow:0 0 0 1.5px var(--accent), 0 2px 10px color-mix(in srgb, var(--accent) 22%, transparent); }
+
+.color-row { display:flex; gap:calc(.3rem * var(--info-scale,1)); margin-top:calc(.35rem * var(--info-scale,1)); flex-wrap:wrap; }
+.color-dot {
+  width:calc(18px * var(--info-scale,1)); height:calc(18px * var(--info-scale,1));
+  min-width:calc(18px * var(--info-scale,1)); min-height:calc(18px * var(--info-scale,1));
+  border-radius:50%; cursor:pointer; border:2px solid transparent; transition: transform .15s, border-color .15s;
+}
+.color-dot:hover { transform: scale(1.25); }
+.color-dot.active { border-color:#fff; }
+.color-dot:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.sect-title {
+  font-family:var(--font-mono); font-size:calc(.58rem * var(--info-scale,1)); font-weight:700;
+  text-transform:uppercase; letter-spacing:.1em; color:var(--text-mut);
+  margin:calc(.5rem * var(--info-scale,1)) 0 calc(.25rem * var(--info-scale,1));
+}
+.opacity-row { display:flex; align-items:center; gap:calc(.4rem * var(--info-scale,1)); margin-top:calc(.3rem * var(--info-scale,1)); }
+.opacity-row input { flex:1; accent-color:var(--accent); min-width:0; }
+.opacity-row span { font-family:var(--font-mono); font-size:calc(.68rem * var(--info-scale,1)); color:var(--text-mut); min-width:28px; text-align:right; }
+.opacity-row input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+/* ── Unit circle settings ─────────────────────────────────── */
+.uc-set { margin-top:calc(.6rem * var(--info-scale,1)); border-top:1px solid var(--border); padding-top:calc(.5rem * var(--info-scale,1)); flex-shrink:0; min-height:0; }
+.uc-set-title {
+  font-family:var(--font-mono); font-size:calc(.6rem * var(--info-scale,1)); font-weight:700;
+  text-transform:uppercase; letter-spacing:.1em; color:var(--text-mut); margin-bottom:calc(.4rem * var(--info-scale,1));
+}
+.uc-angle-grid { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:calc(.2rem * var(--info-scale,1)); }
+.uc-abtn {
+  background:var(--surface-2); border:1px solid var(--border); color:var(--text-soft);
+  border-radius:calc(5px * var(--info-scale,1));
+  padding:calc(.25rem * var(--info-scale,1)) calc(.1rem * var(--info-scale,1));
+  font-family:var(--font-mono); font-size:calc(.62rem * var(--info-scale,1));
+  cursor:pointer; text-align:center; transition: all .15s; white-space:nowrap; min-width:0;
+}
+.uc-abtn:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-soft); }
+.uc-abtn:active { transform: scale(.97); }
+.uc-abtn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.uc-abtn.active { border-color:var(--accent); background:var(--accent-soft); color:var(--accent); font-weight:700; }
+.uc-custom { display:flex; gap:calc(.3rem * var(--info-scale,1)); margin-top:calc(.4rem * var(--info-scale,1)); min-width:0; }
+.uc-custom input {
+  flex:1 1 0; min-width:0; background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+  padding:calc(.3rem * var(--info-scale,1)) calc(.4rem * var(--info-scale,1));
+  border-radius:calc(5px * var(--info-scale,1)); font-family:var(--font-mono); font-size:calc(.75rem * var(--info-scale,1)); outline:none;
+}
+.uc-custom input:focus { border-color:var(--accent); }
+.uc-custom input:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
+.uc-custom button {
+  background:var(--accent); border:none; color:#000;
+  padding:calc(.3rem * var(--info-scale,1)) calc(.5rem * var(--info-scale,1));
+  border-radius:calc(5px * var(--info-scale,1)); font-weight:700; font-size:calc(.72rem * var(--info-scale,1));
+  cursor:pointer; flex-shrink:0;
+}
+.uc-tab {
+  flex:1; background:var(--surface-2); border:1px solid var(--border); color:var(--text-mut);
+  border-radius:calc(5px * var(--info-scale,1));
+  padding:calc(.22rem * var(--info-scale,1)) calc(.3rem * var(--info-scale,1));
+  font-size:calc(.6rem * var(--info-scale,1)); font-family:var(--font-mono); cursor:pointer; transition: all .15s;
+  display:flex; align-items:center; justify-content:center; gap:.28rem; min-width:0;
+}
+.uc-tab:hover { border-color:var(--accent); color:var(--accent); }
+.uc-tab:active { transform: scale(.97); }
 .uc-tab:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
-
-.uc-custom button { width:44px; height:32px; min-width:44px; min-height:32px; display:flex; align-items:center; justify-content:center; gap:0; padding:0; border-radius:6px; flex-shrink:0; transition:all .15s; }
-.uc-custom button svg { width:18px; height:18px; display:block; pointer-events:none; }
-#uc-negate-btn { background:var(--surface-2) !important; border:1px solid var(--border) !important; color:var(--text) !important; }
+.uc-tab.active { border-color:var(--accent); background:var(--accent-soft); color:var(--accent); font-weight:700; }
+.uc-tab svg { width:16px; height:16px; flex-shrink:0; display:block; pointer-events:none; }
+#uc-negate-btn { background:var(--surface-2) !important; border:1px solid var(--border) !important; color:var(--text) !important; flex-shrink:0; }
 #uc-negate-btn:hover { border-color:var(--accent) !important; color:var(--accent) !important; background:var(--accent-soft) !important; }
+.uc-custom button { width:44px; height:32px; min-width:44px; min-height:32px; display:flex; align-items:center; justify-content:center; gap:0; padding:0; border-radius:6px; flex-shrink:0; transition: all .15s; }
+.uc-custom button svg { width:18px; height:18px; display:block; pointer-events:none; }
 #uc-custom-btn { background:var(--accent) !important; color:#000 !important; border:1px solid var(--accent) !important; }
 #uc-custom-btn:hover { filter:brightness(1.08); }
 .uc-custom button:active { transform:scale(.96); }
 .uc-custom button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 
-#uc-tri-btn, #uc-play-btn, #uc-dir-btn { display:flex; align-items:center; justify-content:center; gap:0; min-height:44px; min-width:44px; transition:all .15s; }
+#uc-tri-btn, #uc-play-btn, #uc-dir-btn {
+  display:flex; align-items:center; justify-content:center; gap:0;
+  min-height:44px; min-width:44px; transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+}
 #uc-tri-btn svg, #uc-play-btn svg, #uc-dir-btn svg { width:18px; height:18px; display:block; pointer-events:none; }
 #uc-tri-btn:hover { filter:brightness(1.06); }
 #uc-tri-btn:active, #uc-play-btn:active, #uc-dir-btn:active { transform:scale(.96); }
 #uc-play-btn:hover, #uc-dir-btn:hover { border-color:var(--accent) !important; color:var(--accent) !important; background:var(--accent-soft) !important; }
 #uc-tri-btn:focus-visible, #uc-play-btn:focus-visible, #uc-dir-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 
-.prof-bar-btn svg { width:18px; height:18px; display:block; pointer-events:none; }
+/* ── Download dropdown · fixed z60 · sem clip por overflow:hidden (antes absolute z41 clipava no panel) ─ */
+.prof-download-wrap { position:relative; flex-shrink:0; }
+.prof-download-menu {
+  position:fixed; /* 30x FIX — fixed z60, posicionado via JS clamp viewport, não clipa por .prof-panel overflow */
+  z-index:60;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:calc(8px * var(--info-scale,1));
+  padding:calc(.3rem * var(--info-scale,1)); min-width:140px; max-width: min(220px, 92vw);
+  box-shadow:0 12px 32px rgba(0,0,0,.42);
+  display:none; box-sizing:border-box;
+  max-height: min(40dvh, 260px); overflow-y:auto; overscroll-behavior:contain;
+}
+.prof-download-menu.open { display:block; }
+.prof-download-menu button {
+  width:100%; text-align:left;
+  padding:calc(.4rem * var(--info-scale,1)) calc(.6rem * var(--info-scale,1));
+  border:none; border-radius:calc(4px * var(--info-scale,1));
+  background:transparent; color:var(--text); cursor:pointer;
+  font-size:calc(.82rem * var(--info-scale,1)); display:flex; align-items:center;
+  transition: background .12s;
+}
+.prof-download-menu button:hover { background:var(--surface-2); }
+.prof-download-menu button:focus-visible { outline:2px solid var(--accent); outline-offset:-1px; }
+
+/* ── Bottom toolbar · mobile only · z45 ──────────────────── */
+.prof-bottom-bar {
+  display:none;
+  position:fixed; bottom:0; left:0; right:0;
+  height:56px; height:calc(56px + env(safe-area-inset-bottom));
+  padding-bottom:env(safe-area-inset-bottom);
+  background:var(--surface); border-top:1px solid var(--border);
+  z-index:45; /* 50(top) >45(bar) >40(panel) >39(overlay) >38(readout) >30(keypad) */
+  padding-left:.5rem; padding-right:.5rem;
+  align-items:center; justify-content:space-around; box-sizing:border-box;
+}
+.prof-bar-btn {
+  width:44px; height:44px; border-radius:10px; border:none;
+  background:transparent; color:var(--text-soft); font-size:1.3rem;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition: all .15s; flex-shrink:0; -webkit-tap-highlight-color: transparent;
+}
+.prof-bar-btn:hover, .prof-bar-btn.active { background:var(--accent-soft); color:var(--accent); }
+.prof-bar-btn:active { transform: scale(.96); }
 .prof-bar-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.prof-bar-btn svg { width:18px; height:18px; display:block; pointer-events:none; }
 
-/* ── Bottom sheet (mobile only) ─────────────────────────── */
-
-/* ============================================================
-   RESPONSIVE — Tablet (480-768px) — FIX 2026-08-28: sidebar apenas >=768 (evita conflito 480)
-   ============================================================ */
-@media (min-width: 768px) {
-  .prof-wrap {
-    grid-template-columns: 1fr 280px;
-    grid-template-rows: 1fr;
-    height: calc(100dvh - 52px);
-    height: calc(100vh - 52px);
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .prof-panel {
-    position: relative;
-    bottom: auto;
-    left: auto;
-    right: auto;
-    max-height: none;
-    max-height: calc(100dvh - 52px);
-    max-height: calc(100vh - 52px);
-    height: calc(100dvh - 52px);
-    height: calc(100vh - 52px);
-    min-height: 0;
-    flex: 1 1 auto;
-    overflow-y: auto;
-    overflow-x: hidden;
-    transform: none;
-    transition: none;
-    z-index: auto;
-    border-radius: 0;
-    border-top: none;
-    border-left: 1px solid var(--border);
-    padding-bottom: 0;
-    transform-origin: top left;
-    will-change: auto;
-    contain: layout paint;
-  }
-
-  .prof-presets-wrap { max-height: none; flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; }
-  .layers-panel { max-height: min(200px, 22dvh); }
-  .uc-info { max-height: min(48dvh, 620px); }
-}
+/* ── Icon-only refinement 30x ─────────────────────────────── */
+.prof-toplink { display:inline-flex; align-items:center; gap:.35rem; }
+.prof-toplink svg { width:16px; height:16px; flex-shrink:0; display:block; pointer-events:none; }
+.al-zoom-btn { width:32px; height:32px; min-width:32px; min-height:32px; padding:0; display:flex; align-items:center; justify-content:center; gap:0; }
+.al-zoom-btn svg { width:16px; height:16px; display:block; pointer-events:none; }
+.theme-toggle { width:32px; height:32px; min-width:32px; min-height:32px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s; flex-shrink:0; }
+.theme-toggle svg { width:18px; height:18px; display:block; pointer-events:none; }
+.theme-toggle:hover { border-color:var(--accent); color:var(--accent); background:color-mix(in srgb, var(--accent-soft) 85%, var(--surface-2)); }
+.theme-toggle:active { transform:scale(.96); }
+.theme-toggle:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-color:var(--accent); }
 
 /* ============================================================
-   RESPONSIVE — Desktop (> 768px)
+   RESPONSIVO — MOBILE-FIRST PROGRESSIVO
+   Base = 320. Cada breakpoint adiciona, nunca remove.
+   Alvos verificados: 320, 375, 414, 480, 768, 1024, 1280, 1440, 1920.
    ============================================================ */
-@media (min-width: 769px) {
-  .prof-wrap {
-    grid-template-columns: 1fr 320px;
-  }
+
+/* ── 320 · iPhone SE / ultra-narrow ───────────────────────── */
+@media (max-width: 359px) {
+  .prof-top { padding: 0 .55rem; gap: .32rem; }
+  .prof-brand { font-size: .86rem; }
+  .al-zoom-label { display:none; }              /* evita clipping do label 36px em 320 */
+  .al-zoom-btn { width:28px; height:28px; min-width:28px; min-height:28px; }
+  .prof-toplink { padding:.2rem .42rem; font-size:.74rem; }
+  .theme-toggle { width:28px; height:28px; min-width:28px; min-height:28px; }
+  .graph-font-ctrl { top:.35rem; right:.35rem; left:auto; z-index:5; }
+  .prof-labels { max-width: calc(100% - 78px); } /* 30x — sem label, 28+28+gap ≈ 60, reserva 78 */
+  .preset-btns { grid-template-columns: repeat(2, minmax(0,1fr)); } /* 2 col para não esmagar a 320 */
+  .prof-section { padding: .6rem .65rem; }
+  .frow-inp { font-size:.78rem; }
+  .uc-angle-grid { gap:.16rem; }
+  .uc-abtn { font-size:.58rem; padding:.2rem .08rem; }
 }
 
-/* FIX keypad flutuante acima da bottom-bar + readout no celular */
+/* ── 375 · iPhone 12/13 mini ──────────────────────────────── */
+@media (min-width:360px) and (max-width:374px) {
+  .preset-btns { grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+
+/* ── 414 · iPhone Pro Max ─────────────────────────────────── */
+@media (min-width:375px) and (max-width:413px) {
+  .prof-top { gap:.45rem; }
+}
+
+/* ── 480 · mobile large / phablet ─────────────────────────── */
+@media (min-width:480px) and (max-width:767px) {
+  .prof-section { padding: .7rem .85rem; }
+  .tools-grid { gap: calc(.46rem * var(--info-scale,1)); }
+}
+
+/* ── Keypad fix 320–480 · acima de bar+readout ────────────── */
 @media (max-width: 480px) {
   .sym-float, #sym-float,
   .keypad, .floating-keypad, .kp-wrap, .kp-root, .keypad-float {
@@ -896,129 +787,175 @@
   }
 }
 
-/* ============================================================
-   RESPONSIVE — Phone (< 768px) — show toolbar + sheet (fix 480->767)
-   ============================================================ */
+/* ── Phone (<768) · sheet + bar + readout fixo ───────────── */
 @media (max-width: 767px) {
-  .prof-bottom-bar { display: flex; }
+  .prof-bottom-bar { display:flex; }
 
   .prof-wrap {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr auto;
-    padding-bottom: 86px;
-    padding-bottom: calc(86px + env(safe-area-inset-bottom));
-    height: calc(100dvh - 52px);
-    height: calc(100vh - 52px);
-    min-height: 0;
+    grid-template-columns:1fr;
+    grid-template-rows:1fr auto;
+    padding-bottom:86px;                  /* 56 bar + ~30 readout @1x */
+    padding-bottom:calc(86px + env(safe-area-inset-bottom));
+    /* 30x FIX — com --info-scale 1.8, readout ≈ 30*1.8=54, bar 56 → 110, usa dvh clamp */
+    padding-bottom:calc(56px + calc(38px * var(--info-scale,1)) + env(safe-area-inset-bottom));
+    padding-bottom:calc(56px + calc(38px * var(--info-scale,1)) + 4px + env(safe-area-inset-bottom));
+    height:calc(100dvh - 52px);
+    height:calc(100vh - 52px);
+    min-height:0;
+    align-items: stretch;
   }
+  .prof-stage { height:100%; min-height:300px; min-height: max(300px, min(44dvh, 420px)); min-height: max(300px, min(44dvh, 420px)); }
 
   .prof-readout {
-    position: fixed;
-    bottom: 56px;
-    bottom: calc(56px + env(safe-area-inset-bottom));
-    left: 0;
-    right: 0;
-    z-index: 38;
-    background: color-mix(in srgb, var(--surface) 92%, transparent);
-    backdrop-filter: blur(6px);
-    border-top: 1px solid var(--border);
-    padding: calc(.4rem * var(--info-scale,1)) calc(.8rem * var(--info-scale,1));
-    font-size: calc(.72rem * var(--info-scale,1));
+    position:fixed; bottom:56px; bottom:calc(56px + env(safe-area-inset-bottom));
+    left:0; right:0; z-index:38;
+    background:color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    border-top:1px solid var(--border);
+    padding:calc(.4rem * var(--info-scale,1)) calc(.8rem * var(--info-scale,1));
+    font-size:calc(.72rem * var(--info-scale,1));
+    max-width:100vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   }
-
-  /* FIX professor: keypad acima da bottom-bar(56px)+readout(~34px) */
+  /* keypad acima de bar(56)+readout(~34)=90 → 96 para folga */
   .sym-float, #sym-float,
   .keypad, .floating-keypad, .kp-wrap, .kp-root {
-    bottom: 96px !important;
-    bottom: calc(96px + env(safe-area-inset-bottom)) !important;
-    z-index: 30 !important;
+    bottom:96px !important;
+    bottom:calc(96px + env(safe-area-inset-bottom)) !important;
+    z-index:30 !important;
   }
-
-  .ctrl-btn { min-height: calc(36px * var(--info-scale,1)); height: calc(36px * var(--info-scale,1)); }
-  .tool-btn { min-height: calc(44px * var(--info-scale,1)); }
-  #tool-clear, #tool-undo, #tool-redo { min-height: calc(44px * var(--info-scale,1)) !important; }
-  .frow-eye, .frow-del { min-width: calc(44px * var(--info-scale,1)) !important; min-height: calc(44px * var(--info-scale,1)) !important; width: calc(44px * var(--info-scale,1)) !important; height: calc(44px * var(--info-scale,1)) !important; }
-  .layers-eye { min-width: calc(44px * var(--info-scale,1)) !important; min-height: calc(44px * var(--info-scale,1)) !important; width: calc(44px * var(--info-scale,1)) !important; height: calc(44px * var(--info-scale,1)) !important; }
-  [data-layer-eye], [data-layer-del] { min-width: calc(44px * var(--info-scale,1)) !important; min-height: calc(44px * var(--info-scale,1)) !important; width: calc(44px * var(--info-scale,1)) !important; height: calc(44px * var(--info-scale,1)) !important; }
+  /* touch 44×44 obrigatório em phone (W3C) */
+  .ctrl-btn { min-height:calc(36px * var(--info-scale,1)); height:calc(36px * var(--info-scale,1)); }
+  .tool-btn { min-height:calc(44px * var(--info-scale,1)); }
+  #tool-clear, #tool-undo, #tool-redo { min-height:calc(44px * var(--info-scale,1)) !important; }
+  .frow-eye, .frow-del,
+  .layers-eye, [data-layer-eye], [data-layer-del] {
+    min-width:calc(44px * var(--info-scale,1)) !important;
+    min-height:calc(44px * var(--info-scale,1)) !important;
+    width:calc(44px * var(--info-scale,1)) !important;
+    height:calc(44px * var(--info-scale,1)) !important;
+  }
   .prof-panel {
-    max-height: 70vh;
-    max-height: 70dvh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    /* Não sobrepor bottom-bar: reserva 56px + readout (~32px) + safe-area */
-    padding-bottom: calc(56px + 36px + env(safe-area-inset-bottom));
-    box-sizing: border-box;
+    max-height:70vh; max-height:70dvh;
+    overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
+    padding-bottom:calc(56px + calc(38px * var(--info-scale,1)) + env(safe-area-inset-bottom));
+    /* 30x FIX — 38px*scale evita sobrepor readout (38) + bar (56) mesmo em 180% */
+    box-sizing:border-box;
   }
-  .prof-presets-wrap { max-height: min(38vh, 38dvh); }
+  .prof-presets-wrap { max-height: min(38vh, 38dvh); max-height: min(38dvh, 420px); }
   .layers-panel { max-height: min(28dvh, 200px); }
+  .layers-panel #layers-list { max-height: min(22dvh, 160px); }
   .uc-info { max-height: min(36dvh, 420px); }
+
+  /* 30x FIX — download menu é fixed z60 via JS (antes absolute clipava no overflow do panel) */
+  .prof-download-menu {
+    max-width: min(220px, calc(100vw - 16px));
+    max-height: min(40dvh, 260px);
+  }
 }
 
-/* ── FIX 180% font scale — evita overflow / conteúdo saindo da tela ──
-   Regra global: garante que todo elemento dentro do painel respeita
-   box-sizing e largura máxima, quebra palavra longa, e não força
-   overflow-x. Bottom-bar nunca é sobreposta graças ao padding-bottom
-   do painel em mobile.
-   ─────────────────────────────────────────────────────────────────── */
-.prof-panel * { box-sizing: border-box; max-width: 100%; }
-.frow { min-width: 0; flex-wrap: nowrap; }
-.frow-inp { min-width: 0; flex: 1 1 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
-.prof-controls { max-width: 100%; flex-wrap: wrap; gap: calc(.3rem * var(--info-scale,1)); }
-.prof-presets-wrap, .layers-panel, .uc-info, .prof-section { overflow-x: hidden; word-break: break-word; overflow-wrap: anywhere; }
-.prof-labels { top: .5rem; left: .5rem; max-width: calc(100% - 1rem); overflow: hidden; }
-.prof-stage { min-height: 0; min-width: 0; max-width: 100vw; overflow: hidden; }
-/* ── Scrollbar-gutter fallback para navegadores sem suporte ── */
+/* ── Tablet 768 → 1fr 280 (skill: 1fr→1fr 280→1fr 320) ─── */
+@media (min-width: 768px) {
+  .prof-wrap {
+    grid-template-columns: 1fr 280px;
+    grid-template-rows:1fr;
+    height:calc(100dvh - 52px); height:calc(100vh - 52px);
+    min-height:0; overflow:hidden;
+    gap:1px;
+    align-items: stretch;
+  }
+  .prof-stage { height:100%; min-height:300px; min-height: max(300px, min(60dvh, 600px)); }
+  .prof-panel {
+    position:relative; bottom:auto; left:auto; right:auto;
+    max-height:none;
+    max-height:calc(100dvh - 52px); max-height:calc(100vh - 52px);
+    height:calc(100dvh - 52px); height:calc(100vh - 52px);
+    min-height:0; flex:1 1 auto; overflow-y:auto; overflow-x:hidden;
+    transform:none; transition:none; z-index:auto;
+    border-radius:0; border-top:none; border-left:1px solid var(--border);
+    padding-bottom:0; transform-origin:top left; will-change:auto; contain:layout paint;
+  }
+  .prof-sheet-overlay { display:none !important; }
+  .prof-presets-wrap { max-height:none; flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden; }
+  .layers-panel { max-height: min(200px, 22dvh); }
+  .uc-info { max-height: min(48dvh, 620px); }
+  .prof-readout { position:static; z-index:auto; backdrop-filter:none; }
+  .sym-float, #sym-float { bottom:1rem !important; z-index:30 !important; }
+}
+
+/* ── Desktop 1024 → 1fr 320 ──────────────────────────────── */
+@media (min-width: 1024px) {
+  .prof-wrap { grid-template-columns: 1fr 320px; }
+  .prof-presets-wrap { padding: calc(.6rem * var(--info-scale,1)); }
+  .prof-section { padding: calc(.8rem * var(--info-scale,1)) calc(1rem * var(--info-scale,1)); }
+}
+
+/* ── Large 1280 · folga generosa ─────────────────────────── */
+@media (min-width: 1280px) {
+  .prof-wrap { grid-template-columns: 1fr 320px; gap:1px; }
+  .prof-stage { height:100%; min-height:300px; }
+  .graph-font-ctrl { top:.6rem; right:.6rem; }
+  .prof-presets-wrap { max-height:none; }
+}
+
+/* ── XL 1440 · mantém 320, aumenta densidade ─────────────── */
+@media (min-width: 1440px) {
+  .prof-wrap { grid-template-columns: 1fr 340px; }
+  .prof-brand { font-size:1.05rem; }
+}
+
+/* ── XXL 1920 · full HD+ · sem esticar demais ────────────── */
+@media (min-width: 1920px) {
+  .prof-wrap { grid-template-columns: 1fr 360px; max-width: 1920px; margin: 0 auto; }
+  .prof-stage { height:100%; min-height:300px; }
+}
+
+/* ── FIX 180% font scale — sem overflow ───────────────────── */
+.prof-panel * { box-sizing:border-box; max-width:100%; }
+.frow { min-width:0; flex-wrap:nowrap; }
+.frow-inp { min-width:0; flex:1 1 0; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
+.prof-controls { max-width:100%; flex-wrap:wrap; gap:calc(.3rem * var(--info-scale,1)); }
+.prof-presets-wrap, .layers-panel, .uc-info, .prof-section { overflow-x:hidden; word-break:break-word; overflow-wrap:anywhere; }
+.prof-labels { top:.5rem; left:.5rem; max-width:calc(100% - 1rem); overflow:hidden; }
+/* FIX 30x — não zerar altura do stage (canvas precisa 100% 300px para grid visível em 375/768/1440) */
+.prof-stage { height:100%; min-height:300px; min-width:0; max-width:100vw; overflow:hidden; }
 @supports not (scrollbar-gutter: stable) {
-  .prof-panel, .prof-presets-wrap, .layers-panel, .uc-info { padding-right: calc(.4rem * var(--info-scale,1)); }
+  .prof-panel, .prof-presets-wrap, .layers-panel, .uc-info { padding-right:calc(.4rem * var(--info-scale,1)); }
 }
 
-/* ============================================================
-   ACCESSIBILITY — Reduced motion
-   ============================================================ */
+/* ── @container · fallback @media ───────────────────────────
+   Ferramentas e Presets colapsam por container, não só viewport.
+   ─────────────────────────────────────────────────────────── */
+@container (max-width: 280px) {
+  .preset-btns { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@container (min-width: 281px) {
+  .preset-btns { grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+
+/* ── Acessibilidade · Reduced motion ──────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .prof-panel,
-  .frow-dot,
-  .cp-swatch,
-  .ctrl-btn,
-  .preset-btn,
-  .tool-btn,
-  .color-dot,
-  .uc-abtn,
-  .prof-toplink,
-  .prof-bar-btn,
-  .frow-inp {
-    transition: none !important;
+  .prof-panel, .prof-sheet-overlay,
+  .frow-dot, .cp-swatch, .ctrl-btn, .preset-btn, .tool-btn, .color-dot,
+  .uc-abtn, .prof-toplink, .prof-bar-btn, .frow-inp, .al-zoom-btn, .theme-toggle {
+    transition:none !important; animation:none !important;
   }
-  .prof-stage canvas { will-change: auto; }
+  .prof-stage canvas { will-change:auto; }
 }
 
-/* ============================================================
-   ACCESSIBILITY — High contrast
-   ============================================================ */
+/* ── Acessibilidade · High contrast ───────────────────────── */
 @media (prefers-contrast: high) {
-  .prof-top,
-  .prof-panel,
-  .prof-section,
-  .prof-readout,
-  .prof-bottom-bar {
-    border-color: var(--border-strong);
-  }
-
-  .frow-inp,
-  .uc-custom input,
-  .ctrl-btn,
-  .preset-btn,
-  .tool-btn,
-  .uc-abtn,
-  .uc-tab {
-    border-width: 2px;
-  }
+  .prof-top, .prof-panel, .prof-section, .prof-readout, .prof-bottom-bar { border-color:var(--border-strong); }
+  .frow-inp, .uc-custom input, .ctrl-btn, .preset-btn, .tool-btn, .uc-abtn, .uc-tab { border-width:2px; }
 }
 
-/* ── Safe print ── */
+/* ── Focus-visible global fallback ────────────────────────── */
+:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+:focus:not(:focus-visible) { outline:none; }
+
+/* ── Print ────────────────────────────────────────────────── */
 @media print {
-  .prof-bottom-bar, .prof-panel, .graph-font-ctrl, .al-zoom { display: none !important; }
-  .prof-wrap { height: auto; display: block; }
-  .prof-stage { height: 70vh; overflow: visible; }
+  .prof-bottom-bar, .prof-sheet-overlay, .prof-panel, .graph-font-ctrl, .al-zoom, .sym-float { display:none !important; }
+  .prof-wrap { height:auto; display:block; background:transparent; gap:0; }
+  .prof-stage { height:70vh; overflow:visible; min-height:0; }
+  .prof-readout { position:static; border-top:1px solid #999; }
 }

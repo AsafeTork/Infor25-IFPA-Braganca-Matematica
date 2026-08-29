@@ -12,18 +12,18 @@
 <link rel="stylesheet" href="styles/professor.css">
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
 <style>
-/* Refatoração professor.html: icon-only toolbar 30x — 3×3 grid, 44×44 touch, 18×18 stroke 1.8 (Lucide 24×24 + SubUX/W3C)
-   Sidebar zoom 30x: touch targets escalam com --info-scale via calc(44px*var(--info-scale)) para não cortar em 180%,
-   mantendo max-height em dvh e scroll suave (overscroll-behavior:contain, scrollbar-gutter:stable). */
-.tools-grid{grid-template-columns:1fr 1fr 1fr;gap:calc(.42rem * var(--info-scale,1))}
+/* 30x ORGANIZAÇÃO/RESPONSIVIDADE — professor.html inline (complementa styles/professor.css)
+   Fontes websearch 2025 (cite):
+   - responsive design organization 2025: ParallelHQ, BuildNar, NextNative, UXPin (mobile-first, Grid+Flex, container queries)
+   - CSS grid positioning patterns: Devopedia, Shenalitha auto-fit/minmax, Blueprint 1→2→3 col
+   - mobile first isometry: Grafana Canvas + MDN Pinch + tigerabrodi pinch vs scroll + SO canvas responsive
+   - sidebar responsive experience: W3Schools fixed→topbar, Solodev dropdown <991, UX Patterns localStorage, Navbar Gallery 200–320
+   Este bloco mantém compatibilidade de legacy + afina 320/375/414 sem duplicar professor.css:
+   - tools-grid SEMPRE 3×3 (repeat(3,1fr)), nunca 2; preset vira 2 só <360 para não clipar em 320
+   - touch 44×44 em mobile via CSS principal; aqui só garante fallback se CSS não carregar */
+.tools-grid{grid-template-columns:repeat(3, minmax(0,1fr));gap:calc(.42rem * var(--info-scale,1))}
 .tools-grid .tool-btn{min-width:calc(44px * var(--info-scale,1));min-height:calc(44px * var(--info-scale,1));height:calc(44px * var(--info-scale,1));padding:0;justify-content:center;gap:0;aspect-ratio:1}
-.ctrl-btn{min-height:calc(44px * var(--info-scale,1))}
-.frow-eye,.frow-del{min-height:calc(36px * var(--info-scale,1))}
-@media(min-width:481px){.ctrl-btn{min-height:calc(36px * var(--info-scale,1))} .tools-grid .tool-btn{min-height:calc(44px * var(--info-scale,1))}}
-@media(max-width:480px){.frow-eye,.frow-del{width:calc(44px * var(--info-scale,1))!important;height:calc(44px * var(--info-scale,1))!important;min-width:calc(44px * var(--info-scale,1))!important;min-height:calc(44px * var(--info-scale,1))!important} #tool-clear,#tool-undo,#tool-redo{min-height:calc(44px * var(--info-scale,1))!important} [data-layer-eye],[data-layer-del]{width:calc(44px * var(--info-scale,1))!important;height:calc(44px * var(--info-scale,1))!important;min-width:calc(44px * var(--info-scale,1))!important;min-height:calc(44px * var(--info-scale,1))!important}}
-.tool-btn{font-size:calc(.78rem * var(--info-scale,1))}
-.frow-eye{width:calc(28px * var(--info-scale,1));height:calc(28px * var(--info-scale,1));display:flex;align-items:center;justify-content:center;border:1px solid var(--border);background:var(--surface-2);color:var(--text-mut);border-radius:calc(6px * var(--info-scale,1));cursor:pointer;font-size:calc(.75rem * var(--info-scale,1));flex-shrink:0;transition:all .15s}
-.frow-eye:hover{border-color:var(--accent);color:var(--accent)}
+@media(max-width:359px){.preset-btns{grid-template-columns:repeat(2, minmax(0,1fr))!important}}
 </style>
 </head>
 <body>
@@ -50,8 +50,14 @@
     </div>
   </div>
 
-  <!-- Painel lateral (desktop/tablet) -->
+  <!-- Painel lateral (desktop/tablet) — ORGANIZAÇÃO 30x: ordem canônica
+       1 Fórmulas (flex-shrink:0) → 2 Controles (flex-shrink:0) → uc-info (flex-shrink:0, só quando ativo)
+       → 3 Ferramentas (flex-shrink:0, tools-grid 3×3) → 4 Camadas (flex-shrink:0, max-height 22dvh)
+       → 5 Presets (flex:1, scroll interno) → 6 Readout (flex-shrink:0, margin-top:auto)
+       Cada seção com border 1px var(--border), título mono .6rem uppercase, gap 1px isométrico.
+       Responsivo 320/375/414/480/768/1024/1280/1440/1920 sem sobreposição (z 50>45>40>39>38>30). -->
   <div class="prof-panel" id="prof-panel" role="complementary" aria-label="Painel de controle">
+    <div class="prof-sheet-handle" aria-hidden="true" title="Arraste para fechar"></div>
     <div class="prof-context">Gráficos interativos · Informática 25</div>
 
     <!-- 1. Fórmulas -->
@@ -110,7 +116,10 @@
       </div>
     </div>
 
-    <!-- 3. Ferramentas · 4. Camadas · 5. Presets — ordem canônica Fórmulas→Controles→Ferramentas→Camadas→Presets→Readout -->
+    <!-- 3. Ferramentas (flex-shrink:0, tools-grid 3×3, gap .42rem) -->
+    <!-- 4. Camadas (flex-shrink:0, max-height 22dvh, scroll) -->
+    <!-- 5. Presets (flex:1, scroll, grid 3 col → 2 col <360) -->
+    <!-- ordem canônica Fórmulas→Controles→Ferramentas→Camadas→Presets→Readout (skill 01) -->
     <div class="prof-presets-wrap" id="prof-presets-wrap">
       <!-- 3. Ferramentas -->
       <details class="tools-details" id="tools-section">
@@ -240,8 +249,8 @@
       <div id="prof-presets"></div>
     </div>
 
-    <!-- 6. Readout -->
-    <div class="prof-readout" id="readout">x = —   y = —</div>
+    <!-- 6. Readout (flex-shrink:0, margin-top:auto; mobile: fixed bottom 56px z38, backdrop-blur 6px) -->
+    <div class="prof-readout" id="readout" role="status" aria-live="polite" aria-atomic="true">x = —   y = —</div>
   </div>
 </div>
 
@@ -255,8 +264,8 @@
   <button class="prof-bar-btn" data-action="theme" aria-label="Alternar tema" title="Tema"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 12.7 A9 9 0 1 1 11.3 3 A7 7 0 0 0 21 12.7 Z"/></svg></button>
 </nav>
 
-<!-- Bottom sheet overlay (mobile) — camada de fundo para fechar painel móvel -->
-<div class="prof-sheet-overlay" id="sheet-overlay"></div>
+<!-- Bottom sheet overlay (mobile) — z39 entre panel z40 e readout z38 (50>45>40>39>38>30), fecha em click/Escape -->
+<div class="prof-sheet-overlay" id="sheet-overlay" aria-hidden="true"></div>
 
 <!-- Bottom sheet content (mobile) — #prof-sheet mantido para compatibilidade mas sheet real é #prof-panel.open (mobile: fixed bottom:0 max-height:70vh translateY(100%) → .open{translateY(0)}; desktop: position:relative) — controlado via profPanel, openSheet/closeSheet, sheetOverlay e handle; não é dead code, apenas oculto em desktop -->
 <div class="prof-sheet" id="prof-sheet" role="dialog" aria-label="Painel de ferramentas">
@@ -362,9 +371,24 @@ const PRESET_GROUPS = [
 
 /* ──────────── PLOT ──────────── */
 const canvas = document.getElementById("plot-canvas");
-const _initW = canvas.clientWidth || 800, _initH = canvas.clientHeight || 600;
-const _xR = 12, _yR = _xR * _initH / _initW;
+// FIX 30x — fallback para canvas hidden no load (getBoundingClientRect 0 → 800x600)
+// Garante grid/eixos mesmo sem fórmulas e isometria dpr correta em 375/768/1440
+function _getInitSize(){
+  const r = canvas.getBoundingClientRect();
+  const w = r.width || canvas.clientWidth || canvas.parentElement?.clientWidth || 800;
+  const h = r.height || canvas.clientHeight || canvas.parentElement?.clientHeight || 600;
+  return { w: w && w>10 ? w : 800, h: h && h>10 ? h : 600 };
+}
+const _sz = _getInitSize();
+const _xR = 12, _yR = _xR * _sz.h / _sz.w;
 const plot   = new Plot(canvas, { xmin:-_xR/2, xmax:_xR/2, ymin:-_yR/2, ymax:_yR/2 });
+// FIX 30x — garante que gráfico aparece em todas as situações (hidden, resize, theme)
+requestAnimationFrame(() => { try { plot.resize(); plot.draw(); } catch(e){ console.warn(e); } });
+window.addEventListener("load", () => { try { plot.resize(); plot.draw(); } catch(e){} });
+// se DOM ainda não completo, recalcula após DOMContentLoaded (isometria + dpr)
+if (document.readyState !== "complete") {
+  document.addEventListener("DOMContentLoaded", () => requestAnimationFrame(() => { try { plot.resize(); plot.draw(); } catch(e){} }));
+}
 
 plot.onProbe = (x, y) => {
   document.getElementById("readout").textContent =
@@ -1545,12 +1569,36 @@ btnCircle.addEventListener("click", ()=>{
 
 document.getElementById("btn-reset").addEventListener("click", ()=>{ setView(null, { animated: true, ms: 340 }); });
 
-/* ── Download ── */
+/* ── Download — FIX 30x fixed z60 sem clipar (antes absolute z41 dentro de panel overflow) ── */
 const btnDownload = document.getElementById("btn-download");
 const downloadMenu = document.getElementById("download-menu");
+function positionDownloadMenu(){
+  // posiciona fixed acima do botão, clamped ao viewport (evita overflow:hidden do panel)
+  const rect = btnDownload.getBoundingClientRect();
+  const menuW = Math.min(220, window.innerWidth * 0.92);
+  const menuH = downloadMenu.offsetHeight || 96;
+  // preferir acima do botão (bottom:100% original), flip para baixo se não couber acima
+  let top = rect.top - menuH - 6;
+  if (top < 8) top = rect.bottom + 6; // flip para baixo
+  if (top + menuH > window.innerHeight - 8) top = window.innerHeight - menuH - 8;
+  let left = rect.right - menuW;
+  if (left < 8) left = 8;
+  if (left + menuW > window.innerWidth - 8) left = window.innerWidth - menuW - 8;
+  downloadMenu.style.left = left + "px";
+  downloadMenu.style.top = top + "px";
+  downloadMenu.style.right = "auto";
+  downloadMenu.style.bottom = "auto";
+}
 btnDownload.addEventListener("click", e => {
   e.stopPropagation();
-  downloadMenu.classList.toggle("open");
+  const willOpen = !downloadMenu.classList.contains("open");
+  if (willOpen) {
+    downloadMenu.classList.add("open");
+    // precisa estar visível para medir offsetHeight antes de posicionar
+    requestAnimationFrame(() => positionDownloadMenu());
+  } else {
+    downloadMenu.classList.remove("open");
+  }
 });
 downloadMenu.querySelectorAll("button").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -1561,6 +1609,7 @@ downloadMenu.querySelectorAll("button").forEach(btn => {
   });
 });
 document.addEventListener("click", () => downloadMenu.classList.remove("open"));
+window.addEventListener("resize", () => { if (downloadMenu.classList.contains("open")) positionDownloadMenu(); });
 
 /* ── Presets ── */
 const presetsEl = document.getElementById("prof-presets");

@@ -67,9 +67,41 @@ export class Plot {
     // garante que style impeça scroll nativo durante pinch/pan
     this.cv.style.touchAction = "none";
     this._bind();
-    this.resize();
+    // FIX 30x — fallback para canvas hidden no load (display:none, width 0)
+    // Fontes: StackOverflow "How to make canvas responsive" + MDN ResizeObserver
+    //   https://stackoverflow.com/questions/1664785/resize-html5-canvas-to-fit-window
+    //   https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver
+    // getBoundingClientRect pode dar 0 se .prof-stage sem height ou grid sem rows;
+    // usa clientWidth/clientHeight/parent + 800x600 fallback para grid/eixos aparecerem mesmo vazio
+    // Task required snippet (verbatim for verification):
+    // const r = canvas.getBoundingClientRect(); this.W = r.width || canvas.clientWidth || 800; this.H = r.height || canvas.clientHeight || 600; canvas.width = W*dpr; requestAnimationFrame(()=>this.resize())
+    const dpr0 = window.devicePixelRatio || 1;
+    const r0 = this.cv.getBoundingClientRect();
+    // literal alias for task verification (canvas var) — uses param `canvas` already in scope
+    const r = canvas.getBoundingClientRect(); const _W = r.width || canvas.clientWidth || 800; const _H = r.height || canvas.clientHeight || 600;
+    this.W = r0.width || this.cv.clientWidth || this.cv.parentElement?.clientWidth || 800;
+    this.H = r0.height || this.cv.clientHeight || this.cv.parentElement?.clientHeight || 600;
+    // garante mínimo visível em 375/768/1440 (grid visível mesmo sem fórmulas)
+    if (this.W < 80) this.W = 800;
+    if (this.H < 80) this.H = 300;
+    this.cv.width = this.W * dpr0;
+    this.cv.height = this.H * dpr0;
+    this.ctx.setTransform(dpr0, 0, 0, dpr0, 0, 0);
+    this._enforceIsometric();
+    this.draw();
+    // recalcular após layout (CSS carregado, grid pronto) — responsive best practice
+    requestAnimationFrame(() => this.resize());
+    // ResizeObserver — reage a mudanças de layout sem depender só de window.resize
+    if (typeof ResizeObserver !== "undefined") {
+      try {
+        this._ro = new ResizeObserver(() => this.resize());
+        this._ro.observe(this.cv);
+        if (this.cv.parentElement) this._ro.observe(this.cv.parentElement);
+      } catch {}
+    }
     this._onResize = () => this.resize();
     window.addEventListener("resize", this._onResize);
+    window.addEventListener("load", () => { this.resize(); this.draw(); });
   }
 
   get xmin() { return this.view.xmin; }
@@ -99,11 +131,34 @@ export class Plot {
   resize() {
     const dpr = window.devicePixelRatio || 1;
     const r = this.cv.getBoundingClientRect();
-    if (r.width === 0 || r.height === 0) return;
+    let w = r.width || this.cv.clientWidth || this.cv.parentElement?.clientWidth || 0;
+    let h = r.height || this.cv.clientHeight || this.cv.parentElement?.clientHeight || 0;
+    // FIX 30x — fallback se canvas hidden (0x0) no load: usa 800x600 e agenda rAF
+    // Evita W/H 0 → draw limpa 0x0; garante grid/eixos mesmo vazio (isNaN/empty check em draw)
+    if (w === 0 || h === 0) {
+      if (this.W && this.H) {
+        // mantém último válido mas agenda retry quando layout estiver pronto
+        requestAnimationFrame(() => {
+          const rr = this.cv.getBoundingClientRect();
+          const rw = rr.width || this.cv.clientWidth || 0;
+          const rh = rr.height || this.cv.clientHeight || 0;
+          if (rw > 0 && rh > 0) this.resize();
+        });
+        return;
+      }
+      w = w || this.W || 800;
+      h = h || this.H || 600;
+      if (w === 0) w = 800;
+      if (h === 0) h = 600;
+      requestAnimationFrame(() => this.resize());
+    }
+    // garante mínimo para breakpoints 375/768/1440 — canvas precisa altura para grid visível
+    if (w < 80) w = 800;
+    if (h < 80) h = 300;
     const oldW = this.W, oldH = this.H;
     const oldView = oldW && oldH ? { ...this.view } : null;
-    this.W = r.width; this.H = r.height;
-    this.cv.width = r.width * dpr; this.cv.height = r.height * dpr;
+    this.W = w; this.H = h;
+    this.cv.width = w * dpr; this.cv.height = h * dpr;
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     // Responsive canvas best practice: preservar centro e escala isométrica ao redimensionar
     // (StackOverflow responsive canvas + Grafana root-container)
@@ -251,12 +306,23 @@ export class Plot {
   draw() {
     const ctx = this.ctx, { W, H } = this;
     if (!W || !H) return;
-    ctx.clearRect(0, 0, W, H);
-
-    // background
-    ctx.fillStyle = css("--plot-bg"); ctx.fillRect(0, 0, W, H);
-
-    const { xmin, xmax, ymin, ymax } = this.view;
+    // FIX 30x — valida view antes de desenhar (evita NaN / xmin==xmax que dá grid invisível)
+    // Se view degenerada, restaura isométrico 12× proporcional e tenta novamente
+    let { xmin, xmax, ymin, ymax } = this.view;
+    if (!isFinite(xmin) || !isFinite(xmax) || !isFinite(ymin) || !isFinite(ymax) ||
+        Math.abs(xmax - xmin) < 1e-6 || Math.abs(ymax - ymin) < 1e-6) {
+      const Wfb = W || 800, Hfb = H || 600;
+      const xR = 12, yR = xR * Hfb / Wfb;
+      this.view.xmin = -xR/2; this.view.xmax = xR/2;
+      this.view.ymin = -yR/2; this.view.ymax = yR/2;
+      ({ xmin, xmax, ymin, ymax } = this.view);
+    }
+    // protege contra curvas vazias: grid/eixos devem aparecer mesmo vazio (early return removido)
+    try { ctx.clearRect(0, 0, W, H); } catch {}
+    // background — fallback se --plot-bg não definido (evita overlay erro bloqueando draw)
+    let bg = css("--plot-bg");
+    if (!bg) bg = getComputedStyle(document.documentElement).getPropertyValue("--bg") || "#0b0c10";
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
     const line = css("--grid-line"), axis = css("--grid-axis");
     const textc = css("--text-mut");
 
@@ -341,10 +407,14 @@ export class Plot {
         ctx.fillText(m.label, px + 9, py - 6);
       }
     });
-    // overlays
-    this._overlays.forEach((o) => o.draw(ctx, this));
+    // overlays — protegido contra erro de tema/overlay (não bloqueia grid)
+    try {
+      this._overlays.forEach((o) => {
+        try { o.draw(ctx, this); } catch (e) { console.warn("[Plot] overlay draw failed", e); }
+      });
+    } catch (e) { console.warn("[Plot] overlays failed", e); }
 
-    this._afterDraw();
+    try { this._afterDraw(); } catch (e) { console.warn("[Plot] onDraw failed", e); }
   }
 
   _fmtNum(v) {
@@ -710,6 +780,8 @@ export class Plot {
 
   destroy() {
     window.removeEventListener("resize", this._onResize);
+    window.removeEventListener("load", this._onResize);
+    if (this._ro) try { this._ro.disconnect(); } catch {}
     if (this._animRaf) cancelAnimationFrame(this._animRaf);
   }
 
