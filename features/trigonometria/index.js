@@ -485,7 +485,7 @@ export const trigonometriaLessons = [
 <section class="lesson-section">
   <h2 class="lesson-h2">Interativo — Tangente no círculo e no gráfico</h2>
   <p>O painel esquerdo mostra a construção geométrica da tangente no círculo. O painel direito mostra o gráfico de tan(x) com suas assíntotas verticais. Arraste o ponto e observe a tangente crescendo até infinito.</p>
-  <div id="vis-tangente" style="width:100%;max-width:700px;height:320px;margin:.8rem auto"></div>
+  <div id="vis-tangente" style="width:100%;max-width:700px;min-height:320px;height:auto;margin:.8rem auto"></div>
 </section>
 
 <section class="lesson-section">
@@ -592,7 +592,7 @@ export const trigonometriaLessons = [
 <section class="lesson-section">
   <h2 class="lesson-h2">Interativo — Transforme a onda</h2>
   <p>Use os sliders para alterar os parâmetros de $y = A \\cdot \\text{sen}(Bx + C) + D$. Observe como cada parâmetro afeta a forma da onda, o período e a posição.</p>
-  <div id="vis-param-seno" style="width:100%;max-width:700px;height:400px;margin:.8rem auto"></div>
+  <div id="vis-param-seno" style="width:100%;max-width:700px;min-height:400px;height:auto;margin:.8rem auto"></div>
 </section>
 
 <section class="lesson-section">

@@ -928,6 +928,24 @@ body { overflow-x: hidden; }
   }
 }
 
+/* ── Mobile filtrado · bottom-bar panels (formulas/tools/circle) ── */
+@media (max-width: 767px) {
+  .prof-panel[data-active="formulas"] #sec-controles,
+  .prof-panel[data-active="formulas"] #tools-section,
+  .prof-panel[data-active="formulas"] #layers-panel,
+  .prof-panel[data-active="formulas"] #prof-presets,
+  .prof-panel[data-active="formulas"] #uc-info { display: none !important; }
+  .prof-panel[data-active="tools"] #sec-formulas,
+  .prof-panel[data-active="tools"] #sec-controles,
+  .prof-panel[data-active="tools"] #uc-info { display: none !important; }
+  .prof-panel[data-active="tools"] #prof-presets { display: none !important; }
+  .prof-panel[data-active="circle"] #sec-formulas,
+  .prof-panel[data-active="circle"] #tools-section,
+  .prof-panel[data-active="circle"] #layers-panel,
+  .prof-panel[data-active="circle"] #prof-presets { display: none !important; }
+  .prof-panel[data-active="circle"] #sec-controles { display: none !important; }
+}
+
 /* ── Tablet 768 → 1fr 280 (skill: 1fr→1fr 280→1fr 320) ─── */
 @media (min-width: 768px) {
   .prof-wrap {
