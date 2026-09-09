@@ -233,12 +233,74 @@ function evalNode(node, scope) {
 
 /* -------------------- Public API -------------------- */
 /**
+ * Compila expressão implícita F(x,y)=0 -> retorna { fn:(x,y)=>valor, isImplicit:true }
+ * Normalize superscript já existe: a² etc.
+ * Detecta `left = right` => F = left - right.
+ * Coração implícito: (x² + y² - 1)³ - x²y³ = 0  ->  F(x,y)=(x²+y²-1)³ - x²y³
+ */
+export function compileImplicit(expr) {
+  try {
+    let raw = expr.trim();
+    if (!raw) return { error: "Digite uma expressão.", isImplicit: true };
+    let exprF;
+    if (raw.includes("=") && raw.split("=").length === 2) {
+      const parts = raw.split("=");
+      const left = parts[0].trim();
+      const right = parts[1].trim();
+      exprF = `(${left}) - (${right})`;
+    } else {
+      exprF = raw;
+    }
+    exprF = normalizeSuperscript(exprF);
+    const ast = parse(tokenize(exprF));
+    const params = new Set();
+    (function walk(n) {
+      if (n.type === "var") {
+        const low = n.name.toLowerCase();
+        if (n.name !== "x" && n.name !== "y" && !(low in CONSTS)) params.add(n.name);
+      } else if (n.type === "bin") { walk(n.l); walk(n.r); }
+      else if (n.type === "unary") walk(n.v);
+      else if (n.type === "call") walk(n.arg);
+    })(ast);
+    const fnXY = (x, y, p = {}) => {
+      // Suporte flexível: fn(x,y) , fn(x,y,p) ou fn(x, {params}) quando y é objeto
+      if (typeof y === "object" && y !== null) { p = y; y = 0; }
+      if (y === undefined) y = 0;
+      if (typeof p !== "object" || p === null) p = {};
+      return evalNode(ast, { x, y, ...p });
+    };
+    const fn = fnXY;
+    return { fn, fnXY, isImplicit: true, rhs: exprF, params: [...params], ast, error: null };
+  } catch (err) {
+    return { error: err.message, isImplicit: true };
+  }
+}
+
+/**
  * Compila "y = <expr>" ou "<expr>" em uma função f(x, params?).
- * Retorna { fn, rhs, params:[...], error }
+ * Se detectar função implícita F(x,y)=0 (contém "=" e não é y= simples), delega para compileImplicit.
+ * Retorna { fn, rhs, params:[...], error, isImplicit }
+ * Spec: Detecte se expr contém `=` e não é `y=` simples: se `expr.includes("=")` e `!expr.trim().toLowerCase().startsWith("y=")` e `expr.split("=").length===2`, trate como `left = right` => `F(x,y)= left - right`.
+ * Simpler: const parts = expr.split("="); const left = parts[0].trim(), right = parts[1].trim(); const exprF = `(${left}) - (${right})`; // compile exprF como expressão de x,y; const fnXY = compileExpression(exprF); return { fn: (x,y)=>fnXY(x,y), isImplicit:true, fnXY, error:false };
  */
 export function compile(input) {
   try {
-    let rhs = input.trim();
+    let trimmed = input.trim();
+    if (!trimmed) return { error: "Digite uma expressão." };
+    // Detecta implícita: contém "=" e não é y= simples e tem exatamente 2 partes (left = right)
+    // Ex.: (x^2 + y^2 - 1)^3 - x^2*y^3 = 0  (coração implícito) , x² + y² = 4 (círculo)
+    if (trimmed.includes("=") && trimmed.split("=").length === 2) {
+      const leftRaw = trimmed.split("=")[0].trim();
+      const leftNorm = leftRaw.toLowerCase();
+      const leftNoSpace = leftRaw.toLowerCase().replace(/\s+/g, "");
+      const startsWithYEq = trimmed.trim().toLowerCase().replace(/\s+/g, "").startsWith("y=");
+      const isExplicitLeft = leftNorm === "y" || leftNoSpace === "y" || leftNoSpace === "f(x)" || leftNoSpace.startsWith("f(") || leftNoSpace.startsWith("y(") || startsWithYEq;
+      if (!isExplicitLeft) {
+        const res = compileImplicit(trimmed);
+        return res;
+      }
+    }
+    let rhs = trimmed;
     const eqi = rhs.indexOf("=");
     if (eqi >= 0) rhs = rhs.slice(eqi + 1).trim(); // descarta "y =", "f(x) ="
     if (!rhs) return { error: "Digite uma expressão." };
@@ -264,7 +326,7 @@ export function compile(input) {
     })(ast);
 
     const fn = (x, p = {}) => evalNode(ast, { x, ...p });
-    return { fn, rhs, params: [...params], ast, error: null };
+    return { fn, rhs, params: [...params], ast, error: null, isImplicit: false };
   } catch (err) {
     return { error: err.message };
   }

@@ -425,6 +425,7 @@ export class Plot {
   }
 
   _drawCurve(c) {
+    if (c.isImplicit) return this._drawImplicit(c);
     const ctx = this.ctx, { W } = this;
     const params = c.params || {};
     ctx.lineWidth = c.width || 2.6;
@@ -445,6 +446,55 @@ export class Plot {
       prevY = py;
     }
     ctx.stroke();
+  }
+
+  _drawImplicit(c) {
+    const {xmin,xmax,ymin,ymax} = this.view;
+    const W=this.W, H=this.H;
+    const cols = Math.max(120, Math.floor(W/3)), rows = Math.max(90, Math.floor(H/3));
+    const dx = (xmax-xmin)/cols, dy = (ymax-ymin)/rows;
+    // grid de valores F(x,y) -> contorno F=0 via marching squares sampling
+    // Suporta coração implícito (x² + y² - 1)³ - x²y³ = 0 e círculo x² + y² = 4
+    const grid = [];
+    for(let j=0;j<=rows;j++){
+      grid[j]=[];
+      for(let i=0;i<=cols;i++){
+        const x = xmin + i*dx, y = ymax - j*dy;
+        let v;
+        try{ v = c.fn(x,y, c.params || {}); } catch{ v=NaN; }
+        // fallback: se fn espera só (x,y) sem params
+        if(!isFinite(v)){
+          try{ v = c.fn(x,y); } catch{ v=NaN; }
+        }
+        grid[j][i]=v;
+      }
+    }
+    this.ctx.strokeStyle = c.color || css("--accent");
+    this.ctx.lineWidth = c.width || 2;
+    // para cada célula, se mudança de sinal, interpola e desenha segmento
+    for(let j=0;j<rows;j++){
+      for(let i=0;i<cols;i++){
+        const v00=grid[j][i], v10=grid[j][i+1], v01=grid[j+1][i], v11=grid[j+1][i+1];
+        if(!isFinite(v00)||!isFinite(v10)||!isFinite(v01)||!isFinite(v11)) continue;
+        const s00=Math.sign(v00), s10=Math.sign(v10), s01=Math.sign(v01), s11=Math.sign(v11);
+        if(s00===0||s10===0||s01===0||s11===0 || s00!==s10 || s00!==s01 || s00!==s11){
+          // encontra intersecções nas bordas via interpolação linear
+          const pts=[];
+          const interp=(vA,vB,pA,pB)=> pA + (0 - vA)/(vB - vA)*(pB - pA);
+          const x0=xmin+i*dx, x1=x0+dx, y0=ymax-j*dy, y1=y0-dy;
+          if(Math.sign(v00)!==Math.sign(v10)){ const x=interp(v00,v10,x0,x1); pts.push([this.X(x), this.Y(y0)]); }
+          if(Math.sign(v00)!==Math.sign(v01)){ const y=interp(v00,v01,y0,y1); pts.push([this.X(x0), this.Y(y)]); }
+          if(Math.sign(v01)!==Math.sign(v11)){ const x=interp(v01,v11,x0,x1); pts.push([this.X(x), this.Y(y1)]); }
+          if(Math.sign(v10)!==Math.sign(v11)){ const y=interp(v10,v11,y0,y1); pts.push([this.X(x1), this.Y(y)]); }
+          if(pts.length>=2){
+            this.ctx.beginPath();
+            this.ctx.moveTo(pts[0][0], pts[0][1]);
+            for(let k=1;k<pts.length;k++) this.ctx.lineTo(pts[k][0], pts[k][1]);
+            this.ctx.stroke();
+          }
+        }
+      }
+    }
   }
 
   // ---- interaction: pan, zoom, probe (Pointer Events + Wheel + Pinch) ----
@@ -669,6 +719,43 @@ export class Plot {
     svg += `<line x1="0" y1="${oy}" x2="${this.W}" y2="${oy}" stroke="${axisColor}" stroke-width="1.6"/>`;
 
     for (const curve of this.curves) {
+      if (curve.isImplicit) {
+        // SVG para implícita F(x,y)=0 via marching squares (coração implícito, círculo)
+        const cols = Math.max(120, Math.floor(this.W/3)), rows = Math.max(90, Math.floor(this.H/3));
+        const dx = (xmax-xmin)/cols, dy = (ymax-ymin)/rows;
+        const grid = [];
+        for(let j=0;j<=rows;j++){
+          grid[j]=[];
+          for(let i=0;i<=cols;i++){
+            const x = xmin + i*dx, y = ymax - j*dy;
+            let v;
+            try{ v = curve.fn(x,y, curve.params || {}); } catch{ v=NaN; }
+            if(!isFinite(v)){ try{ v = curve.fn(x,y); } catch{ v=NaN; } }
+            grid[j][i]=v;
+          }
+        }
+        for(let j=0;j<rows;j++){
+          for(let i=0;i<cols;i++){
+            const v00=grid[j][i], v10=grid[j][i+1], v01=grid[j+1][i], v11=grid[j+1][i+1];
+            if(!isFinite(v00)||!isFinite(v10)||!isFinite(v01)||!isFinite(v11)) continue;
+            const s00=Math.sign(v00), s10=Math.sign(v10), s01=Math.sign(v01), s11=Math.sign(v11);
+            if(s00===0||s10===0||s01===0||s11===0 || s00!==s10 || s00!==s01 || s00!==s11){
+              const pts=[];
+              const interp=(vA,vB,pA,pB)=> pA + (0 - vA)/(vB - vA)*(pB - pA);
+              const x0=xmin+i*dx, x1=x0+dx, y0=ymax-j*dy, y1=y0-dy;
+              if(Math.sign(v00)!==Math.sign(v10)){ const x=interp(v00,v10,x0,x1); pts.push([this.X(x), this.Y(y0)]); }
+              if(Math.sign(v00)!==Math.sign(v01)){ const y=interp(v00,v01,y0,y1); pts.push([this.X(x0), this.Y(y)]); }
+              if(Math.sign(v01)!==Math.sign(v11)){ const x=interp(v01,v11,x0,x1); pts.push([this.X(x), this.Y(y1)]); }
+              if(Math.sign(v10)!==Math.sign(v11)){ const y=interp(v10,v11,y0,y1); pts.push([this.X(x1), this.Y(y)]); }
+              if(pts.length>=2){
+                const d = pts.map(p=>`${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
+                svg += `<polyline points="${d}" fill="none" stroke="${curve.color || css("--accent")}" stroke-width="2.6"/>`;
+              }
+            }
+          }
+        }
+        continue;
+      }
       const N = Math.max(this.W, 600);
       const dx = (xmax - xmin) / N;
       let points = [];

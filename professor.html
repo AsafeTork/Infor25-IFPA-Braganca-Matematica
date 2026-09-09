@@ -1490,7 +1490,14 @@ function addFormula(expr="") {
 function updatePlot() {
   const curves = formulas.filter(f=>!f.hidden).map(({inp,color}) => {
     const expr = inp.value.trim(); if (!expr) return null;
-    try { const c=compile(expr); return (c&&!c.error)?{fn:c.fn,color}:null; } catch { return null; }
+    try {
+      const c=compile(expr);
+      if(!c||c.error) return null;
+      // Suporte a funções implícitas F(x,y)=0  —  ex: coração (x² + y² - 1)³ - x²y³ = 0 , círculo x² + y² = 4
+      // coração é implícito (não é y=f(x)), por isso precisa de _drawImplicit via marching squares
+      if(c.isImplicit) return {fn:c.fn, color, isImplicit:true, params:c.params};
+      return {fn:c.fn, color, isImplicit:false, params:c.params};
+    } catch { return null; }
   }).filter(Boolean);
   plot.setCurves(curves);
   // sync para SVG (apenas visíveis)
