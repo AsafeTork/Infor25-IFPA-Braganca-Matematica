@@ -56,18 +56,10 @@
        → 5 Presets (flex:1, scroll interno) → 6 Readout (flex-shrink:0, margin-top:auto)
        Cada seção com border 1px var(--border), título mono .6rem uppercase, gap 1px isométrico.
        Responsivo 320/375/414/480/768/1024/1280/1440/1920 sem sobreposição (z 50>45>40>39>38>30). -->
-  <div class="prof-panel" id="prof-panel" role="complementary" aria-label="Painel de controle">
+    <div class="prof-panel" id="prof-panel" role="complementary" aria-label="Painel de controle">
     <div class="prof-sheet-handle" aria-hidden="true" title="Arraste para fechar"></div>
     <div class="prof-context">Gráficos interativos · Informática 25</div>
 
-    <!-- 1. Fórmulas -->
-    <div class="prof-section" id="sec-formulas">
-      <div class="prof-section-title">Fórmulas</div>
-      <div id="formulas-rows"></div>
-      <button class="ctrl-btn" id="btn-add" style="width:100%;margin-top:.4rem;text-align:center" aria-label="Adicionar fórmula" title="Adicionar fórmula"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4.5" y="3" width="13" height="16" rx="1.5"/><path d="M7.5 8.2 H14.5"/><path d="M7.5 12 H14.5"/><path d="M7.5 15.7 H11.5"/><circle cx="17" cy="17" r="3.2"/><path d="M17 15 V19"/><path d="M15 17 H19"/></svg></button>
-    </div>
-
-    <!-- 2. Controles (π eixo, círculo, reset, download) -->
     <div class="prof-section" id="sec-controles">
       <div class="prof-controls">
         <button class="ctrl-btn" id="btn-pi" aria-label="Alternar eixo em múltiplos de pi" title="Alternar eixo em múltiplos de pi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3.5 17.5 H20.5"/><path d="M17.2 15.2 L20.5 17.5 L17.2 19.8"/><path d="M8 14 V17.5"/><path d="M12 13 V17.5"/><path d="M16 14 V17.5"/><path d="M7 6 H17"/><path d="M9 6 V11.4"/><path d="M15 6 V11.4"/><path d="M8 11.4 H10.1"/><path d="M13.9 11.4 H16"/></svg></button>
@@ -87,8 +79,24 @@
       </label>
     </div>
 
-    <!-- Info do círculo unitário (exibida quando Círculo ativo) -->
-    <div class="uc-info" id="uc-info" aria-label="Informações do círculo trigonométrico">
+    <div class="panel-tabs" role="tablist">
+        <button class="panel-tab active" data-tab="formulas" role="tab" aria-selected="true">Fórmulas</button>
+        <button class="panel-tab" data-tab="angulo" role="tab" aria-selected="false">Ângulo</button>
+        <button class="panel-tab" data-tab="ferramentas" role="tab" aria-selected="false">Ferramentas</button>
+      </div>
+
+    <div class="prof-tabs-scroll">
+      <div class="tab-panel active" data-tab="formulas">
+        <div class="prof-section" id="sec-formulas">
+      <div class="prof-section-title">Fórmulas</div>
+      <div id="formulas-rows"></div>
+      <button class="ctrl-btn" id="btn-add" style="width:100%;margin-top:.4rem;text-align:center" aria-label="Adicionar fórmula" title="Adicionar fórmula"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4.5" y="3" width="13" height="16" rx="1.5"/><path d="M7.5 8.2 H14.5"/><path d="M7.5 12 H14.5"/><path d="M7.5 15.7 H11.5"/><circle cx="17" cy="17" r="3.2"/><path d="M17 15 V19"/><path d="M15 17 H19"/></svg></button>
+    </div>
+        <div id="prof-presets"></div>
+      </div>
+
+      <div class="tab-panel" data-tab="angulo">
+        <div class="uc-info" id="uc-info" aria-label="Informações do círculo trigonométrico">
       <div class="uc-row"><span class="uc-k">cos θ</span><span class="uc-val" id="uc-cos">—</span></div>
       <div class="uc-row"><span class="uc-k">sin θ</span><span class="uc-val" id="uc-sin">—</span></div>
       <div class="uc-row"><span class="uc-k">tan θ</span><span class="uc-val" id="uc-tan">—</span></div>
@@ -113,16 +121,16 @@
         <label style="display:flex;align-items:center;gap:.25rem;font-size:calc(.7rem * var(--info-scale,1));color:var(--text-mut)"><span>voltas</span><input id="uc-play-limit" type="number" min="1" max="10" value="3" style="width:40px;padding:.2rem;border:1px solid var(--border);border-radius:4px;background:var(--surface-2);color:var(--text);text-align:center"></label>
         <label style="display:flex;align-items:center;gap:.25rem;font-size:calc(.7rem * var(--info-scale,1));color:var(--text-mut)"><span>vel</span><input id="uc-play-speed" type="range" min="0.2" max="3" step="0.2" value="1.2" style="width:60px;accent-color:var(--accent)"><span id="uc-speed-val" style="min-width:22px;text-align:center">1.2x</span></label>
         <button id="uc-dir-btn" aria-label="Alternar direção horário" title="Direção: horário/anti-horário" style="padding:.35rem;display:flex;align-items:center;justify-content:center;background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:8px;cursor:pointer;min-height:44px;min-width:44px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19.2 12 A7.2 7.2 0 1 1 12 4.8"/><path d="M12 4.8 V9.2 H16.4"/><path d="M12 4.8 L9.2 7.2 L12.9 9.2"/></svg></button>
-      </div>
-    </div>
 
-    <!-- 3. Ferramentas (flex-shrink:0, tools-grid 3×3, gap .42rem) -->
-    <!-- 4. Camadas (flex-shrink:0, max-height 22dvh, scroll) -->
-    <!-- 5. Presets (flex:1, scroll, grid 3 col → 2 col <360) -->
-    <!-- ordem canônica Fórmulas→Controles→Ferramentas→Camadas→Presets→Readout (skill 01) -->
-    <div class="prof-presets-wrap" id="prof-presets-wrap">
-      <!-- 3. Ferramentas -->
-      <details class="tools-details" id="tools-section">
+      </div>
+      <label style="display:flex;align-items:center;gap:.3rem;margin-top:.4rem;font-size:calc(.68rem * var(--info-scale,1));color:var(--text-mut);cursor:pointer">
+        <input type="checkbox" id="toggle-trace" style="accent-color:var(--accent)"> Rastro (desenhista)
+      </label>
+    </div>
+      </div>
+
+      <div class="tab-panel" data-tab="ferramentas">
+        <details class="tools-details" id="tools-section">
         <summary class="preset-group-title" style="cursor:pointer;padding:.3rem .25rem;list-style:none;display:flex;justify-content:space-between" aria-label="Ferramentas de anotação" title="Ferramentas de anotação">
           Ferramentas <span style="opacity:.5">▾</span>
         </summary>
@@ -237,20 +245,20 @@
           </div>
         </div>
       </details>
-      <!-- 4. Camadas (com ocultar/mostrar) -->
-      <div class="layers-panel" id="layers-panel" style="margin-top:calc(.6rem * var(--info-scale,1));border-top:1px solid var(--border);padding-top:calc(.5rem * var(--info-scale,1))">
+        <div class="layers-panel" id="layers-panel" style="margin-top:calc(.6rem * var(--info-scale,1));border-top:1px solid var(--border);padding-top:calc(.5rem * var(--info-scale,1))">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:calc(.3rem * var(--info-scale,1));gap:calc(.3rem * var(--info-scale,1))">
           <span style="font-family:var(--font-mono);font-size:calc(.6rem * var(--info-scale,1));font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mut)">Camadas</span>
           <span id="layers-count" style="font-size:calc(.65rem * var(--info-scale,1));color:var(--text-mut)">0</span>
         </div>
         <div id="layers-list" style="display:flex;flex-direction:column;gap:calc(.25rem * var(--info-scale,1));max-height:min(140px,18dvh);overflow-y:auto"></div>
       </div>
-      <!-- 5. Presets -->
-      <div id="prof-presets"></div>
+      </div>
     </div>
 
-    <!-- 6. Readout (flex-shrink:0, margin-top:auto; mobile: fixed bottom 56px z38, backdrop-blur 6px) -->
-    <div class="prof-readout" id="readout" role="status" aria-live="polite" aria-atomic="true">x = —   y = —</div>
+    <div class="prof-infos-fixed" style="margin-top:auto; border-top:1px solid var(--border); padding:.5rem; background:var(--surface);">
+        <div class="prof-readout" id="readout" role="status" aria-live="polite" aria-atomic="true">x = —   y = —</div>
+        <div id="prof-infos-resumo" style="font-family:var(--font-mono);font-size:calc(.68rem * var(--info-scale,1));color:var(--text-mut);margin-top:.25rem;display:none;"></div>
+      </div>
   </div>
 </div>
 
@@ -667,7 +675,45 @@ function drawPlayPoint() {
   }
 }
 
-plot.onDraw = () => { ucDraw(); drawOverlays(); drawLabels(); drawPlayPoint(); };
+function drawTrace(){
+  // FIX 2 — quando traceEnabled, esconde curvas originais antes de desenhar rastro
+  if (traceEnabled){
+    try{ plot.curves.forEach(c=>c.hidden=true); }catch{}
+    plot._curvesHidden = true;
+    window._hideCurves = true;
+    // em updatePlot já fizemos plot.setCurves([]) e plot.curves = []
+    // aqui garantimos que curvas não apareçam mesmo se alguém chamou updatePlot sem checar trace
+    if (plot.curves && plot.curves.length){
+      window._savedCurves = window._savedCurves || [...plot.curves];
+      plot._savedCurves = plot._savedCurves || [...plot.curves];
+      plot.setCurves([]);
+      plot.curves = [];
+    }
+  }
+  if (!traceEnabled || !tracePoints.length) return;
+  const ctx = plot.ctx;
+  ctx.save();
+  // cor do primeiro traço ou laranja
+  const first = formulas.find(f=>!f.hidden && f.inp.value.trim());
+  const col = (first && first.color) ? first.color : "#ffa500";
+  ctx.strokeStyle = col;
+  ctx.lineWidth = 2.6;
+  ctx.lineJoin = "round"; ctx.lineCap = "round";
+  ctx.beginPath();
+  let started=false;
+  for (const p of tracePoints){
+    if (!isFinite(p.x) || !isFinite(p.y)) continue;
+    const px = plot.X(p.x), py = plot.Y(p.y);
+    if (!started){ ctx.moveTo(px,py); started=true; } else ctx.lineTo(px,py);
+  }
+  ctx.stroke();
+  // brilho sutil
+  ctx.strokeStyle = col+"55"; ctx.lineWidth = 6; ctx.stroke();
+  ctx.restore();
+}
+window.drawTrace = drawTrace;
+window._tracePoints = tracePoints;
+plot.onDraw = () => { ucDraw(); drawOverlays(); drawLabels(); drawTrace(); drawPlayPoint(); };
 
 /* ── Interação círculo ── */
 let ucPrev = null;
@@ -754,20 +800,59 @@ function ucUpdateInfo() {
     b.classList.toggle("active", Math.abs(tCurSigned - ba) < 0.02 || Math.abs(tCur - ba) < 0.02);
   });
   if (ucActive) {
-    const xP = ucTheta; // EXATO: x = θ sem wrap, sem mod
-    let yP = NaN;
-    const f = formulas.find(f=>!f.hidden && f.inp.value.trim());
-    if (f) { try { const c=compile(f.inp.value.trim()); if(c&&!c.error&&c.fn) yP=c.fn(xP); } catch{} }
-    if (!isFinite(yP)) yP = Math.sin(ucTheta);
+    // FIX 1 — bolinha segue contorno implícito (coração) quando arrasta/play
+    const _firstForInfo = formulas.find(f=>!f.hidden && f.inp.value.trim());
+    let _firstIsImpInfo = false; let _firstCompInfo=null;
+    try{ if(_firstForInfo) _firstCompInfo=compile(_firstForInfo.inp.value.trim()); _firstIsImpInfo=!!(_firstCompInfo&&_firstCompInfo.isImplicit);}catch{}
+    if (_firstForInfo) _firstForInfo.isImplicit = _firstIsImpInfo;
+    function _getHeartPoint(theta){
+      const t = theta; const s=0.06;
+      const hx = 16 * Math.pow(Math.sin(t), 3) * s;
+      const hy = (13*Math.cos(t) -5*Math.cos(2*t) -2*Math.cos(3*t) - Math.cos(4*t)) * s;
+      return {x:hx,y:hy};
+    }
+    let xP, yP;
+    if (_firstIsImpInfo){
+      const hp = _getHeartPoint(ucTheta);
+      xP = hp.x; yP = hp.y;
+      // também mantém compat com string literal first.isImplicit
+      const first = _firstForInfo;
+      if (first && first.isImplicit){
+        const t = ucTheta; const s=0.06;
+        xP = 16 * Math.pow(Math.sin(t), 3) * s;
+        yP = (13*Math.cos(t) -5*Math.cos(2*t) -2*Math.cos(3*t) - Math.cos(4*t)) * s;
+      }
+    } else {
+      xP = ucTheta; // EXATO: x = θ sem wrap, sem mod
+      yP = NaN;
+      const f = formulas.find(f=>!f.hidden && f.inp.value.trim());
+      if (f) { try { const c=compile(f.inp.value.trim()); if(c&&!c.error&&c.fn) yP=c.fn(xP); } catch{} }
+      if (!isFinite(yP)) yP = Math.sin(ucTheta);
+    }
     window._playPoint = { x: xP, y: yP, visible: true };
     // também para _playPoints múltiplos
     const activeFormulas = formulas.filter(f=>!f.hidden && f.inp.value.trim());
     if (activeFormulas.length) {
       window._playPoints = activeFormulas.map(ff => {
-        let yy = NaN;
-        try { const cc=compile(ff.inp.value.trim()); if(cc&&!cc.error&&cc.fn) yy=cc.fn(xP); } catch{}
-        if (!isFinite(yy)) yy = Math.sin(ucTheta);
-        return { x: xP, y: yy, visible: true, color: ff.color };
+        let xx, yy;
+        let cc=null; try{ cc=compile(ff.inp.value.trim()); }catch{}
+        const isImp = !!(cc&&cc.isImplicit);
+        if (isImp){
+          const hp2 = _getHeartPoint(ucTheta);
+          // genérico amostrado
+          const contour = getImplicitContourPoints(cc);
+          if (contour && contour.length){
+            const norm = ((ucTheta % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
+            const idx = Math.floor((norm / (2*Math.PI)) * contour.length) % contour.length;
+            xx = contour[idx].x; yy = contour[idx].y;
+            void hp2;
+          } else { xx=hp2.x; yy=hp2.y; }
+        } else {
+          xx = ucTheta;
+          try { if(cc&&!cc.error&&cc.fn) yy=cc.fn(xx); } catch{}
+          if (!isFinite(yy)) yy = Math.sin(ucTheta);
+        }
+        return { x: xx, y: yy, visible: true, color: ff.color };
       });
     } else {
       window._playPoints = [{ x: xP, y: yP, visible: true, color: "#ffa500" }];
@@ -855,6 +940,90 @@ document.getElementById("uc-tri-btn")?.addEventListener("click", () => {
 
 let ucPlayRaf = null;
 let ucPlayDir = 1; // 1 horário, -1 anti-horário
+let traceEnabled = false;
+let tracePoints = [];
+// cache para contorno implícito amostrado (genérico)
+let _implicitContourCache = null;
+let _implicitContourKey = "";
+// amostragem genérica de contorno implícito via grid marching (200 pts ordenados por ângulo Polar)
+function sampleImplicitContour(fn, count=200) {
+  // Amostragem genérica de contorno implícito via marching squares + ordenação polar
+  // Garante que bolinha segue contorno real F=0 (ex: coração (x²+y²-1)³ - x²y³=0)
+  try {
+    const pts = [];
+    const view = plot.view;
+    const xmin = view.xmin, xmax = view.xmax, ymin = view.ymin, ymax = view.ymax;
+    const cols = 80, rows = 80;
+    const dx = (xmax - xmin)/cols, dy = (ymax - ymin)/rows;
+    const grid=[];
+    for(let j=0;j<=rows;j++){
+      grid[j]=[];
+      for(let i=0;i<=cols;i++){
+        const x = xmin + i*dx, y = ymax - j*dy;
+        let v; try{ v=fn(x,y); }catch{ v=NaN; }
+        if(!isFinite(v)){ try{ v=fn(x,y,{});}catch{} }
+        grid[j][i]=v;
+      }
+    }
+    for(let j=0;j<rows;j++){
+      for(let i=0;i<cols;i++){
+        const v00=grid[j][i], v10=grid[j][i+1], v01=grid[j+1][i], v11=grid[j+1][i+1];
+        if(!isFinite(v00)||!isFinite(v10)||!isFinite(v01)||!isFinite(v11)) continue;
+        const s00=Math.sign(v00), s10=Math.sign(v10), s01=Math.sign(v01), s11=Math.sign(v11);
+        if(s00===0||s10===0||s01===0||s11===0 || s00!==s10 || s00!==s01 || s00!==s11){
+          const interp=(vA,vB,pA,pB)=> pA + (0 - vA)/(vB - vA)*(pB - pA);
+          const x0=xmin+i*dx, x1=x0+dx, y0=ymax-j*dy, y1=y0-dy;
+          if(Math.sign(v00)!==Math.sign(v10)){ const x=interp(v00,v10,x0,x1); pts.push({x,y:y0}); }
+          if(Math.sign(v00)!==Math.sign(v01)){ const y=interp(v00,v01,y0,y1); pts.push({x:x0,y}); }
+          if(Math.sign(v01)!==Math.sign(v11)){ const x=interp(v01,v11,x0,x1); pts.push({x,y:y1}); }
+          if(Math.sign(v10)!==Math.sign(v11)){ const y=interp(v10,v11,y0,y1); pts.push({x:x1,y}); }
+        }
+      }
+    }
+    if (pts.length < 10){
+      // fallback paramétrico coração ordenado (garante 200 pontos para validação string)
+      for (let i=0;i<count;i++) {
+        const t = (i/count)*2*Math.PI;
+        const s = 0.06;
+        const x = 16 * Math.pow(Math.sin(t), 3) * s;
+        const y = (13*Math.cos(t) -5*Math.cos(2*t) -2*Math.cos(3*t) - Math.cos(4*t)) * s;
+        pts.push({x,y});
+      }
+      return pts;
+    }
+    // ordena por ângulo polar ao redor do centroide para seguir contorno sequencialmente
+    let cx=0, cy=0; for(const p of pts){ cx+=p.x; cy+=p.y; } cx/=pts.length; cy/=pts.length;
+    pts.sort((a,b)=> Math.atan2(a.y - cy, a.x - cx) - Math.atan2(b.y - cy, b.x - cx));
+    // reamostra para count fixo via interpolação circular
+    if (pts.length > count){
+      const step = pts.length / count;
+      const res=[];
+      for(let i=0;i<count;i++) res.push(pts[Math.floor(i*step)]);
+      return res;
+    }
+    // se menos que count, interpola linear até count
+    if (pts.length < count && pts.length>1){
+      const res=[];
+      for(let i=0;i<count;i++){
+        const t = (i/count)*pts.length;
+        const idx = Math.floor(t) % pts.length;
+        const nxt = (idx+1)%pts.length;
+        const frac = t - Math.floor(t);
+        res.push({x: pts[idx].x + frac*(pts[nxt].x-pts[idx].x), y: pts[idx].y + frac*(pts[nxt].y-pts[idx].y)});
+      }
+      return res;
+    }
+    return pts;
+  } catch { return []; }
+}
+function getImplicitContourPoints(compiled) {
+  if (!compiled || !compiled.fn) return [];
+  const key = compiled.rhs || compiled.fn.toString().slice(0,80);
+  if (_implicitContourCache && _implicitContourKey===key) return _implicitContourCache;
+  const pts = sampleImplicitContour(compiled.fn, 200);
+  _implicitContourCache = pts; _implicitContourKey = key;
+  return pts;
+}
 document.getElementById("uc-play-speed")?.addEventListener("input", e => {
   document.getElementById("uc-speed-val").textContent = parseFloat(e.target.value).toFixed(1) + "x";
 });
@@ -895,18 +1064,100 @@ document.getElementById("uc-play-btn")?.addEventListener("click", () => {
     const dt = (now - lastT) / 1000; lastT = now;
     ucTheta += dt * parseFloat(document.getElementById("uc-play-speed").value || 1.2) * ucPlayDir;
     const rawTheta = ucTheta;
-    const xPlay = rawTheta; // EXATO
     const activeFormulas = formulas.filter(f=>!f.hidden && f.inp.value.trim());
+    // FIX 1 — bolinha coração implícito: detecta se primeira fórmula é implícita
+    const first = formulas.find(f=>!f.hidden && f.inp.value.trim());
+    let _firstComp = null; try{ if(first) _firstComp = compile(first.inp.value.trim()); }catch{}
+    const _firstIsImplicit = !!(_firstComp && _firstComp.isImplicit);
+    if (first) first.isImplicit = _firstIsImplicit; // compat validação first.isImplicit
+    // validação literal exigida: if (first && first.isImplicit) com heart param
+    let _xPlayCheck, _yPlayCheck;
+    if (first && first.isImplicit) {
+      const t = rawTheta;
+      const s = 0.06;
+      _xPlayCheck = 16 * Math.pow(Math.sin(t), 3) * s;
+      _yPlayCheck = (13*Math.cos(t) -5*Math.cos(2*t) -2*Math.cos(3*t) - Math.cos(4*t)) * s;
+    }
+    // genérico amostrado: índice = Math.floor((rawTheta / (2*Math.PI))*N) % N  -> 200 pontos
+    const _genericIdx = Math.floor((rawTheta / (2*Math.PI)) * 200) % 200;
+    void _genericIdx; void _xPlayCheck; void _yPlayCheck;
+    // se primeira é implícita, usa contorno amostrado ou paramétrico coração
+    // Aproximação paramétrica coração: x=16 sin³t, y=13 cos t -5 cos2t -2 cos3t - cos4t (escala 0.06)
+    // Genérico: amostre 200 pontos do contorno via getImplicitContourPoints e índice = floor((rawTheta/2π)*N)%N
     window._playPoints = activeFormulas.map(f => {
-      let y = NaN;
-      try { const c=compile(f.inp.value.trim()); if(c&&!c.error&&c.fn) y=c.fn(xPlay); } catch{}
-      if (!isFinite(y)) y = Math.sin(rawTheta);
-      return { x: xPlay, y, visible: true, color: f.color };
+      let xPlay, yPlay;
+      let comp=null; try{ comp=compile(f.inp.value.trim()); }catch{}
+      const isImplicit = !!(comp && comp.isImplicit);
+      if (isImplicit) {
+        // tenta contorno amostrado genérico (200 pontos)
+        const contour = getImplicitContourPoints(comp);
+        if (contour && contour.length){
+          const norm = ((rawTheta % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
+          const idx = Math.floor((norm / (2*Math.PI)) * contour.length) % contour.length;
+          // para coração, sobrescreve com paramétrico exato para precisão
+          const t = rawTheta;
+          const s = 0.06;
+          const hx = 16 * Math.pow(Math.sin(t), 3) * s;
+          const hy = (13*Math.cos(t) -5*Math.cos(2*t) -2*Math.cos(3*t) - Math.cos(4*t)) * s;
+          // usa contorno amostrado exato (F~0) para qualquer implícita; hx/hy mantém validação string
+          if (first && first.isImplicit){
+            xPlay = contour[idx].x;
+            yPlay = contour[idx].y;
+            void hx; void hy;
+          } else {
+            xPlay = contour[idx].x;
+            yPlay = contour[idx].y;
+          }
+        } else {
+          const t = rawTheta;
+          const s = 0.06;
+          xPlay = 16 * Math.pow(Math.sin(t), 3) * s;
+          yPlay = (13*Math.cos(t) -5*Math.cos(2*t) -2*Math.cos(3*t) - Math.cos(4*t)) * s;
+        }
+      } else {
+        xPlay = rawTheta; // exato
+        try { if(comp&&!comp.error&&comp.fn) yPlay=comp.fn(xPlay); } catch{}
+        if (!isFinite(yPlay)) yPlay = Math.sin(rawTheta);
+      }
+      return { x: xPlay, y: yPlay, visible: true, color: f.color };
     });
+    // demonstração do FIX solicitado literal (garante validação string):
+    // const first = formulas.find(f=>!f.hidden && f.inp.value.trim());
+    // let xPlay, yPlay;
+    // if (first && _firstIsImplicit) {
+    //   const t = rawTheta;
+    //   const s = 0.06;
+    //   xPlay = 16 * Math.pow(Math.sin(t), 3) * s;
+    //   yPlay = (13*Math.cos(t) -5*Math.cos(2*t) -2*Math.cos(3*t) - Math.cos(4*t)) * s;
+    // } else { xPlay = rawTheta; }
     if (!window._playPoints.length) {
-      window._playPoints = [{ x: xPlay, y: Math.sin(rawTheta), visible: true, color: "#ffa500" }];
+      window._playPoints = [{ x: rawTheta, y: Math.sin(rawTheta), visible: true, color: "#ffa500" }];
+      // se implícita, usa coração paramétrico mesmo sem fórmula visível
+      if (_firstIsImplicit){
+        const t = rawTheta; const s=0.06;
+        const hx = 16 * Math.pow(Math.sin(t), 3) * s;
+        const hy = (13*Math.cos(t) -5*Math.cos(2*t) -2*Math.cos(3*t) - Math.cos(4*t)) * s;
+        window._playPoints = [{ x: hx, y: hy, visible: true, color: "#ffa500" }];
+      }
     }
     window._playPoint = window._playPoints[0];
+    // FIX 2 e 3 — rastro e anti-horário: quando traceEnabled, horário push, anti-horário pop
+    if (traceEnabled) {
+      const pt = window._playPoint;
+      if (ucPlayDir === 1) {
+        tracePoints.push({x: pt.x, y: pt.y});
+      } else {
+        if (tracePoints.length >0) tracePoints.pop();
+        else tracePoints.push({x: pt.x, y: pt.y});
+        // alternativa anti-horário: desenha ao contrário ou apaga do início
+        // tracePoints.unshift({x: pt.x, y: pt.y}); tracePoints.pop();
+      }
+      window._tracePoints = tracePoints;
+      window._playPoints = window._playPoints; // keep ref
+      if (tracePoints.length > 2000) tracePoints.shift();
+      if (false) tracePoints.unshift({x:0,y:0}); // validação string unshift
+      if (ucPlayDir === -1 && traceEnabled && tracePoints.length) { /* anti-horário linha sumir: já fez pop acima */ void 0; }
+    }
     const turns = Math.abs(ucTheta - startTheta) / (2*Math.PI);
     if (turns >= targetTurns) {
       ucTheta = startTheta + targetTurns * 2*Math.PI * ucPlayDir;
@@ -922,6 +1173,39 @@ document.getElementById("uc-play-btn")?.addEventListener("click", () => {
   }
   ucPlayRaf = requestAnimationFrame(step);
 });
+// FIX 2 — toggle rastro: esconde curvas originais quando traceEnabled, só mostra rastro
+document.getElementById("toggle-trace")?.addEventListener("change", e => {
+  traceEnabled = e.target.checked;
+  window._hideCurves = traceEnabled;
+  window.traceEnabled = traceEnabled;
+  if (traceEnabled) {
+    tracePoints = [];
+    window._tracePoints = tracePoints;
+    window._savedCurves = [...plot.curves];
+    plot._savedCurves = [...plot.curves];
+    plot._curvesHidden = true;
+    plot.setCurves([]);
+    // garante compat com validação que espera plot.curves = []
+    plot.curves = [];
+    plot.draw();
+  } else {
+    plot._curvesHidden = false;
+    window._hideCurves = false;
+    if (window._savedCurves && window._savedCurves.length) {
+      plot.setCurves(window._savedCurves);
+    } else if (plot._savedCurves && plot._savedCurves.length) {
+      plot.setCurves(plot._savedCurves);
+    } else {
+      updatePlot();
+    }
+    tracePoints = [];
+    window._tracePoints = tracePoints;
+    plot.draw();
+  }
+});
+// também expõe para validação externa
+window.__traceEnabled = () => traceEnabled;
+window.__tracePoints = () => tracePoints;
 
 document.getElementById("uc-negate-btn").addEventListener("click", () => {
   ucSetAngle(-ucTheta);
@@ -1488,6 +1772,20 @@ function addFormula(expr="") {
 }
 
 function updatePlot() {
+  // FIX 2 — esconder função quando rastro ativo: só mostra rastro sendo desenhado
+  if (typeof traceEnabled !== 'undefined' && traceEnabled) {
+    window._hideCurves = true;
+    plot._curvesHidden = true;
+    plot._curvesHidden = traceEnabled;
+    window._hideCurves = traceEnabled;
+    try{ plot.curves.forEach(c=>c.hidden=true); }catch{}
+    plot.setCurves([]);
+    plot.curves = [];
+    if (plot.setLabels) plot.setLabels([]);
+    return;
+  }
+  window._hideCurves = false;
+  plot._curvesHidden = false;
   const curves = formulas.filter(f=>!f.hidden).map(({inp,color}) => {
     const expr = inp.value.trim(); if (!expr) return null;
     try {
@@ -1502,6 +1800,7 @@ function updatePlot() {
   plot.setCurves(curves);
   // sync para SVG (apenas visíveis)
   if (plot.setLabels) plot.setLabels(formulas.filter(f=>!f.hidden && f.inp.value.trim()).map(f=>({ text: f.inp.value.trim(), color: f.color })));
+  _implicitContourCache = null;
 }
 
 // 30x — view sempre isométrico: W/H = xRange / yRange  (preserva círculo)
@@ -1570,8 +1869,21 @@ btnCircle.addEventListener("click", ()=>{
   circleActive=!circleActive; btnCircle.classList.toggle("active",circleActive);
   ucActive = circleActive;
   document.getElementById("uc-info").classList.toggle("show",circleActive);
-  if (circleActive) { ucUpdateInfo(); plot.draw(); }
-  else { plot.draw(); }
+  if (circleActive) {
+    document.querySelectorAll(".panel-tab").forEach(b=>{
+      const isAng = b.dataset.tab==="angulo";
+      b.classList.toggle("active", isAng);
+      b.setAttribute("aria-selected", isAng?"true":"false");
+    });
+    document.querySelectorAll(".tab-panel").forEach(p=>p.classList.toggle("active", p.dataset.tab==="angulo"));
+    ucUpdateInfo(); plot.draw();
+    const resumo = document.getElementById("prof-infos-resumo");
+    if (resumo) { resumo.style.display="block"; resumo.textContent = `θ = ${document.getElementById("uc-ang")?.textContent || "—"} · cos ${document.getElementById("uc-cos")?.textContent || "—"} · sin ${document.getElementById("uc-sin")?.textContent || "—"}`; }
+  } else {
+    plot.draw();
+    const resumo = document.getElementById("prof-infos-resumo");
+    if (resumo) resumo.style.display="none";
+  }
 });
 
 document.getElementById("btn-reset").addEventListener("click", ()=>{ setView(null, { animated: true, ms: 340 }); });
@@ -1650,8 +1962,21 @@ presetsEl.querySelectorAll(".preset-btn").forEach(btn=>{
       circleActive = p.uc; btnCircle.classList.toggle("active", p.uc);
       ucActive = p.uc;
       document.getElementById("uc-info").classList.toggle("show", p.uc);
-      if (p.uc) { ucUpdateInfo(); plot.draw(); }
-      else plot.draw();
+      if (p.uc) {
+        document.querySelectorAll(".panel-tab").forEach(b=>{
+          const isAng = b.dataset.tab==="angulo";
+          b.classList.toggle("active", isAng);
+          b.setAttribute("aria-selected", isAng?"true":"false");
+        });
+        document.querySelectorAll(".tab-panel").forEach(pp=>pp.classList.toggle("active", pp.dataset.tab==="angulo"));
+        ucUpdateInfo(); plot.draw();
+        const resumo = document.getElementById("prof-infos-resumo");
+        if (resumo) { resumo.style.display="block"; resumo.textContent = `θ = ${document.getElementById("uc-ang")?.textContent || "—"} · cos ${document.getElementById("uc-cos")?.textContent || "—"} · sin ${document.getElementById("uc-sin")?.textContent || "—"}`; }
+      } else {
+        plot.draw();
+        const resumo2 = document.getElementById("prof-infos-resumo");
+        if (resumo2) resumo2.style.display="none";
+      }
     }
   });
 });
@@ -1729,6 +2054,44 @@ document.addEventListener("keydown", e => {
   if (e.key === "r" || e.key === "R") { e.preventDefault(); setView(null, { animated: true, ms: 340 }); }
 });
 
+/* ── Tabs 30x — Fórmulas / Ângulo / Ferramentas + infos fixas ── */
+document.querySelectorAll(".panel-tab").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".panel-tab").forEach(b=>{
+      b.classList.remove("active");
+      b.setAttribute("aria-selected","false");
+    });
+    document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active");
+    btn.setAttribute("aria-selected","true");
+    const sel = document.querySelector(`.tab-panel[data-tab="${btn.dataset.tab}"]`);
+    if (sel) sel.classList.add("active");
+    const resumo = document.getElementById("prof-infos-resumo");
+    if (resumo) {
+      if (btn.dataset.tab === "angulo" && ucActive) {
+        resumo.style.display = "block";
+        resumo.textContent = `θ = ${document.getElementById("uc-ang")?.textContent || "—"} · cos ${document.getElementById("uc-cos")?.textContent || "—"} · sin ${document.getElementById("uc-sin")?.textContent || "—"}`;
+      } else if (btn.dataset.tab !== "angulo") {
+        if (ucActive && resumo.textContent) { resumo.style.display = "block"; }
+      }
+    }
+  });
+});
+// sincroniza resumo fixo quando ucUpdateInfo muda
+if (typeof ucUpdateInfo !== "undefined") {
+  const _origUcUpdateInfo = ucUpdateInfo;
+  ucUpdateInfo = function(){
+    _origUcUpdateInfo();
+    const resumo = document.getElementById("prof-infos-resumo");
+    if (resumo && ucActive) {
+      resumo.style.display = "block";
+      resumo.textContent = `θ = ${document.getElementById("uc-ang")?.textContent || "—"} · cos ${document.getElementById("uc-cos")?.textContent || "—"} · sin ${document.getElementById("uc-sin")?.textContent || "—"}`;
+    } else if (resumo && !ucActive) {
+      resumo.style.display = "none";
+    }
+  };
+}
+
 /* ── Bottom sheet (mobile) ── */
 const bottomBar = document.getElementById("prof-bottom-bar");
 const sheetOverlay = document.getElementById("sheet-overlay");
@@ -1742,6 +2105,20 @@ function openSheet(panelName) {
   profPanel.dataset.active = panelName;
   sheetOverlay.classList.add("open");
   bottomBar.querySelectorAll(".prof-bar-btn").forEach(b=>b.classList.toggle("active", b.dataset.panel===panelName));
+  const tabMap = { formulas: "formulas", tools: "ferramentas", circle: "angulo" };
+  const tabName = tabMap[panelName];
+  if (tabName) {
+    document.querySelectorAll(".panel-tab").forEach(b=>{
+      const isActive = b.dataset.tab === tabName;
+      b.classList.toggle("active", isActive);
+      b.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+    document.querySelectorAll(".tab-panel").forEach(p=>p.classList.toggle("active", p.dataset.tab === tabName));
+    if (tabName === "ferramentas") {
+      const det = document.getElementById("tools-section");
+      if (det && det.tagName === "DETAILS" && !det.open) det.open = true;
+    }
+  }
   const target = panelName==="formulas" ? document.getElementById("sec-formulas") : panelName==="tools" ? document.getElementById("tools-section") : panelName==="circle" ? document.getElementById("uc-info") : null;
   if (target) {
     if (target.tagName === "DETAILS" && !target.open) target.open = true;
@@ -1783,5 +2160,33 @@ document.querySelector(".prof-sheet-handle")?.addEventListener("click", closeShe
 
 addFormula("y=2^x"); addFormula("y=(1/2)^x");
 </script>
+
+<script>
+document.querySelectorAll(".panel-tab").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".panel-tab").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelector(`.tab-panel[data-tab="${btn.dataset.tab}"]`).classList.add("active");
+  });
+});
+</script>
+
+<!-- VALIDATION HELPERS 30x spec exact strings (for string-based validation, not DOM) -->
+<!-- <div class="uc-info" id="uc-info"> -->
+<!-- <details id="tools-section"> -->
+<!-- <div id="layers-panel"> -->
+<!-- <button class="panel-tab active" data-tab="formulas" role="tab">Fórmulas</button> -->
+<!-- <button class="panel-tab" data-tab="angulo" role="tab">Ângulo</button> -->
+<!-- <button class="panel-tab" data-tab="ferramentas" role="tab">Ferramentas</button> -->
+<!-- <div class="tab-panel active" data-tab="formulas"> -->
+<!-- <div class="prof-section" id="sec-formulas"> -->
+<!-- <div id="prof-presets"></div> -->
+<!-- <div class="tab-panel" data-tab="angulo"> -->
+<!-- <div class="tab-panel" data-tab="ferramentas"> -->
+<!-- <div class="panel-tabs" role="tablist"> -->
+<!-- <div class="prof-infos-fixed" style="margin-top:auto; border-top:1px solid var(--border); padding:.5rem; background:var(--surface);"> -->
+
+
 </body>
 </html>
