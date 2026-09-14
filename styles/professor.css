@@ -358,8 +358,6 @@ body { overflow-x: hidden; }
   flex-direction: column;
   background: var(--surface);
   overflow: hidden;
-  overflow-y: auto;
-  overflow-x: hidden;
   min-height: 0;
   flex: 1 1 auto;
   overscroll-behavior: contain;
@@ -494,13 +492,7 @@ body { overflow-x: hidden; }
 .tab-panel[data-tab="formulas"] #prof-presets {
   padding: calc(.5rem * var(--info-scale,1));
 }
-.prof-panel {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  overflow-y: hidden;
-}
+/* .prof-panel unificado acima (flex column + overflow hidden; scroll em .prof-tabs-scroll) */
 
 
 /* ── Seções ───────────────────────────────────────────────── */

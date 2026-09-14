@@ -6,7 +6,7 @@
 <title>Professor · Informática 25</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Spectral:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles/tokens.css">
 <link rel="stylesheet" href="styles/base.css">
 <link rel="stylesheet" href="styles/professor.css">
@@ -502,11 +502,11 @@ function ucDraw() {
 
   const cssFn = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
   const dark = document.documentElement.getAttribute("data-theme") !== "light";
-  const fg   = dark ? "#e8e3da" : "#1a1a2e";
+  const fg   = cssFn("--text") || (dark ? "#e8e3da" : "#1a1a2e");
   const fgMut= dark ? "rgba(220,210,190,.35)" : "rgba(60,60,80,.28)";
   const acc  = cssFn("--accent")   || "#ffa500";
   const acc2 = cssFn("--accent-2") || "#ffd23f";
-  const grn  = dark ? "#4ade80"  : "#16a34a";
+  const grn  = cssFn("--success") || (dark ? "#4ade80"  : "#16a34a");
 
   const t  = ucTheta;
   const tN = ((t % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
@@ -646,25 +646,29 @@ function drawPlayPoint() {
   const pts = window._playPoints || (window._playPoint && window._playPoint.visible ? [window._playPoint] : []);
   if (!pts.length) return;
   const ctx = plot.ctx;
+  const cssFn = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const accent = cssFn("--accent") || "#ffa500";
   const dark = document.documentElement.getAttribute("data-theme") !== "light";
   for (const p of pts) {
     if (!p.visible) continue;
-    if (p.x < plot.view.xmin || p.x > plot.view.xmax || p.y < plot.view.ymin || p.y > plot.view.ymax) continue;
-    if (!isFinite(p.y)) continue;
+    if (!isFinite(p.y) || !isFinite(p.x)) continue;
+    const inView = p.x >= plot.view.xmin && p.x <= plot.view.xmax && p.y >= plot.view.ymin && p.y <= plot.view.ymax;
+    const alpha = inView ? 1 : 0.35;
     const px = plot.X(p.x), py = plot.Y(p.y);
     ctx.save();
-    ctx.fillStyle = p.color || "#ffa500";
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = p.color || accent;
     ctx.beginPath(); ctx.arc(px, py, 6, 0, 2*Math.PI); ctx.fill();
     ctx.strokeStyle = dark ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.8)";
     ctx.lineWidth = 2; ctx.stroke();
-    ctx.fillStyle = (p.color || "#ffa500") + "33";
+    ctx.fillStyle = (p.color || accent) + "33";
     ctx.beginPath(); ctx.arc(px, py, 10, 0, 2*Math.PI); ctx.fill();
-    ctx.strokeStyle = (p.color || "#ffa500") + "66";
+    ctx.strokeStyle = (p.color || accent) + "66";
     ctx.lineWidth = 1;
     ctx.setLineDash([4,4]);
     ctx.beginPath(); ctx.moveTo(px, plot.Y(0)); ctx.lineTo(px, py); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.strokeStyle = (p.color || "#ffa500") + "44";
+    ctx.strokeStyle = (p.color || accent) + "44";
     ctx.beginPath(); ctx.moveTo(plot.X(0), py); ctx.lineTo(px, py); ctx.stroke();
     const graphScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--graph-scale")) || 1;
     ctx.fillStyle = dark ? "#fff" : "#000";
@@ -1030,7 +1034,9 @@ document.getElementById("uc-play-speed")?.addEventListener("input", e => {
 document.getElementById("uc-dir-btn")?.addEventListener("click", () => {
   ucPlayDir *= -1;
   const btn = document.getElementById("uc-dir-btn");
-  btn.textContent = ucPlayDir === 1 ? "↻ Horário" : "↺ Anti";
+  btn.dataset.dir = ucPlayDir === 1 ? "cw" : "ccw";
+  btn.setAttribute("aria-label", ucPlayDir === 1 ? "Direção horário" : "Direção anti-horário");
+  btn.classList.toggle("is-ccw", ucPlayDir === -1);
 });
 document.getElementById("uc-play-limit")?.addEventListener("input", e => {
   let v = parseInt(e.target.value);
@@ -1046,24 +1052,28 @@ document.getElementById("uc-play-limit")?.addEventListener("change", e => {
 });
 let ucPlayStart = 0;
 let ucPlayTurns = 0;
+let playT = Math.PI / 3;
 document.getElementById("uc-play-btn")?.addEventListener("click", () => {
-  if (!ucActive) { document.getElementById("readout").textContent = "Ative o círculo primeiro"; return; }
   const btn = document.getElementById("uc-play-btn");
   if (ucPlayRaf) {
     cancelAnimationFrame(ucPlayRaf); ucPlayRaf = null;
-    btn.textContent = "▶ Play";
+    btn.classList.remove("is-playing");
+    btn.setAttribute("aria-label", "Play animação");
     plot.draw();
     return;
   }
   const limit = Math.max(1, Math.min(10, Number(document.getElementById("uc-play-limit").value) || 3));
-  const startTheta = ucTheta;
+  playT = ucActive ? ucTheta : (window._playPoint ? window._playPoint.x : 0);
+  const startTheta = playT;
   const targetTurns = limit;
   let lastT = performance.now();
-  btn.textContent = "⏸ Pause";
+  btn.classList.add("is-playing");
+  btn.setAttribute("aria-label", "Pausar animação");
   function step(now) {
     const dt = (now - lastT) / 1000; lastT = now;
-    ucTheta += dt * parseFloat(document.getElementById("uc-play-speed").value || 1.2) * ucPlayDir;
-    const rawTheta = ucTheta;
+    playT += dt * parseFloat(document.getElementById("uc-play-speed").value || 1.2) * ucPlayDir;
+    if (ucActive) ucTheta = playT;
+    const rawTheta = playT;
     const activeFormulas = formulas.filter(f=>!f.hidden && f.inp.value.trim());
     // FIX 1 — bolinha coração implícito: detecta se primeira fórmula é implícita
     const first = formulas.find(f=>!f.hidden && f.inp.value.trim());
@@ -1158,16 +1168,17 @@ document.getElementById("uc-play-btn")?.addEventListener("click", () => {
       if (false) tracePoints.unshift({x:0,y:0}); // validação string unshift
       if (ucPlayDir === -1 && traceEnabled && tracePoints.length) { /* anti-horário linha sumir: já fez pop acima */ void 0; }
     }
-    const turns = Math.abs(ucTheta - startTheta) / (2*Math.PI);
+    const turns = Math.abs(playT - startTheta) / (2*Math.PI);
     if (turns >= targetTurns) {
-      ucTheta = startTheta + targetTurns * 2*Math.PI * ucPlayDir;
-      ucSnapped = ucSnap(ucTheta, 0.12);
+      playT = startTheta + targetTurns * 2*Math.PI * ucPlayDir;
+      if (ucActive) { ucTheta = playT; ucSnapped = ucSnap(ucTheta, 0.12); }
       ucUpdateInfo(); plot.draw();
       cancelAnimationFrame(ucPlayRaf); ucPlayRaf = null;
-      btn.textContent = "▶ Play";
+      btn.classList.remove("is-playing");
+      btn.setAttribute("aria-label", "Play animação");
       return;
     }
-    ucSnapped = ucSnap(ucTheta, 0.12);
+    if (ucActive) ucSnapped = ucSnap(ucTheta, 0.12);
     ucUpdateInfo(); plot.draw();
     ucPlayRaf = requestAnimationFrame(step);
   }
@@ -2107,18 +2118,7 @@ function openSheet(panelName) {
   bottomBar.querySelectorAll(".prof-bar-btn").forEach(b=>b.classList.toggle("active", b.dataset.panel===panelName));
   const tabMap = { formulas: "formulas", tools: "ferramentas", circle: "angulo" };
   const tabName = tabMap[panelName];
-  if (tabName) {
-    document.querySelectorAll(".panel-tab").forEach(b=>{
-      const isActive = b.dataset.tab === tabName;
-      b.classList.toggle("active", isActive);
-      b.setAttribute("aria-selected", isActive ? "true" : "false");
-    });
-    document.querySelectorAll(".tab-panel").forEach(p=>p.classList.toggle("active", p.dataset.tab === tabName));
-    if (tabName === "ferramentas") {
-      const det = document.getElementById("tools-section");
-      if (det && det.tagName === "DETAILS" && !det.open) det.open = true;
-    }
-  }
+  if (tabName && typeof setActiveTab === "function") setActiveTab(tabName);
   const target = panelName==="formulas" ? document.getElementById("sec-formulas") : panelName==="tools" ? document.getElementById("tools-section") : panelName==="circle" ? document.getElementById("uc-info") : null;
   if (target) {
     if (target.tagName === "DETAILS" && !target.open) target.open = true;
@@ -2162,13 +2162,20 @@ addFormula("y=2^x"); addFormula("y=(1/2)^x");
 </script>
 
 <script>
-document.querySelectorAll(".panel-tab").forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    document.querySelectorAll(".panel-tab").forEach(b=>b.classList.remove("active"));
-    document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
-    btn.classList.add("active");
-    document.querySelector(`.tab-panel[data-tab="${btn.dataset.tab}"]`).classList.add("active");
+function setActiveTab(name){
+  document.querySelectorAll(".panel-tab").forEach(b=>{
+    const on = b.dataset.tab === name;
+    b.classList.toggle("active", on);
+    b.setAttribute("aria-selected", on ? "true" : "false");
   });
+  document.querySelectorAll(".tab-panel").forEach(p=>p.classList.toggle("active", p.dataset.tab === name));
+  if (name === "ferramentas") {
+    const det = document.getElementById("tools-section");
+    if (det && det.tagName === "DETAILS" && !det.open) det.open = true;
+  }
+}
+document.querySelectorAll(".panel-tab").forEach(btn=>{
+  btn.addEventListener("click", ()=>setActiveTab(btn.dataset.tab));
 });
 </script>
 
