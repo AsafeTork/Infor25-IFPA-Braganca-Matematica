@@ -1176,17 +1176,42 @@ document.getElementById("uc-play-btn")?.addEventListener("click", () => {
       }
     }
     window._playPoint = window._playPoints[0];
-    // Rastro lado-aware em TODAS as linhas: horário (dir 1) conta do 0 para a
-    // direita (x≥0); anti-horário (dir -1) conta do 0 para a esquerda (x≤0).
-    // O já desenhado persiste ao trocar o sentido (sem filtro retroativo).
+    // Rastro tether em TODAS as linhas: avança desenhando, recua apagando.
+    // Horário (dir 1) conta do 0 para a direita (x≥0); anti-horário (dir -1)
+    // conta do 0 para a esquerda (x≤0). Nunca cria segmento longo: ponto novo
+    // só entra colado na ponta; ao voltar sobre o já desenhado, a ponta sai.
     if (traceEnabled) {
       const srcPts = (window._playPoints && window._playPoints.length)
         ? window._playPoints
         : ((window._playPoint && isFinite(window._playPoint.x)) ? [window._playPoint] : []);
       const wantRight = ucPlayDir === 1;
+      const sameColor = (a, b) => (a || "_") === (b || "_");
       for (const q of srcPts) {
-        const okSide = wantRight ? q.x >= -1e-9 : q.x <= 1e-9;
-        if (okSide && isFinite(q.x) && isFinite(q.y)) tracePoints.push({x: q.x, y: q.y, color: q.color});
+        if (!isFinite(q.x) || !isFinite(q.y)) continue;
+        if (wantRight ? q.x < -1e-9 : q.x > 1e-9) continue;
+        let li = -1;
+        for (let i = tracePoints.length - 1; i >= 0; i--) {
+          if (sameColor(tracePoints[i].color, q.color)) { li = i; break; }
+        }
+        if (li >= 0) {
+          const last = tracePoints[li];
+          const dLast = Math.hypot(q.x - last.x, q.y - last.y);
+          if (dLast < 1e-9) continue; // parado: não empilha
+          let pi = -1;
+          for (let i = li - 1; i >= 0; i--) {
+            if (sameColor(tracePoints[i].color, q.color)) { pi = i; break; }
+          }
+          if (pi >= 0) {
+            const prev = tracePoints[pi];
+            const dPrev = Math.hypot(q.x - prev.x, q.y - prev.y);
+            const seg = Math.hypot(last.x - prev.x, last.y - prev.y) || 1e-12;
+            if (dPrev < dLast && dPrev < seg * 1.5) {
+              tracePoints.splice(li, 1); // voltou: some a ponta
+              continue;
+            }
+          }
+        }
+        tracePoints.push({x: q.x, y: q.y, color: q.color});
       }
       window._tracePoints = tracePoints;
       if (tracePoints.length > 2000) tracePoints.splice(0, tracePoints.length - 2000);
