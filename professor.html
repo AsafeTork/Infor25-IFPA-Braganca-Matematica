@@ -1192,28 +1192,32 @@ document.getElementById("uc-play-btn")?.addEventListener("click", () => {
       const sameColor = (a, b) => (a || "_") === (b || "_");
       for (const q of srcPts) {
         if (!isFinite(q.x) || !isFinite(q.y)) continue;
-        if (wantRight ? q.x < -1e-9 : q.x > 1e-9) continue;
-        let li = -1;
-        for (let i = tracePoints.length - 1; i >= 0; i--) {
-          if (sameColor(tracePoints[i].color, q.color)) { li = i; break; }
-        }
-        if (li >= 0) {
+        // Apagar vale em QUALQUER lado: ao voltar sobre o desenhado a ponta
+        // sai na hora (se o pop obedecesse o lado, nada sumiria até cruzar o
+        // zero e a ponta velha conectaria no ponto novo com uma reta).
+        // Loop: num frame longo a bolinha pode recuar várias casas de uma vez.
+        let stuck = false;
+        for (let guard = 0; guard < 60; guard++) {
+          let li = -1;
+          for (let i = tracePoints.length - 1; i >= 0; i--) {
+            if (sameColor(tracePoints[i].color, q.color)) { li = i; break; }
+          }
+          if (li < 0) break;
           const last = tracePoints[li];
-          const dLast = Math.hypot(q.x - last.x, q.y - last.y);
-          if (dLast < 1e-9) continue; // parado: não empilha
+          if (Math.hypot(q.x - last.x, q.y - last.y) < 1e-9) { stuck = true; break; } // parado
           let pi = -1;
           for (let i = li - 1; i >= 0; i--) {
             if (sameColor(tracePoints[i].color, q.color)) { pi = i; break; }
           }
-          if (pi >= 0) {
-            const prev = tracePoints[pi];
-            const dPrev = Math.hypot(q.x - prev.x, q.y - prev.y);
-            if (dPrev < dLast) {
-              tracePoints.splice(li, 1); // voltou: some a ponta
-              continue;
-            }
-          }
+          if (pi < 0) break;
+          const prev = tracePoints[pi];
+          if (Math.hypot(q.x - prev.x, q.y - prev.y) < Math.hypot(q.x - last.x, q.y - last.y)) {
+            tracePoints.splice(li, 1); // voltou: some a ponta
+          } else break;
         }
+        if (stuck) continue; // parado: não empilha
+        // Desenhar novo obedece o lado: horário x≥0, anti-horário x≤0.
+        if (wantRight ? q.x < -1e-9 : q.x > 1e-9) continue;
         tracePoints.push({x: q.x, y: q.y, color: q.color});
       }
       window._tracePoints = tracePoints;
