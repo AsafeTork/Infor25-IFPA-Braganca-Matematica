@@ -1170,3 +1170,16 @@ body { overflow-x: hidden; }
 .tab-panel { display:none; } .tab-panel.active { display:block; }
 
 .prof-tabs-scroll { flex:1; overflow-y:auto; }
+
+/* ── Keypad sem sobrepor informações ── */
+@media (min-width: 768px) {
+  /* desktop: painel ocupa a direita até embaixo (infos fixas) → keypad no canto inferior ESQUERDO */
+  .sym-float, #sym-float { left: 1rem !important; right: auto !important; }
+}
+@media (max-width: 767px) {
+  /* mobile: acima da barra (56px) + readout (cresce com --info-scale) + folga */
+  .sym-float, #sym-float {
+    bottom: calc(56px + 38px * var(--info-scale,1) + 14px + env(safe-area-inset-bottom)) !important;
+    right: .6rem !important;
+  }
+}

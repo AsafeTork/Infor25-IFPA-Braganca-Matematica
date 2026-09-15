@@ -742,6 +742,7 @@ plot.onDraw = () => { ucDraw(); drawOverlays(); drawLabels(); drawTrace(); drawP
 /* ── Interação círculo ── */
 let ucPrev = null;
 let ucPointerId = null;
+let ucDragStart = 0;
 
 function ucCanvasCoords(e) {
   const rect = canvas.getBoundingClientRect();
@@ -762,7 +763,9 @@ canvas.addEventListener("pointerdown", e => {
   e.preventDefault();
   e.stopPropagation();
   canvas.setPointerCapture(e.pointerId);
+  pausePlay(); // arrastar no meio do play pausa e assume dali
   ucPointerId = e.pointerId;
+  ucDragStart = ucTheta;
   ucDragging  = true;
   ucPrev = Math.atan2(-(my - cy)/ry, (mx - cx)/rx);
 }, { capture: true });
@@ -794,6 +797,10 @@ const ucRelease = e => {
     ucSnapped = sn;
     ucUpdateInfo();
     plot.draw();
+  }
+  if (ucTheta !== ucDragStart) {
+    playT = ucTheta; // continuar volta de onde o mouse largou
+    tracePoints = []; window._tracePoints = tracePoints; // sem reta do ponto velho
   }
   ucDragging  = false;
   ucPointerId = null;
@@ -910,8 +917,11 @@ const UC_ANGLES = [
 ];
 
 function ucSetAngle(theta) {
+  pausePlay(); // definir ângulo no meio do play pausa e assume dali
   ucTheta   = theta;
   ucSnapped = ucSnap(ucTheta, 0.02);
+  playT = theta; // continuar volta do ângulo definido, não do antigo
+  tracePoints = []; window._tracePoints = tracePoints; // sem reta do ponto velho
   ucUpdateInfo();
   plot.draw();
 }
@@ -974,6 +984,21 @@ document.getElementById("toggle-markers")?.addEventListener("change", e => {
   window._markersOn = markersOn;
   plot.draw();
 });
+
+// Pausa o play (se rodando) para ação manual assumir: definir ângulo, drag,
+// presets, círculo. Play/pause depois continua de onde parou.
+function pausePlay() {
+  if (ucPlayRaf) {
+    cancelAnimationFrame(ucPlayRaf); ucPlayRaf = null;
+    playFresh = false;
+    const btn = document.getElementById("uc-play-btn");
+    if (btn) {
+      btn.classList.remove("is-playing");
+      btn.setAttribute("aria-label", "Play animação");
+    }
+    plot.draw();
+  }
+}
 // cache para contorno implícito amostrado (genérico)
 let _implicitContourCache = null;
 let _implicitContourKey = "";
@@ -1174,7 +1199,7 @@ document.getElementById("uc-play-btn")?.addEventListener("click", () => {
     //   xPlay = 16 * Math.pow(Math.sin(t), 3) * s;
     //   yPlay = (13*Math.cos(t) -5*Math.cos(2*t) -2*Math.cos(3*t) - Math.cos(4*t)) * s;
     // } else { xPlay = rawTheta; }
-    if (!window._playPoints.length) {
+    if (!window._playPoints.length && ucActive) {
       window._playPoints = [{ x: rawTheta, y: Math.sin(rawTheta), visible: true, color: "#ffa500" }];
       // se implícita, usa coração paramétrico mesmo sem fórmula visível
       if (_firstIsImplicit){
@@ -1845,6 +1870,28 @@ function addFormula(expr="") {
 }
 
 function updatePlot() {
+  // Consistência ao adicionar/remover/ocultar: rastro só com cores vivas;
+  // sem fórmula visível, some marcadores e rastro (nada fantasma).
+  try {
+    const live = new Set(formulas.filter(f=>!f.hidden && f.inp.value.trim()).map(f=>f.color || ""));
+    if (tracePoints.length) {
+      tracePoints = tracePoints.filter(p => live.has(p.color || ""));
+      window._tracePoints = tracePoints;
+    }
+    if (live.size === 0) {
+      window._playPoints = [];
+      if (window._playPoint) window._playPoint.visible = false;
+      tracePoints = []; window._tracePoints = tracePoints;
+    }
+    // Marcadores acompanham as linhas em repouso (no play o step refaz a cada frame)
+    if (!ucPlayRaf) {
+      if (ucActive) { try { ucUpdateInfo(); } catch {} }
+      else {
+        window._playPoints = [];
+        if (window._playPoint) window._playPoint.visible = false;
+      }
+    }
+  } catch {}
   // FIX 2 — esconder função quando rastro ativo: só mostra rastro sendo desenhado
   if (typeof traceEnabled !== 'undefined' && traceEnabled) {
     window._hideCurves = true;
@@ -1939,10 +1986,13 @@ btnPi.addEventListener("click", ()=>{
 
 const btnCircle = document.getElementById("btn-circle");
 btnCircle.addEventListener("click", ()=>{
+  pausePlay();
   circleActive=!circleActive; btnCircle.classList.toggle("active",circleActive);
   ucActive = circleActive;
+  playFresh = true; // próximo play é corrida nova
   document.getElementById("uc-info").classList.toggle("show",circleActive);
   if (circleActive) {
+    ucTheta = 0; ucSnapped = ucSnap(ucTheta, 0.02); playT = 0; // reativou: zero, não resto velho
     document.querySelectorAll(".panel-tab").forEach(b=>{
       const isAng = b.dataset.tab==="angulo";
       b.classList.toggle("active", isAng);
@@ -2025,6 +2075,8 @@ presetsEl.querySelectorAll(".preset-btn").forEach(btn=>{
     btn.classList.add("active");
     const p = allPresets.find(x=>x.group===btn.dataset.g&&x.label===btn.dataset.label);
     if (!p) return;
+    pausePlay(); // preset no meio do play pausa; corrida nova a seguir
+    playFresh = true;
     // Acrescenta sem apagar, sem mexer na perspectiva
     p.fns.forEach(fn => {
       const exists = formulas.some(f => f.inp.value.trim() === fn);
@@ -2036,6 +2088,7 @@ presetsEl.querySelectorAll(".preset-btn").forEach(btn=>{
       ucActive = p.uc;
       document.getElementById("uc-info").classList.toggle("show", p.uc);
       if (p.uc) {
+        ucTheta = 0; ucSnapped = ucSnap(ucTheta, 0.02); playT = 0; // play começa do zero, não de ângulo velho
         setActiveTab("angulo");
         ucUpdateInfo(); plot.draw();
         const resumo = document.getElementById("prof-infos-resumo");
