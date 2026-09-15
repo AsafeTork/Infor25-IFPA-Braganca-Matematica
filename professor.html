@@ -649,7 +649,8 @@ function drawLabels() {
 
 function drawPlayPoint() {
   if (typeof markersOn !== "undefined" && !markersOn) return;
-  const pts = window._playPoints || (window._playPoint && window._playPoint.visible ? [window._playPoint] : []);
+  const _arr = window._playPoints;
+  const pts = (_arr && _arr.length) ? _arr : ((window._playPoint && window._playPoint.visible) ? [window._playPoint] : []);
   if (!pts.length) return;
   const ctx = plot.ctx;
   const cssFn = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
@@ -702,25 +703,32 @@ function drawTrace(){
   }
   if (!traceEnabled || !tracePoints.length) return;
   const ctx = plot.ctx;
-  ctx.save();
-  // cor do primeiro traço ou laranja
-  const first = formulas.find(f=>!f.hidden && f.inp.value.trim());
-  const col = (first && first.color) ? first.color : "#ffa500";
-  ctx.strokeStyle = col;
-  ctx.lineWidth = 2.6;
-  ctx.lineJoin = "round"; ctx.lineCap = "round";
-  ctx.beginPath();
-  let started=false;
-  const wantRight = (typeof ucPlayDir === "undefined") || ucPlayDir === 1;
+  const cssAccent = (() => { try { return getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#ffa500"; } catch { return "#ffa500"; } })();
+  // agrupa por cor: cada linha de função tem seu rastro na própria cor
+  const groups = new Map();
   for (const p of tracePoints){
     if (!isFinite(p.x) || !isFinite(p.y)) continue;
-    if (wantRight ? p.x < -1e-9 : p.x > 1e-9) continue;
-    const px = plot.X(p.x), py = plot.Y(p.y);
-    if (!started){ ctx.moveTo(px,py); started=true; } else ctx.lineTo(px,py);
+    const key = p.color || cssAccent;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(p);
   }
-  ctx.stroke();
-  // brilho sutil
-  ctx.strokeStyle = col+"55"; ctx.lineWidth = 6; ctx.stroke();
+  ctx.save();
+  ctx.lineWidth = 2.6;
+  ctx.lineJoin = "round"; ctx.lineCap = "round";
+  for (const [col, arr] of groups){
+    if (arr.length < 1) continue;
+    ctx.strokeStyle = col;
+    ctx.beginPath();
+    let started=false;
+    for (const p of arr){
+      const px = plot.X(p.x), py = plot.Y(p.y);
+      if (!started){ ctx.moveTo(px,py); started=true; } else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    // brilho sutil
+    ctx.strokeStyle = col+"55"; ctx.lineWidth = 6; ctx.stroke();
+    ctx.lineWidth = 2.6;
+  }
   ctx.restore();
 }
 window.drawTrace = drawTrace;
@@ -869,7 +877,9 @@ function ucUpdateInfo() {
     } else {
       window._playPoints = [{ x: xP, y: yP, visible: true, color: "#ffa500" }];
     }
-  } else {
+  } else if (!ucPlayRaf) {
+    // Sem círculo e sem play rodando: esconde marcadores. Durante o play
+    // NÃO apaga — senão nenhuma linha teria marcador sem círculo.
     if (window._playPoint) window._playPoint.visible = false;
     window._playPoints = [];
   }
@@ -1166,14 +1176,18 @@ document.getElementById("uc-play-btn")?.addEventListener("click", () => {
       }
     }
     window._playPoint = window._playPoints[0];
-    // Rastro lado-aware: horário (dir 1) conta do 0 para a direita (x≥0, nada à esquerda);
-    // anti-horário (dir -1) conta do 0 para a esquerda (x≤0, nada à direita)
+    // Rastro lado-aware em TODAS as linhas: horário (dir 1) conta do 0 para a
+    // direita (x≥0); anti-horário (dir -1) conta do 0 para a esquerda (x≤0).
+    // O já desenhado persiste ao trocar o sentido (sem filtro retroativo).
     if (traceEnabled) {
-      const pt = window._playPoint;
+      const srcPts = (window._playPoints && window._playPoints.length)
+        ? window._playPoints
+        : ((window._playPoint && isFinite(window._playPoint.x)) ? [window._playPoint] : []);
       const wantRight = ucPlayDir === 1;
-      tracePoints = tracePoints.filter(p => wantRight ? p.x >= -1e-9 : p.x <= 1e-9);
-      const okSide = wantRight ? pt.x >= -1e-9 : pt.x <= 1e-9;
-      if (okSide && isFinite(pt.x) && isFinite(pt.y)) tracePoints.push({x: pt.x, y: pt.y});
+      for (const q of srcPts) {
+        const okSide = wantRight ? q.x >= -1e-9 : q.x <= 1e-9;
+        if (okSide && isFinite(q.x) && isFinite(q.y)) tracePoints.push({x: q.x, y: q.y, color: q.color});
+      }
       window._tracePoints = tracePoints;
       if (tracePoints.length > 2000) tracePoints.splice(0, tracePoints.length - 2000);
       if (false) tracePoints.unshift({x:0,y:0}); // validação string unshift
