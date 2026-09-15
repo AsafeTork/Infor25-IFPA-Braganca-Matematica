@@ -716,7 +716,7 @@ function drawTrace(){
   ctx.restore();
 }
 window.drawTrace = drawTrace;
-window._tracePoints = tracePoints;
+window._tracePoints = window._tracePoints || [];
 plot.onDraw = () => { ucDraw(); drawOverlays(); drawLabels(); drawTrace(); drawPlayPoint(); };
 
 /* ── Interação círculo ── */
