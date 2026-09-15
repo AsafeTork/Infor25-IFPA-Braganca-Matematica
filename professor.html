@@ -662,6 +662,7 @@ function drawPlayPoint() {
     const inView = p.x >= plot.view.xmin && p.x <= plot.view.xmax && p.y >= plot.view.ymin && p.y <= plot.view.ymax;
     const alpha = inView ? 1 : 0.35;
     const px = plot.X(p.x), py = plot.Y(p.y);
+    if (!isFinite(px) || !isFinite(py)) continue;
     ctx.save();
     ctx.globalAlpha = alpha;
     ctx.fillStyle = p.color || accent;
@@ -670,18 +671,21 @@ function drawPlayPoint() {
     ctx.lineWidth = 2; ctx.stroke();
     ctx.fillStyle = (p.color || accent) + "33";
     ctx.beginPath(); ctx.arc(px, py, 10, 0, 2*Math.PI); ctx.fill();
-    ctx.strokeStyle = (p.color || accent) + "66";
-    ctx.lineWidth = 1;
-    ctx.setLineDash([4,4]);
-    ctx.beginPath(); ctx.moveTo(px, plot.Y(0)); ctx.lineTo(px, py); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.strokeStyle = (p.color || accent) + "44";
-    ctx.beginPath(); ctx.moveTo(plot.X(0), py); ctx.lineTo(px, py); ctx.stroke();
-    const graphScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--graph-scale")) || 1;
-    ctx.fillStyle = dark ? "#fff" : "#000";
-    ctx.font = `${10 * graphScale}px JetBrains Mono, monospace`;
-    ctx.textAlign = "center";
-    ctx.fillText(`(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`, px, py - 14);
+    if (inView) {
+      // projeções só em vista: fora dela risca a tela do eixo zero até a ponta
+      ctx.strokeStyle = (p.color || accent) + "66";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(px, plot.Y(0)); ctx.lineTo(px, py); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.strokeStyle = (p.color || accent) + "44";
+      ctx.beginPath(); ctx.moveTo(plot.X(0), py); ctx.lineTo(px, py); ctx.stroke();
+      const graphScale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--graph-scale")) || 1;
+      ctx.fillStyle = dark ? "#fff" : "#000";
+      ctx.font = `${10 * graphScale}px JetBrains Mono, monospace`;
+      ctx.textAlign = "center";
+      ctx.fillText(`(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`, px, py - 14);
+    }
     ctx.restore();
   }
 }
@@ -1204,8 +1208,7 @@ document.getElementById("uc-play-btn")?.addEventListener("click", () => {
           if (pi >= 0) {
             const prev = tracePoints[pi];
             const dPrev = Math.hypot(q.x - prev.x, q.y - prev.y);
-            const seg = Math.hypot(last.x - prev.x, last.y - prev.y) || 1e-12;
-            if (dPrev < dLast && dPrev < seg * 1.5) {
+            if (dPrev < dLast) {
               tracePoints.splice(li, 1); // voltou: some a ponta
               continue;
             }
