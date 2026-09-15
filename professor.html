@@ -1081,18 +1081,23 @@ document.getElementById("uc-play-limit")?.addEventListener("change", e => {
 let ucPlayStart = 0;
 let ucPlayTurns = 0;
 let playT = Math.PI / 3;
+let playFresh = true; // true = próximo play é corrida nova (conta do zero)
 document.getElementById("uc-play-btn")?.addEventListener("click", () => {
   const btn = document.getElementById("uc-play-btn");
   if (ucPlayRaf) {
     cancelAnimationFrame(ucPlayRaf); ucPlayRaf = null;
+    playFresh = false; // pausou no meio: continuar volta de onde parou
     btn.classList.remove("is-playing");
     btn.setAttribute("aria-label", "Play animação");
     plot.draw();
     return;
   }
   const limit = Math.max(1, Math.min(10, Number(document.getElementById("uc-play-limit").value) || 3));
-  playT = ucActive ? ucTheta : 0; // conta do 0 quando sem círculo
-  tracePoints = []; window._tracePoints = tracePoints; // corrida nova conta do 0
+  if (playFresh) {
+    playT = ucActive ? ucTheta : 0; // corrida nova conta do 0 quando sem círculo
+    tracePoints = []; window._tracePoints = tracePoints;
+  }
+  playFresh = false;
   const startTheta = playT;
   const targetTurns = limit;
   let lastT = performance.now();
@@ -1230,6 +1235,7 @@ document.getElementById("uc-play-btn")?.addEventListener("click", () => {
       if (ucActive) { ucTheta = playT; ucSnapped = ucSnap(ucTheta, 0.12); }
       ucUpdateInfo(); plot.draw();
       cancelAnimationFrame(ucPlayRaf); ucPlayRaf = null;
+      playFresh = true; // corrida terminou: próximo play recomeça do zero
       btn.classList.remove("is-playing");
       btn.setAttribute("aria-label", "Play animação");
       return;
