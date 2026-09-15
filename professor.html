@@ -1974,12 +1974,7 @@ presetsEl.querySelectorAll(".preset-btn").forEach(btn=>{
       ucActive = p.uc;
       document.getElementById("uc-info").classList.toggle("show", p.uc);
       if (p.uc) {
-        document.querySelectorAll(".panel-tab").forEach(b=>{
-          const isAng = b.dataset.tab==="angulo";
-          b.classList.toggle("active", isAng);
-          b.setAttribute("aria-selected", isAng?"true":"false");
-        });
-        document.querySelectorAll(".tab-panel").forEach(pp=>pp.classList.toggle("active", pp.dataset.tab==="angulo"));
+        setActiveTab("angulo");
         ucUpdateInfo(); plot.draw();
         const resumo = document.getElementById("prof-infos-resumo");
         if (resumo) { resumo.style.display="block"; resumo.textContent = `θ = ${document.getElementById("uc-ang")?.textContent || "—"} · cos ${document.getElementById("uc-cos")?.textContent || "—"} · sin ${document.getElementById("uc-sin")?.textContent || "—"}`; }

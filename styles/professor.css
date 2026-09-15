@@ -1026,22 +1026,15 @@ body { overflow-x: hidden; }
   }
 }
 
-/* ── Mobile filtrado · bottom-bar panels → mapeado para tabs 30x ── */
+/* ── Mobile filtrado · tabs → mostra só painel ativo ── */
 @media (max-width: 767px) {
   .prof-panel[data-active] .tab-panel { display: none !important; }
   .prof-panel[data-active] .tab-panel.active { display: block !important; }
-  .prof-panel[data-active] #sec-formulas,
-  .prof-panel[data-active] #sec-controles,
-  .prof-panel[data-active] #tools-section,
-  .prof-panel[data-active] #layers-panel,
-  .prof-panel[data-active] #prof-presets,
-  .prof-panel[data-active] #uc-info { display: revert !important; }
-  .prof-panel[data-active] .tab-panel:not(.active) #sec-formulas,
-  .prof-panel[data-active] .tab-panel:not(.active) #sec-controles,
-  .prof-panel[data-active] .tab-panel:not(.active) #tools-section,
-  .prof-panel[data-active] .tab-panel:not(.active) #layers-panel,
-  .prof-panel[data-active] .tab-panel:not(.active) #prof-presets,
-  .prof-panel[data-active] .tab-panel:not(.active) #uc-info { display: none !important; }
+  .prof-panel[data-active] .tab-panel.active #sec-formulas,
+  .prof-panel[data-active] .tab-panel.active #prof-presets,
+  .prof-panel[data-active] .tab-panel.active #uc-info,
+  .prof-panel[data-active] .tab-panel.active #tools-section,
+  .prof-panel[data-active] .tab-panel.active #layers-panel { display: block !important; }
 }
 
 /* ── Tablet 768 → 1fr 280 (skill: 1fr→1fr 280→1fr 320) ─── */
