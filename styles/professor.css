@@ -429,7 +429,7 @@ body { overflow-x: hidden; }
 .panel-tab {
   flex: 1 1 0;
   min-width: 0;
-  padding: calc(.42rem * var(--info-scale,1)) calc(.5rem * var(--info-scale,1));
+  padding: calc(.42rem * var(--info-scale,1)) calc(.3rem * var(--info-scale,1));
   border: 1px solid var(--border);
   border-bottom: none;
   background: var(--surface-2);
@@ -437,11 +437,13 @@ body { overflow-x: hidden; }
   border-radius: calc(8px * var(--info-scale,1)) calc(8px * var(--info-scale,1)) 0 0;
   cursor: pointer;
   font-family: var(--font-mono);
-  font-size: calc(.7rem * var(--info-scale,1));
+  font-size: calc(.64rem * var(--info-scale,1));
   font-weight: 700;
-  letter-spacing: .02em;
+  letter-spacing: .01em;
   text-transform: uppercase;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: background .15s, color .15s, border-color .15s;
   flex-shrink: 0;
   -webkit-tap-highlight-color: transparent;
@@ -679,6 +681,11 @@ body { overflow-x: hidden; }
 .preset-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 .preset-btn.active { border-color:var(--accent); background:var(--accent-soft); color:var(--accent); }
 
+/* ── Painel estreito (280–310px) · presets 2 col para texto não quebrar ── */
+@container (max-width: 310px) {
+  .preset-btns { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+
 /* ── Readout · 6ª seção · flex-shrink:0 ─────────────────── */
 .prof-readout {
   font-family:var(--font-mono); font-size:calc(.78rem * var(--info-scale,1));
@@ -799,11 +806,12 @@ body { overflow-x: hidden; }
   cursor:pointer; flex-shrink:0;
 }
 .uc-tab {
-  flex:1; background:var(--surface-2); border:1px solid var(--border); color:var(--text-mut);
+  flex:1 1 0; background:var(--surface-2); border:1px solid var(--border); color:var(--text-mut);
   border-radius:calc(5px * var(--info-scale,1));
   padding:calc(.22rem * var(--info-scale,1)) calc(.3rem * var(--info-scale,1));
   font-size:calc(.6rem * var(--info-scale,1)); font-family:var(--font-mono); cursor:pointer; transition: all .15s;
   display:flex; align-items:center; justify-content:center; gap:calc(.28rem * var(--info-scale,1)); min-width:0;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 .uc-tab:hover { border-color:var(--accent); color:var(--accent); }
 .uc-tab:active { transform: scale(.97); }

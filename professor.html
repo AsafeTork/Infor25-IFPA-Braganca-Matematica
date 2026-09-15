@@ -116,16 +116,21 @@
         </div>
       </div>
       <button class="uc-tri-btn" id="uc-tri-btn" aria-label="Triângulo no círculo" title="Triângulo no círculo" style="width:100%;margin-top:.5rem;padding:.42rem;background:var(--accent);color:#000;border:none;border-radius:8px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:44px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path d="M12 12 L19 12 L14.6 5.4 Z"/><path d="M17.2 10.2 V12 H19" stroke-width="1.4"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="14.6" cy="5.4" r="1" fill="currentColor" stroke="none"/></svg></button>
-      <div style="display:flex;gap:.4rem;margin-top:.4rem;align-items:center">
+      <div style="display:flex;gap:.4rem;margin-top:.4rem;align-items:center;flex-wrap:wrap;min-width:0">
         <button id="uc-play-btn" aria-label="Play animação círculo" title="Play" style="flex:1;padding:.35rem;background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:44px;min-width:44px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.2 7 L18.2 12 L9.2 17 Z" fill="currentColor" stroke="none" opacity="0.95"/><path d="M9.2 7 L18.2 12 L9.2 17 Z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M7 12 A5 5 0 0 1 12 7" stroke-dasharray="2 2.2" opacity="0.55"/></svg></button>
         <label style="display:flex;align-items:center;gap:.25rem;font-size:calc(.7rem * var(--info-scale,1));color:var(--text-mut)"><span>voltas</span><input id="uc-play-limit" type="number" min="1" max="10" value="3" style="width:40px;padding:.2rem;border:1px solid var(--border);border-radius:4px;background:var(--surface-2);color:var(--text);text-align:center"></label>
         <label style="display:flex;align-items:center;gap:.25rem;font-size:calc(.7rem * var(--info-scale,1));color:var(--text-mut)"><span>vel</span><input id="uc-play-speed" type="range" min="0.2" max="3" step="0.2" value="1.2" style="width:60px;accent-color:var(--accent)"><span id="uc-speed-val" style="min-width:22px;text-align:center">1.2x</span></label>
         <button id="uc-dir-btn" aria-label="Alternar direção horário" title="Direção: horário/anti-horário" style="padding:.35rem;display:flex;align-items:center;justify-content:center;background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:8px;cursor:pointer;min-height:44px;min-width:44px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19.2 12 A7.2 7.2 0 1 1 12 4.8"/><path d="M12 4.8 V9.2 H16.4"/><path d="M12 4.8 L9.2 7.2 L12.9 9.2"/></svg></button>
 
       </div>
-      <label style="display:flex;align-items:center;gap:.3rem;margin-top:.4rem;font-size:calc(.68rem * var(--info-scale,1));color:var(--text-mut);cursor:pointer">
-        <input type="checkbox" id="toggle-trace" style="accent-color:var(--accent)"> Rastro (desenhista)
-      </label>
+      <div style="display:flex;gap:.4rem;margin-top:.4rem;align-items:center;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:.3rem;font-size:calc(.68rem * var(--info-scale,1));color:var(--text-mut);cursor:pointer;white-space:nowrap">
+          <input type="checkbox" id="toggle-trace" style="accent-color:var(--accent)"> Rastro
+        </label>
+        <label style="display:flex;align-items:center;gap:.3rem;font-size:calc(.68rem * var(--info-scale,1));color:var(--text-mut);cursor:pointer;white-space:nowrap">
+          <input type="checkbox" id="toggle-markers" checked style="accent-color:var(--accent)"> Marcadores
+        </label>
+      </div>
     </div>
       </div>
 
@@ -643,6 +648,7 @@ function drawLabels() {
 }
 
 function drawPlayPoint() {
+  if (typeof markersOn !== "undefined" && !markersOn) return;
   const pts = window._playPoints || (window._playPoint && window._playPoint.visible ? [window._playPoint] : []);
   if (!pts.length) return;
   const ctx = plot.ctx;
@@ -705,8 +711,10 @@ function drawTrace(){
   ctx.lineJoin = "round"; ctx.lineCap = "round";
   ctx.beginPath();
   let started=false;
+  const wantRight = (typeof ucPlayDir === "undefined") || ucPlayDir === 1;
   for (const p of tracePoints){
     if (!isFinite(p.x) || !isFinite(p.y)) continue;
+    if (wantRight ? p.x < -1e-9 : p.x > 1e-9) continue;
     const px = plot.X(p.x), py = plot.Y(p.y);
     if (!started){ ctx.moveTo(px,py); started=true; } else ctx.lineTo(px,py);
   }
@@ -943,9 +951,15 @@ document.getElementById("uc-tri-btn")?.addEventListener("click", () => {
 });
 
 let ucPlayRaf = null;
-let ucPlayDir = 1; // 1 horário, -1 anti-horário
+let ucPlayDir = 1; // 1 horário (direita, x≥0), -1 anti-horário (esquerda, x≤0)
 let traceEnabled = false;
 let tracePoints = [];
+let markersOn = true; // marcadores independentes do círculo: podem aparecer ou não
+document.getElementById("toggle-markers")?.addEventListener("change", e => {
+  markersOn = e.target.checked;
+  window._markersOn = markersOn;
+  plot.draw();
+});
 // cache para contorno implícito amostrado (genérico)
 let _implicitContourCache = null;
 let _implicitContourKey = "";
@@ -1063,7 +1077,8 @@ document.getElementById("uc-play-btn")?.addEventListener("click", () => {
     return;
   }
   const limit = Math.max(1, Math.min(10, Number(document.getElementById("uc-play-limit").value) || 3));
-  playT = ucActive ? ucTheta : (window._playPoint ? window._playPoint.x : 0);
+  playT = ucActive ? ucTheta : 0; // conta do 0 quando sem círculo
+  tracePoints = []; window._tracePoints = tracePoints; // corrida nova conta do 0
   const startTheta = playT;
   const targetTurns = limit;
   let lastT = performance.now();
@@ -1151,22 +1166,17 @@ document.getElementById("uc-play-btn")?.addEventListener("click", () => {
       }
     }
     window._playPoint = window._playPoints[0];
-    // FIX 2 e 3 — rastro e anti-horário: quando traceEnabled, horário push, anti-horário pop
+    // Rastro lado-aware: horário (dir 1) conta do 0 para a direita (x≥0, nada à esquerda);
+    // anti-horário (dir -1) conta do 0 para a esquerda (x≤0, nada à direita)
     if (traceEnabled) {
       const pt = window._playPoint;
-      if (ucPlayDir === 1) {
-        tracePoints.push({x: pt.x, y: pt.y});
-      } else {
-        if (tracePoints.length >0) tracePoints.pop();
-        else tracePoints.push({x: pt.x, y: pt.y});
-        // alternativa anti-horário: desenha ao contrário ou apaga do início
-        // tracePoints.unshift({x: pt.x, y: pt.y}); tracePoints.pop();
-      }
+      const wantRight = ucPlayDir === 1;
+      tracePoints = tracePoints.filter(p => wantRight ? p.x >= -1e-9 : p.x <= 1e-9);
+      const okSide = wantRight ? pt.x >= -1e-9 : pt.x <= 1e-9;
+      if (okSide && isFinite(pt.x) && isFinite(pt.y)) tracePoints.push({x: pt.x, y: pt.y});
       window._tracePoints = tracePoints;
-      window._playPoints = window._playPoints; // keep ref
-      if (tracePoints.length > 2000) tracePoints.shift();
+      if (tracePoints.length > 2000) tracePoints.splice(0, tracePoints.length - 2000);
       if (false) tracePoints.unshift({x:0,y:0}); // validação string unshift
-      if (ucPlayDir === -1 && traceEnabled && tracePoints.length) { /* anti-horário linha sumir: já fez pop acima */ void 0; }
     }
     const turns = Math.abs(playT - startTheta) / (2*Math.PI);
     if (turns >= targetTurns) {
