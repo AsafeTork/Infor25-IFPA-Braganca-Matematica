@@ -52,6 +52,7 @@ export class Plot {
       xmin: opts.xmin ?? -5, xmax: opts.xmax ?? 5,
       ymin: opts.ymin ?? -2, ymax: opts.ymax ?? 8,
     };
+    this._viewExplicit = !!(opts.view || (opts.xmin != null && opts.ymin != null));
     this.onProbe = null;
     this.onDraw  = null;
     // zoom/pan state
@@ -88,7 +89,7 @@ export class Plot {
     this.cv.width = this.W * dpr0;
     this.cv.height = this.H * dpr0;
     this.ctx.setTransform(dpr0, 0, 0, dpr0, 0, 0);
-    this._enforceIsometric();
+    if (!this._viewExplicit) this._enforceIsometric();
     this.draw();
     // recalcular após layout (CSS carregado, grid pronto) — responsive best practice
     requestAnimationFrame(() => this.resize());
@@ -118,6 +119,7 @@ export class Plot {
   setStyleMul(v) { this._styleMul = v || 1; this.draw(); }
   setView(v) {
     if (!v) return;
+    this._viewExplicit = false;
     Object.assign(this.view, v);
     this._enforceIsometric();
     this._clampViewRange();
@@ -165,18 +167,20 @@ export class Plot {
     // Responsive canvas best practice: preservar centro e escala isométrica ao redimensionar
     // (StackOverflow responsive canvas + Grafana root-container)
     if (oldView) {
-      const cx = (oldView.xmin + oldView.xmax) / 2;
-      const cy = (oldView.ymin + oldView.ymax) / 2;
-      const xRange = oldView.xmax - oldView.xmin;
-      // yRange isométrico para nova razão W/H
-      const newYRange = xRange * this.H / this.W;
-      this.view.xmin = cx - xRange / 2;
-      this.view.xmax = cx + xRange / 2;
-      this.view.ymin = cy - newYRange / 2;
-      this.view.ymax = cy + newYRange / 2;
-      this._clampViewRange();
+      if (!this._viewExplicit) {
+        const cx = (oldView.xmin + oldView.xmax) / 2;
+        const cy = (oldView.ymin + oldView.ymax) / 2;
+        const xRange = oldView.xmax - oldView.xmin;
+        // yRange isométrico para nova razão W/H
+        const newYRange = xRange * this.H / this.W;
+        this.view.xmin = cx - xRange / 2;
+        this.view.xmax = cx + xRange / 2;
+        this.view.ymin = cy - newYRange / 2;
+        this.view.ymax = cy + newYRange / 2;
+        this._clampViewRange();
+      }
     } else {
-      this._enforceIsometric();
+      if (!this._viewExplicit) this._enforceIsometric();
     }
     this.draw();
   }
@@ -218,6 +222,7 @@ export class Plot {
   // zoom focal isométrico: factor <1 zoom in, >1 zoom out (geometric zoom)
   zoomAt(px, py, factor) {
     if (!isFinite(px) || !isFinite(py) || !isFinite(factor)) return;
+    this._viewExplicit = false;
     factor = Math.max(0.1, Math.min(10, factor));
     const cx = this.invX(px);
     const cy = this.invY(py);
@@ -233,6 +238,7 @@ export class Plot {
   }
   // pan por delta em px
   panBy(dxPx, dyPx) {
+    this._viewExplicit = false;
     const sx = (this.view.xmax - this.view.xmin) / this.W;
     const sy = (this.view.ymax - this.view.ymin) / this.H;
     this.view.xmin -= dxPx * sx; this.view.xmax -= dxPx * sx;
@@ -249,6 +255,7 @@ export class Plot {
   // animação suave isométrica (easeOutCubic) — usado por reset e controles +/- e setView animado
   animateView(target, ms = 320) {
     if (this._animRaf) cancelAnimationFrame(this._animRaf);
+    this._viewExplicit = false;
     // normaliza alvo para isométrico antes de animar
     const W = this.W, H = this.H;
     const vw = target.xmax - target.xmin;
@@ -537,6 +544,7 @@ export class Plot {
       // --- PINCH a 2 dedos (MDN pinch gesture, Konva multi-touch pattern) ---
       if (this._pointers.size === 2 && this._pinchInitialView) {
         e.preventDefault();
+        this._viewExplicit = false;
         const pts = [...this._pointers.values()];
         const curDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
         if (curDist < 10 || this._pinchInitialDist < 10) return;
@@ -573,6 +581,7 @@ export class Plot {
           return;
         }
         e.preventDefault();
+        this._viewExplicit = false;
         const dx = mx - this._dragStart.x;
         const dy = my - this._dragStart.y;
         const sv = this._dragStartView;

@@ -110,9 +110,9 @@ export const trigonometriaLessons = [
     const circ = mountTrigCircle(visRoot, {
       initialTheta: Math.PI / 4,
       showTan: false,
-      showProj: true,
-      showQuadrants: true,
-      showNotable: true,
+      showProj: false,
+      showQuadrants: false,
+      showNotable: false,
     });
     _activeControllers.push(circ);
   }
@@ -257,10 +257,10 @@ export const trigonometriaLessons = [
     const visRoot = c.querySelector("#vis-angulos");
     const circ = mountTrigCircle(visRoot, {
       initialTheta: Math.PI / 6,
-      showTan: true,
+      showTan: false,
       showProj: true,
       showQuadrants: true,
-      showNotable: true,
+      showNotable: false,
     });
     _activeControllers.push(circ);
   }
