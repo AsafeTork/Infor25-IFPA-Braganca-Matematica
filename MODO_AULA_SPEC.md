@@ -1,9 +1,16 @@
 # AGENT 8 — MODO AULA (CLASSROOM MODE)
 ## Especificação de Design · TV / Projetor
 
-**Status:** Especificação completa  
+**Status:** Especificação completa · **Prioridade ALTA implementada** (ver §13)  
 **Arquivo alvo:** `professor.html` (extensão do Módulo 14 existente) + `styles/modo-aula.css`  
 **Dependências:** Módulos 1-14 da evolução do professor  
+
+> **Implementado (2026-09-28):** toggle `#btn-aula` (painel + bottom bar), atalhos
+> `F`/`Esc`/`Espaço`, tela cheia, tema dark forçado, escalas `--info-scale=1.32` /
+> `--graph-scale=1.5`, curvas/labels ×1.7 (`plot.setStyleMul`), topbar/barra
+> inferior ocultas, botão de saída de alvo touch 56px (`#ma-exit`), alvos touch ≥44px.
+> Prioridades médias/baixas (presets de demo, passo a passo, foco, comparação) **não** implementadas.
+> Arquivos: `styles/modo-aula.css`, `core/professor/modoAula.js`. Testes: seção "aula" do `test/smoke.mjs`.
 
 ---
 
@@ -1732,19 +1739,22 @@ document.addEventListener("touchend", (e) => {
 ## 13. CHECKLIST DE IMPLEMENTAÇÃO
 
 ### 13.1 Arquivos a Criar
-- [ ] `styles/modo-aula.css` — Estilos do modo sala de aula (~500 linhas)
+- [x] `styles/modo-aula.css` — Estilos do modo sala de aula
 
 ### 13.2 Arquivos a Modificar
-- [ ] `professor.html` — Adicionar toggle e lógica do modo (~200 linhas adicionais)
+- [x] `professor.html` — Botões `#btn-aula` (painel+bottom bar) e `#ma-exit` + link do CSS
+- [x] `core/professor/modoAula.js` — NOVO: lógica do modo (toggle, fullscreen, escalas, atalhos)
+- [x] `core/professor/scale.js` — exporta `setScales`/`getScales` p/ o modo
+- [x] `core/plotEngine.js` — `setStyleMul()` (curvas/pontos/labels mais grossos)
 
 ### 13.3 Funcionalidades por Prioridade
 
-**Prioridade ALTA:**
-- [ ] Toggle do modo (botão + atalho)
-- [ ] Layout responsivo para TV/projetor
-- [ ] Fontes grandes e alto contraste
-- [ ] Controles touch grandes
-- [ ] Atalhos de teclado essenciais
+**Prioridade ALTA:** ✅ implementada
+- [x] Toggle do modo (botão `#btn-aula` + atalho `F`)
+- [x] Layout responsivo para TV/projetor (topbar/barra inferior ocultas, stage em tela cheia)
+- [x] Fontes grandes e alto contraste (escalas ×1.32/×1.5 + curvas ×1.7 + tema dark)
+- [x] Controles touch grandes (≥44–56px no modo)
+- [x] Atalhos de teclado essenciais (`F`, `Esc`, `Espaço`; `D`/`R`/`Ctrl+Z` pré-existentes)
 
 **Prioridade MÉDIA:**
 - [ ] Presets de demonstração pré-construídos
@@ -1760,10 +1770,10 @@ document.addEventListener("touchend", (e) => {
 
 ### 13.4 Testes Manuais
 
-- [ ] Modo entra/sai de tela cheia corretamente
-- [ ] Fontes são legíveis a 5 metros em TV
-- [ ] Controles touch funcionam com dedo (não requires stylus)
-- [ ] Atalhos de teclado funcionam sem olhar o teclado
+- [x] Modo entra/sai de tela cheia corretamente (automatizado + sem erros de console)
+- [ ] Fontes são legíveis a 5 metros em TV (validação em TV real pendente)
+- [x] Controles touch funcionam com dedo (alvos ≥44px no modo)
+- [x] Atalhos de teclado funcionam sem olhar o teclado (F/Esc/Espaço automatizados)
 - [ ] Presets carregam corretamente
 - [ ] Navegação passo a passo funciona
 - [ ] Modo foco destaca corretamente o parâmetro

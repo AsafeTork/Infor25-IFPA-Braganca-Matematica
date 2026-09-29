@@ -78,6 +78,27 @@
 
 .al-sidebar-inner { padding: .5rem 0 2rem; }
 
+/* Global progress */
+.al-sidebar-progress {
+  padding: .65rem .75rem .5rem;
+  border-bottom: 1px solid var(--border);
+}
+.al-progress-label {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--font-mono); font-size: .6rem; color: var(--text-mut);
+  letter-spacing: .08em; text-transform: uppercase;
+  margin-bottom: .35rem;
+}
+.al-progress-track {
+  height: 3px; background: var(--surface-2);
+  border-radius: 2px; overflow: hidden;
+}
+.al-progress-fill {
+  height: 100%; width: 0;
+  background: var(--accent); border-radius: 2px;
+  transition: width .35s ease;
+}
+
 /* Chapter group */
 .al-chapter { }
 .al-ch-btn {
@@ -94,6 +115,10 @@
   flex-shrink: 0; letter-spacing: .04em;
 }
 .al-ch-title { font-family: var(--font-display); font-size: .82rem; font-weight: 700; flex: 1; }
+.al-ch-progress {
+  font-family: var(--font-mono); font-size: .6rem; color: var(--text-mut);
+  flex-shrink: 0; letter-spacing: .03em;
+}
 .al-ch-arrow {
   width: 14px; height: 14px; color: var(--text-mut); flex-shrink: 0;
   transition: transform .2s; transform: rotate(-90deg);
@@ -109,7 +134,8 @@
 .al-ch-lessons.open { display: flex; }
 
 .al-lesson-btn {
-  display: block; width: 100%; text-align: left;
+  display: flex; width: 100%; text-align: left;
+  align-items: center; justify-content: space-between; gap: .5rem;
   padding: .38rem .75rem .38rem 1.5rem;
   border: none; background: none;
   font-family: var(--font-display); font-size: .8rem; color: var(--text-soft);
@@ -120,6 +146,11 @@
 .al-lesson-btn.active {
   color: var(--accent); background: var(--accent-soft);
   border-left-color: var(--accent); font-weight: 700;
+}
+.al-lesson-btn.done::after {
+  content: "✓"; color: var(--accent);
+  font-size: .68rem; line-height: 1; flex-shrink: 0;
+  opacity: .75;
 }
 
 /* ── Main content ── */

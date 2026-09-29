@@ -12,7 +12,7 @@ export function tex(el, latex, display = false) {
  * Walks all text nodes inside `root` and renders $...$ and $$...$$ in-place.
  * Uses recursive childNodes traversal (no NodeFilter / createTreeWalker needed).
  * Skips: canvas, script, style, already-rendered .katex elements, .lab internals.
- * Safe to call AFTER mountLab/mountQuizSet — those are element nodes, not touched.
+ * Safe to call AFTER mountLab — those are element nodes, not touched.
  */
 export function autoRender(root) {
   if (!root || !window.katex) return;

@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0c0d10">
 <title>Informática 25 · Matemática</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -103,7 +105,7 @@ body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
         <path d="M6 12v5c0 1 2.7 3 6 3s6-2 6-3v-5"/>
       </svg>
       <h3>Aluno</h3>
-      <span>Teoria, exemplos e quizes</span>
+      <span>Teoria, exemplos e desafios</span>
     </a>
     <a class="land-card" href="professor.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -120,10 +122,6 @@ body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
   IFPA — Campus Bragança · Turma Informática 25 · por <b>Asafe Tork</b> &amp; Claude (IA)
 </footer>
 
-<script type="module">
-import { initTheme, mountThemeToggle } from "./core/theme.js";
-initTheme();
-mountThemeToggle(document.getElementById("tg"));
-</script>
+<script type="module" src="./core/home.js"></script>
 </body>
 </html>

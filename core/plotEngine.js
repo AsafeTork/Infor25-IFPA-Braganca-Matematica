@@ -47,6 +47,7 @@ export class Plot {
     this.asymptotes = [];             // { y } horizontais
     this._overlays = [];              // [{ draw(ctx, plot) }]
     this.piAxis = opts.piAxis || false;
+    this._styleMul = 1;               // multiplicador de espessura (Modo Aula)
     this.view = {
       xmin: opts.xmin ?? -5, xmax: opts.xmax ?? 5,
       ymin: opts.ymin ?? -2, ymax: opts.ymax ?? 8,
@@ -114,6 +115,7 @@ export class Plot {
   set ymax(v) { this.view.ymax = v; }
 
   setPiAxis(v) { this.piAxis = v; this.draw(); }
+  setStyleMul(v) { this._styleMul = v || 1; this.draw(); }
   setView(v) {
     if (!v) return;
     Object.assign(this.view, v);
@@ -398,12 +400,12 @@ export class Plot {
     this.markers.forEach((m) => {
       const px = this.X(m.x), py = this.Y(m.y);
       ctx.fillStyle = css("--accent");
-      ctx.beginPath(); ctx.arc(px, py, 5, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(px, py, 5 * this._styleMul, 0, 7); ctx.fill();
       ctx.strokeStyle = css("--plot-bg"); ctx.lineWidth = 2; ctx.stroke();
       if (m.label) {
         ctx.fillStyle = css("--text");
         ctx.textAlign = "left"; ctx.textBaseline = "bottom";
-        ctx.font = `13px ${css("--font-mono")}`;
+        ctx.font = `${Math.round(13 * this._styleMul)}px ${css("--font-mono")}`;
         ctx.fillText(m.label, px + 9, py - 6);
       }
     });
@@ -428,7 +430,7 @@ export class Plot {
     if (c.isImplicit) return this._drawImplicit(c);
     const ctx = this.ctx, { W } = this;
     const params = c.params || {};
-    ctx.lineWidth = c.width || 2.6;
+    ctx.lineWidth = (c.width || 2.6) * this._styleMul;
     ctx.strokeStyle = c.color || css("--accent");
     ctx.beginPath();
     let started = false, prevY = null;
@@ -470,7 +472,7 @@ export class Plot {
       }
     }
     this.ctx.strokeStyle = c.color || css("--accent");
-    this.ctx.lineWidth = c.width || 2;
+    this.ctx.lineWidth = (c.width || 2) * this._styleMul;
     // para cada célula, se mudança de sinal, interpola e desenha segmento
     for(let j=0;j<rows;j++){
       for(let i=0;i<cols;i++){
