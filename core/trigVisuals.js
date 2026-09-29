@@ -537,7 +537,7 @@ export function mountCircleToGraph(root, opts = {}) {
   /* ── Circle component ── */
   const circleReadout = document.createElement("div");
   circleReadout.className = "ctg-circle-readout";
-  cvWrap.appendChild(circleReadout);
+  cvWrap.parentElement.appendChild(circleReadout);
 
   const circle = mountTrigCircle(cvWrap, {
     readoutEl: circleReadout,

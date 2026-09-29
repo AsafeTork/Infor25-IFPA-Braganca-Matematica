@@ -212,6 +212,10 @@ function syncTrigOverlays() {
     const ucRoot = cv.closest(".trig-circle-root, .ctg-container, .tpe-container, .tv-container, .pv-container, [data-trig-root]");
     if (!ucRoot) continue;
     let ovc = ucRoot.querySelector(".al-overlay-canvas");
+    if (allOverlays.length === 0) {
+      if (ovc) ovc.remove();
+      continue;
+    }
     if (!ovc) {
       ovc = document.createElement("canvas");
       ovc.className = "al-overlay-canvas";
@@ -265,12 +269,8 @@ function go(id) {
   const idx = ALL.findIndex(l => l.id === id);
   if (idx < 0) return;
   
-  const mi = MODULES.findIndex(m => m.lessons.some(le => le.id === id));
   cur = idx;
   const l = ALL[cur];
-
-  // Open that chapter if collapsed
-  if (mi >= 0 && !openState[mi]) { openState[mi] = true; }
 
   crumbEl.textContent = `${l.meta.chapter}`;
   titleEl.textContent = l.title;
