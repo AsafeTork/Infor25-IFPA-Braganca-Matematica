@@ -52,7 +52,7 @@ export const sequenciasLessons = [
               efeito: "r>0 cresce ↗ · r<0 decresce ↘ · define inclinação da reta" },
           ],
           start: "y = 3 + (x-1)·5",
-          view: { xmin: 0, xmax: 12, ymin: -10, ymax: 60 },
+          view: { xmin: -6, xmax: 6, ymin: -35, ymax: 35 },
           examples: ["y = 3 + (x-1)·5", "y = 10 + (x-1)·(-2)", "y = 1 + (x-1)·7"],
           desafios: [
             { ordem: "Faça uma PA com 5.º termo = 20 e razão 3.",
@@ -107,7 +107,7 @@ export const sequenciasLessons = [
               efeito: "q>1 cresce explosivo ↑ · 0<q<1 decai ↘ até zero" },
           ],
           start: "y = 2·3^(x-1)",
-          view: { xmin: 0, xmax: 8, ymin: -5, ymax: 80 },
+          view: { xmin: -4, xmax: 4, ymin: -42, ymax: 42 },
           examples: ["y = 2·3^(x-1)", "y = 100·(1/2)^(x-1)", "y = 1·2^(x-1)", "y = 5·(1.1)^(x-1)"],
           desafios: [
             { ordem: "PG com a₁=3 e q=2. Confirme que o 4.º termo é 24.",
@@ -154,7 +154,7 @@ export const sequenciasLessons = [
         if (!c.querySelector("#cmp-seq")) return;
         if (!document.body.contains(canvas)) return;
         try{
-          const p = new Plot(canvas, { xmin:0, xmax:15, ymin:-5, ymax:120 });
+          const p = new Plot(canvas, { xmin:-7, xmax:7, ymin:-60, ymax:60 });
           _activePlots.push(p);
           p.setCurves([
             { fn: x => 5+(x-1)*5, color: css("--accent") },

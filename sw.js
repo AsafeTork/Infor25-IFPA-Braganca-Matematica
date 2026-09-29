@@ -1,5 +1,5 @@
 /* sw.js — service worker do PWA: precache (stale-while-revalidate) + runtime p/ fontes externas */
-const VERSION = "v1";
+const VERSION = "v2";
 const PRECACHE = `precache-${VERSION}`;
 const RUNTIME = `runtime-${VERSION}`;
 
@@ -103,22 +103,19 @@ async function cacheFirst(request, cacheName) {
   }
 }
 
-async function staleWhileRevalidate(request) {
-  const cached = await caches.match(request, { ignoreSearch: true });
-  const network = fetch(request).then(async (res) => {
+async function networkFirst(request, cacheName) {
+  try {
+    const res = await fetch(request);
     if (res && res.ok) {
-      const c = await caches.open(PRECACHE);
+      const c = await caches.open(cacheName);
       c.put(request, res.clone());
     }
     return res;
-  }).catch(() => null);
-  if (cached) {
-    network.catch(() => null);
-    return cached;
+  } catch (err) {
+    const cached = await caches.match(request, { ignoreSearch: true });
+    if (cached) return cached;
+    throw err;
   }
-  const res = await network;
-  if (res) return res;
-  throw new Error("offline e sem cache: " + request.url);
 }
 
 self.addEventListener("fetch", (e) => {
@@ -130,19 +127,5 @@ self.addEventListener("fetch", (e) => {
     e.respondWith(cacheFirst(request, RUNTIME));
     return;
   }
-  if (request.mode === "navigate") {
-    e.respondWith((async () => {
-      try {
-        const cached = await caches.match(request, { ignoreSearch: true });
-        if (cached) return cached;
-        return await fetch(request);
-      } catch (err) {
-        const cached = await caches.match(request, { ignoreSearch: true });
-        if (cached) return cached;
-        throw err;
-      }
-    })());
-    return;
-  }
-  e.respondWith(staleWhileRevalidate(request));
+  e.respondWith(networkFirst(request, PRECACHE));
 });

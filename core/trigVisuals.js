@@ -98,6 +98,7 @@ export function mountTrigCircle(root, opts = {}) {
     showProj:       opts.showProj       ?? true,
     showQuadrants:  opts.showQuadrants  ?? true,
     showNotable:    opts.showNotable    ?? true,
+    showCoords:     opts.showCoords     ?? true,
     initialTheta:   opts.initialTheta   ?? PI / 4,
     readoutEl:      opts.readoutEl      ?? null,
     size:           opts.size           ?? "auto",
@@ -318,11 +319,13 @@ export function mountTrigCircle(root, opts = {}) {
     ctx.fillText("P", px + (co >= 0 ? 10 : -10), py + (si >= 0 ? -10 : 10));
 
     /* ── Coordenadas do ponto (tooltip) ── */
-    const fs3 = ~~(_r * 0.09);
-    ctx.font = `${fs3}px monospace`;
-    ctx.fillStyle = fgm;
-    ctx.textAlign = "center"; ctx.textBaseline = "top";
-    ctx.fillText(`(${fmt(co, 3)}, ${fmt(si, 3)})`, px, py + (si >= 0 ? 14 : -20));
+    if (cfg.showCoords) {
+      const fs3 = ~~(_r * 0.09);
+      ctx.font = `${fs3}px monospace`;
+      ctx.fillStyle = fgm;
+      ctx.textAlign = "center"; ctx.textBaseline = "top";
+      ctx.fillText(`(${fmt(co, 3)}, ${fmt(si, 3)})`, px, py + (si >= 0 ? 14 : -20));
+    }
 
     /* ── Overlays ── */
     for (const ov of _overlays) {

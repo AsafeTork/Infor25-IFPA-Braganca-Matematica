@@ -113,6 +113,7 @@ export const trigonometriaLessons = [
       showProj: false,
       showQuadrants: false,
       showNotable: false,
+      showCoords: false,
     });
     _activeControllers.push(circ);
   }
@@ -188,6 +189,7 @@ export const trigonometriaLessons = [
       showProj: true,
       showQuadrants: true,
       showNotable: true,
+      showCoords: false,
     });
     _activeControllers.push(circ);
   }
@@ -261,6 +263,7 @@ export const trigonometriaLessons = [
       showProj: true,
       showQuadrants: true,
       showNotable: false,
+      showCoords: false,
     });
     _activeControllers.push(circ);
   }

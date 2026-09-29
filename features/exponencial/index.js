@@ -121,7 +121,7 @@ const comparacao = {
         think(`Até cerca de qual valor de $x$ a reta está acima da curva? Depois desse ponto, quem domina? Por quê?`));
     autoRender(c);
     try{
-      const p = new Plot(c.querySelector("#cmp"), { xmin: -1, xmax: 9, ymin: -2, ymax: 40 });
+      const p = new Plot(c.querySelector("#cmp"), { xmin: -5, xmax: 7, ymin: -30, ymax: 40 });
       _activePlots.push(p);
       const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
       p.setCurves([
@@ -164,7 +164,7 @@ const aplicacoes = {
       base: "N(x) = N_{0}\\cdot a^{x}",
       params: [{ k: "N", name: "valor inicial $N_0$", default: 1 }, { k: "a", name: "fator por passo", default: 2 }],
       start: "y = 3·2^x",
-      view: { xmin: 0, xmax: 10, ymin: -2, ymax: 60 },
+      view: { xmin: -5, xmax: 5, ymin: -30, ymax: 30 },
       examples: ["y = N·a^x", "y = 1800·(1.03)^x", "y = 100·(1/2)^x", "y = 2^x"],
       desafios: [
         { ordem: "Modele juros de 5% ao ano com N0=1000: f(x)=1000·1.05^x. Verifique f(10)≈1628.",
