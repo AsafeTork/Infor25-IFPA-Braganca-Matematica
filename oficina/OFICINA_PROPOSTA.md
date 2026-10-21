@@ -1,17 +1,23 @@
-# Proposta de Inscrição — Oficina
+```
+y = 2^x        y = sin(x)        y = 3 + (x-1)*5
+y = x^(3/2)    y = cos(2*x)      y = 1800*(1.03)^x
+```
+
+> **Sintaxe do laboratório** — o que o aluno digita. Multiplicação por `*`, `·` ou `×`;
+> expoente por `^` ou por dígito em sobrescrito (`2ⁿ`); separador decimal é o **ponto**.# Proposta de Inscrição — Oficina
 
 **Título da oficina:** Matemática Interativa em Sala de Aula — prática com a plataforma *Informal25*
 **Subtítulo:** Do raciocínio à visualização: a área do aluno e o quadro do professor como instrumentos de aula
 **Modalidade:** Oficina (formação prática, com laboratórios hands-on)
-**Coordenação:** Asafe Tork — IFPA, Campus Bragança · Turma Informática 25
+**Coordenação:** `[NOME COMPLETO]` — `[INSTITUIÇÃO]`
 **Área de conhecimento:** Matemática — Ensino Médio Técnico / Ensino Fundamental
 
 | Campo | Preenchimento |
 |---|---|
 | Carga horária | 4 h (2 encontros de 2 h) · adaptável para 2 h |
-| Público-alvo | Professores de Matemática e áreas afins; estudantes de graduação em Matemática |
-| Número de vagas | 30 participantes |
-| Pré-requisitos | Noções de função, POWER e trigonometria. Nenhum conhecimento de programação ou de software específico. |
+| Público-alvo | Professores de Matemática do **Ensino Médio (Técnico ou Regular)** que ensinem os 4 capítulos da plataforma: Potenciação, Função Exponencial, Sequências e Trigonometria |
+| Número de vagas | 30 participantes (2 reservadas a estudantes de graduação, em monitoria) |
+| Pré-requisitos | Noções de função, potência e trigonometria. Nenhum conhecimento de programação ou de software específico. |
 | Data e horário | `[preencher]` |
 | Local | `[preencher]` |
 | Plataforma | Presencial (laboratório com devices) ou híbrido, com acesso a um computador por participante |
@@ -35,7 +41,7 @@ A Base Nacional Comum Curricular organiza parte das habilidades de Matemática e
 
 Três limitações recorrentes na prática da disciplina:
 
-1. **O recurso visual é fixo.** A illustration do livro não muda. Para ver o que acontece quando a base da exponencial passa de 2 para 3, ou quando o ângulo do círculo unitário passa de 45° para 135°, é preciso redesenhar tudo à mão.
+1. **O recurso visual é fixo.** A ilustração do livro não muda. Para ver o que acontece quando a base da exponencial passa de 2 para 3, ou quando o ângulo do círculo unitário passa de 45° para 135°, é preciso redesenhar tudo à mão.
 2. **A precisão fica a cargo do traço.** Um gráfico desenhado no caderno carrega erros de escala, de quadrante e de intercepto — justamente os erros que a disciplina quer identificar.
 3. **A infraestrutura é frágil.** Computador com internet, licença e conta em plataforma educacional não são garantidos. Um celular e uma rede instável são a realidade de grande parte das escolas.
 
@@ -75,7 +81,7 @@ Aplicação web estática de Matemática, construída do zero para o 2.º e o 3.
 - **Teoria** com notação matemática renderizada em LaTeX (KaTeX), escrita em linguagem acessível.
 - **Definições e propriedades** em caixas visuais tipificadas.
 - **Exemplos resolvidos** com passo a passo comentado.
-- **Laboratório de fórmulas**: caixa universal onde o aluno digita qualquer expressão e vê o gráfico responder em tempo real — `y = 2^x`, `y = sin(x)`, `y = 3 + (x-1)·5`, `y = x^(3/2)`, `y = 1800·(1.03)^x`.
+- **Laboratório de fórmulas**: caixa universal onde o aluno digita qualquer expressão e vê o gráfico responder em tempo real — `y = 2^x`, `y = sin(x)`, `y = 3 + (x-1)*5`, `y = x^(3/2)`, `y = 1800*(1.03)^x`.
 - **Círculo unitário interativo**, com play/pause, rastro do ponto e leitura ao vivo de seno, cosseno e tangente.
 - **Progresso de leitura** das 21 aulas, salvo localmente no navegador.
 
@@ -83,8 +89,8 @@ Aplicação web estática de Matemática, construída do zero para o 2.º e o 3.
 
 - **Gráfico interativo** com zoom, deslocamento (pan) e múltiplas fórmulas em cores distintas.
 - **Círculo unitário** sobreposto ao plano cartesiano, com *snap* nos ângulos notáveis (π/6, π/4, π/3) e suporte a voltas completas (> 360°).
-- **Presets prontos** por tema: Exponencial, Sequências, Trigonometria e Álgebra (incluindo comparações como "2ˣ vs ½ˣ", "PA vs PG", "sin + cos").
-- **Leitura de valores exatos** — o cursor exibe `x = π/3` em vez de `x = 1.047`, e `y = √3/2` em vez de `y = 0.866`.
+- **Presets prontos** por tema: Exponencial, Sequências, Trigonometria e Álgebra (incluindo comparações como 2<sup>x</sup> vs ½<sup>x</sup>, "PA vs PG", "sin + cos").
+- **Leitura de valores exatos** — o cursor exibe *x* = π/3 em vez de *x* = 1.047, e *y* = √3/2 em vez de *y* = 0.866.
 - **Eixo em π**, alternável, para leitura de gráficos periódicos.
 - **Ferramentas de anotação** sobre o próprio gráfico: marcador, linha vertical, linha horizontal, área sombreada, triângulo, seta, régua e texto — cada uma com cor própria, em camadas, com undo/redo (`Ctrl+Z` / `Ctrl+Shift+Z`) e remoção por clique duplo.
 - **Download do quadro em PNG** de alta resolução, para virar material do aluno.
@@ -136,6 +142,21 @@ A oficina é **prática, não expositiva**. O modelo segue três princípios:
 
 **Dinâmicas utilizadas:** demonstração conduzida (projeto no projetor, com o quadro do professor como ferramenta central);Laboratório individual com roteiro de 6 tarefas; duplas de produção; roda de-sharing final; questionário de avaliação antes e depois.
 
+### Público-alvo e critérios de inscrição
+
+**Quem é o público-alvo.** Professores de Matemática do **Ensino Médio (Técnico ou Regular)** que ensinem — ou planejem ensinar — os quatro capítulos cobertos pela plataforma: **Potenciação, Função Exponencial, Sequências Numéricas e Trigonometria**. A oficina não é um curso de matemática: é uma formação sobre o uso de um material que cobre exatamente esses capítulos — por isso o interesse de quem leciona fora desse recorte é menor.
+
+**Pré-requisitos.** Noções de função, potência e trigonometria (nível de 2.º ano do Ensino Médio). Não é necessário conhecimento de programação, de planilha nem de qualquer software específico: todo o ferramental é operado por mouse e teclado.
+
+**Critérios de seleção** — se o número de inscritos exceder as vagas:
+
+1. Prioridade para professores da **rede IFPA** e de escolas com **curso técnico**, por serem o público de origem da plataforma.
+2. Em seguida, professores que já lecionam **qualquer um dos 4 capítulos** cobertos.
+3. Reservadas **2 vagas para estudantes de graduação em Matemática**, em caráter de monitoria — a exemplo, para quem pretende lecionar no Ensino Médio.
+4. Em caso de empate, assegura-se a ordem de inscrição.
+
+**Vagas:** 30 participantes · **Formadores:** mínimo 2 (proporção de 1 formador para cada 15 participantes durante os módulos hands-on).
+
 ### Roteiro (4 h)
 
 | # | Momento | Min | O que acontece |
@@ -166,7 +187,7 @@ Versão de 2 h para a própria escola, com turmas da Informática 25 como públi
 
 **Módulo 2 — A Área do Aluno: estudo dirigido e laboratório (45 min)**
 - Estrutura de uma aula interativa: teoria → definição → exemplo resolvido → laboratório → desafio.
-- O laboratório de fórmulas como espaço de conjectura: `2^x` vs `(1/2)^x`, `y = 3+(x-1)·5`, `y = 1800·(1.03)^x`.
+- O laboratório de fórmulas como espaço de conjectura: *y* = 2<sup>x</sup> vs *y* = (1/2)<sup>x</sup>, *y* = 3 + (*x* − 1)·5, *y* = 1800·(1.03)<sup>x</sup>.
 - Círculo unitário animado e a leitura de seno, cosseno e tangente.
 - Progresso de leitura e autonomia.
 
@@ -217,12 +238,13 @@ Versão de 2 h para a própria escola, com turmas da Informática 25 como públi
 
 | Nome | Função na oficina | Vínculo / formação | Responsabilidade |
 |---|---|---|---|
-| **Asafe Tork** | Coordenação | IFPA — Campus Bragança · Professor de Informática | Concepção e desenvolvimento da plataforma; condução dos Módulos 1 e 3; coordenação geral |
+| `[NOME COMPLETO]` | **Coordenação da oficina** | `[VÍNCULO]` | `[RESPONSABILIDADE]` |
+| **Asafe Tork** | Desenvolvimento da plataforma | IFPA — Campus Bragança · Professor de Informática | Concepção e desenvolvimento da plataforma Informal25; condução dos Módulos 1 e 3 |
 | `[NOME COMPLETO]` | `[FUNÇÃO — ex.: Conteúdo matemático]` | `[VÍNCULO]` | `[RESPONSABILIDADE — ex.: curadoria do conteúdo de Trigonometria e Sequências]` |
 | `[NOME COMPLETO]` | `[FUNÇÃO — ex.: Apoio pedagógico]` | `[VÍNCULO]` | `[RESPONSABILIDADE — ex.: tutoria do laboratório e acompanhamento dos grupos]` |
 | `[NOME COMPLETO]` | `[FUNÇÃO — ex.: Design / multimídia]` | `[VÍNCULO]` | `[RESPONSABILIDADE — ex.: impressão, slides e registro da oficina]` |
 
-*Preencher a tabela conforme a equipe confirmada. A coordenação se responsabiliza por manter o 비율 entre formadores e participantes em, no máximo, 1 formador para cada 15 participantes durante os módulos hands-on.*
+*Preencher a tabela conforme a equipe confirmada. A coordenação se responsabiliza por manter no máximo 1 formador para cada 15 participantes durante os módulos hands-on — com 30 vagas, são necessários 2 formadores.*
 
 ---
 
@@ -307,13 +329,42 @@ BRILLIANT. *Interactive learning platform*. Disponível em: https://brilliant.or
 
 1. **Demonstração ao vivo:** https://asafetork.github.io/Infor25-IFPA-Braganca-Matematica/
 2. **Repositório do código-fonte:** https://github.com/AsafeTork/Infor25-IFPA-Braganca-Matematica
-3. **Capturas de tela** da Área do Aluno e da Área do Professor `[anexar]`
+3. **Capturas de tela** da Área do Aluno e da Área do Professor — anexadas na seção 13
 4. **Roteiro do laboratório** (tarefas práticas por módulo) `[anexar]`
 5. **Modelo de plano de aula** entregue no Módulo 4 `[anexar]`
 
 ---
 
-## 13. Declaração e assinatura
+## 13. Anexo visual — a plataforma em uso
+
+Quatro telas reais da plataforma, capturadas do ambiente em uso. As duas primeiras são da **Área do
+Aluno**; as duas últimas, da **Área do Professor**.
+
+**Área do Aluno · Capítulo 1 — Expoente inteiro.** Teoria com notação matemática renderizada,
+caixas de "Para pensar" e "Resolução", e ao pé o *laboratório de fórmulas*: o aluno digita `y = 2^x`
+e o gráfico responde na hora. O menu lateral mantém as 21 aulas e o progresso de leitura.
+
+![Área do Aluno — aula de expoente inteiro com laboratório de fórmulas](anexos/01-aluno-lab.png)
+
+**Área do Aluno · Capítulo 5 — Movimento circular.** A aula parte do fenômeno concreto (a Terra, o
+pêndulo, o relógio) e chega à formulação matemática — a sequência didática que se repete nas 21 aulas.
+
+![Área do Aluno — aula de movimento circular](anexos/02-aluno-aula.png)
+
+**Área do Professor — quadro ao vivo.** O círculo unitário sobreposto ao plano cartesiano, com leitura
+de *sin θ*, *cos θ* e *tan θ* ao vivo, botões dos ângulos notáveis (π/6, π/4, π/3…) e várias curvas
+simultâneas com cores distintas.
+
+![Área do Professor — círculo unitário sobre o plano cartesiano](anexos/03-professor-circulo.png)
+
+**Modo Aula (TV / projetor).** Tela cheia, tema de alto contraste, escala ampliada para leitura a
+3–10 m e atalhos de teclado — a interface de sala que só o professor controla.
+
+![Modo Aula — tela cheia para projetor](anexos/04-professor-modo-aula.png)
+
+---
+
+## 14. Declaração e assinatura
 
 Declaro que as informações acima são verdadeiras e que a equipe assume o compromisso de conducting a oficina conforme o roteiro apresentado, atendendo aos requisitos de infraestrutura e de acessibilidade descritos.
 

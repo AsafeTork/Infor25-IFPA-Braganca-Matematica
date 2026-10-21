@@ -5,17 +5,21 @@ baseada na plataforma *Informal25* (IFPA — Campus Bragança · Turma Informát
 
 | Arquivo | Para quê |
 |---|---|
-| `oficina-proposta.pdf` | **Artefato de submissão.** 12 páginas A4, pronto para enviar/colar no sistema de inscrição. Gerado em 21/10/2026. |
+| `oficina-proposta.pdf` | **Artefato de submissão.** 14 páginas A4 (inclui o anexo visual com 4 capturas reais da plataforma), pronto para enviar. Gerado em 21/10/2026. |
 | `oficina-proposta.html` | Versão viva e editável. Abre offline (fontes embutidas), tem tema claro/escuro e botão de impressão → PDF. |
 | `OFICINA_PROPOSTA.md` | Versão em texto puro, para **copiar e colar** em campos de formulário (quando o sistema não aceita PDF) ou editar em outra ferramenta. |
+| `CAMPO-PREENCHER.md` | Checklist dos 27 campos que faltam, com a página de cada um. |
+| `anexos/` | As 4 capturas de tela da plataforma usadas na seção 13 (também prontas para anexar separadamente). |
 
 ---
 
 ## Antes de enviar
 
 1. **Preencher os campos `[entre colchetes]`** — data, local, contato, e-mail, indicadores de alcance.
-2. **Preencher a tabela da Equipe (seção 07)** com os nomes e funções dos integrantes. Há 3 linhas em branco prontas.
+2. **Preencher a tabela da Equipe (seção 07)**: a linha da coordenação e as 2 linhas em branco.
 3. **Ajustar a seção 09** (indicadores de alcance) com os números reais da rede.
+4. **Anexar** o roteiro do laboratório (anexo 4) e o modelo de plano de aula (anexo 5).
+   O anexo 3 (capturas de tela) já está resolvido — seção 13 do documento, arquivos em `anexos/`.
 4. **Link da demonstração ao vivo** — já está no ar:
    ```
    https://asafetork.github.io/Infor25-IFPA-Braganca-Matematica/
