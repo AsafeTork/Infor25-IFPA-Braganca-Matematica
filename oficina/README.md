@@ -16,11 +16,12 @@ baseada na plataforma *Informal25* (IFPA — Campus Bragança · Turma Informát
 1. **Preencher os campos `[entre colchetes]`** — data, local, contato, e-mail, indicadores de alcance.
 2. **Preencher a tabela da Equipe (seção 07)** com os nomes e funções dos integrantes. Há 3 linhas em branco prontas.
 3. **Ajustar a seção 09** (indicadores de alcance) com os números reais da rede.
-4. **Publicar a demonstração** (GitHub Pages ainda não está ativo neste repositório) e colocar o link no anexo 01:
+4. **Link da demonstração ao vivo** — já está no ar:
    ```
-   Settings → Pages → Source: main / root
+   https://asafetork.github.io/Infor25-IFPA-Braganca-Matematica/
    ```
-   O link gerado é `https://asafetork.github.io/Infor25-IFPA-Braganca-Matematica/`.
+   (Publicação automática a cada push na `main`.) A versão do documento da oficina está em
+   `/oficina/oficina-proposta.html`.
 5. **Anexar** capturas de tela da área do aluno e do professor, o roteiro do laboratório e o modelo de plano de aula.
 
 > O resumo de 200 palavras (seção 00) foi escrito para caber em campo de texto curto do formulário.

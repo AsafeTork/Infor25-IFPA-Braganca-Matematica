@@ -183,15 +183,32 @@ npm run check      # checagem de sintaxe de todos os módulos
 
 ## Publicar no GitHub Pages
 
+O site já está **no ar**: **[asafetork.github.io/Infor25-IFPA-Braganca-Matematica](https://asafetork.github.io/Infor25-IFPA-Braganca-Matematica/)**
+
+Publicação automática a cada push na `main` (GitHub Pages · branch `main` · pasta `/`):
+
 ```bash
 git add .
 git commit -m "Atualização"
 git push
 ```
 
-Depois: **Settings → Pages → Source: `main` / root** → salvar.
+O site é reconstruído em cerca de 1 minuto. Para conferir o estado do deploy:
+`Settings → Pages`.
 
-O site fica disponível em `https://SEU-USUARIO.github.io/NOME-DO-REPO/` em cerca de 1 minuto.
+> O arquivo `.nojekyll` na raiz desliga o Jekyll do GitHub Pages — necessário para que os módulos ES
+> e os arquivos com underscore sejam servidos exatamente como estão no repositório.
+
+---
+
+## Oficina — material de inscrição
+
+A pasta [`oficina/`](oficina/) guarda a proposta de inscrição da oficina **Matemática Interativa em
+Sala de Aula**, com as três versões do documento (PDF pronto para enviar, HTML vivo e editável,
+e Markdown para copiar e colar em formulário) e o checklist de campos a preencher.
+
+A versão online fica em
+[`/oficina/oficina-proposta.html`](https://asafetork.github.io/Infor25-IFPA-Braganca-Matematica/oficina/oficina-proposta.html).
 
 ---
 

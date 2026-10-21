@@ -305,7 +305,7 @@ BRILLIANT. *Interactive learning platform*. Disponível em: https://brilliant.or
 
 ## 12. Anexos
 
-1. **Demonstração ao vivo:** `[link da demonstração publicada — a publicar antes da submissão]`
+1. **Demonstração ao vivo:** https://asafetork.github.io/Infor25-IFPA-Braganca-Matematica/
 2. **Repositório do código-fonte:** https://github.com/AsafeTork/Infor25-IFPA-Braganca-Matematica
 3. **Capturas de tela** da Área do Aluno e da Área do Professor `[anexar]`
 4. **Roteiro do laboratório** (tarefas práticas por módulo) `[anexar]`

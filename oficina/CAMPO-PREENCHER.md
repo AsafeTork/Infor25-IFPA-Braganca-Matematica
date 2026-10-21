@@ -1,6 +1,6 @@
 # ✅ Checklist de preenchimento
 
-Todos os campos a preencher estão **entre colchetes**. São **28 campos** em 5 páginas do PDF.
+Todos os campos a preencher estão **entre colchetes**. São **27 campos** em 5 páginas do PDF.
 
 ---
 
@@ -46,12 +46,12 @@ Subtítulo: **Indicadores de alcance** — três células da tabela:
 | Onde | Campo | O que colocar |
 |---|---|---|
 | Referência 3 | Livro didático da professora | `[indicar o título exato e o ano da edição]` |
-| Anexo 1 | **Demonstração ao vivo** | `[link da demonstração publicada — a publicar antes da submissão]` |
 | Anexo 3 | Capturas de tela da Área do Aluno e da Área do Professor | `[anexar]` |
 | Anexo 4 | Roteiro do laboratório (tarefas práticas por módulo) | `[anexar]` |
 | Anexo 5 | Modelo de plano de aula entregue no Módulo 4 | `[anexar]` |
 
-> O anexo 2 (repositório do código-fonte) já tem o link: `github.com/AsafeTork/Infor25-IFPA-Braganca-Matematica`
+> O anexo 1 (demonstração ao vivo) **já está preenchido** com o link do site no ar.
+> O anexo 2 (repositório do código-fonte) também já tem link: `github.com/AsafeTork/Infor25-IFPA-Braganca-Matematica`
 
 ---
 
@@ -72,8 +72,8 @@ Subtítulo: **Indicadores de alcance** — três células da tabela:
 p.1    ▢ Data e local          ▢ Contato
 p.9    ▢ Nome  ▢ Função  ▢ Vínculo  ▢ Responsabilidade   (× 3 integrantes)
 p.10   ▢ Escolas  ▢ Professores  ▢ Alunos
-p.11   ▢ Livro didático   ▢ Link da demo   ▢ Capturas   ▢ Roteiro   ▢ Modelo
+p.11   ▢ Livro didático   ▢ Capturas   ▢ Roteiro   ▢ Modelo
 p.12   ▢ Nome  ▢ Instituição  ▢ Local  ▢ Dia  ▢ Mês  ▢ Ano
 ```
 
-**Antes de enviar:** publicar a demonstração (GitHub Pages ainda não está ativo neste repositório) e colocar o link no anexo 1.
+A demonstração ao vivo já está no ar: `https://asafetork.github.io/Infor25-IFPA-Braganca-Matematica/`.
