@@ -74,6 +74,9 @@ Formar professores de Matemática no uso de recursos interativos de visualizaç�
 
 Aplicação web estática de Matemática, construída do zero para o 2.º e o 3.º ano do Ensino Médio Técnico em Informática do IFPA Campus Bragança, com base no conteúdo do livro didático da disciplina e inspirada em ferramentas como Desmos, GeoGebra, Brilliant e Khan Academy. O foco declarado do projeto é **raciocínio, interpretação e comportamento matemático** — não a entrega de respostas prontas.
 
+> *As funcionalidades descritas correspondem à versão em uso na data desta proposta. O material é aberto
+evolui com a prática em sala — a demonstração ao vivo sempre mostra o estado atual.*
+
 ### 3.2 As duas áreas
 
 **Área do Aluno** — ambiente de estudo completo, acessível por celular ou computador:
@@ -339,6 +342,9 @@ BRILLIANT. *Interactive learning platform*. Disponível em: https://brilliant.or
 
 Quatro telas reais da plataforma, capturadas do ambiente em uso. As duas primeiras são da **Área do
 Aluno**; as duas últimas, da **Área do Professor**.
+
+> *Capturas da versão em uso na data desta proposta (21/10/2026). São reproduzíveis a qualquer momento
+pelo repositório — ver `oficina/capturas.sh`.*
 
 **Área do Aluno · Capítulo 1 — Expoente inteiro.** Teoria com notação matemática renderizada,
 caixas de "Para pensar" e "Resolução", e ao pé o *laboratório de fórmulas*: o aluno digita `y = 2^x`

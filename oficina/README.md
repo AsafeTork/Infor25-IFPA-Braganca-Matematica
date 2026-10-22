@@ -33,18 +33,27 @@ baseada na plataforma *Informal25* (IFPA — Campus Bragança · Turma Informát
 
 ---
 
-## Como regerar o PDF
+Ou simplesmente abra `oficina/oficina-proposta.html` e use o botão **Imprimir / PDF** (o CSS de impressão já está configurado para A4).
+
+---
+
+## Regenerar o anexo visual e o PDF
+
+A interface do app vai evoluir — o anexo visual acompanha. Dois comandos:
 
 ```bash
-# a partir da raiz do repositório
-python3 -m http.server 8811 --bind 127.0.0.1 &
-/opt/google/chrome/chrome --headless=new --no-sandbox --disable-gpu \
-  --virtual-time-budget=8000 --no-pdf-header-footer \
-  --print-to-pdf=oficina/oficina-proposta.pdf \
-  "http://127.0.0.1:8811/oficina/oficina-proposta.html"
+./oficina/capturas.sh          # regera as 4 capturas em oficina/anexos/
+./oficina/build.sh             # regera o PDF (A4) a partir do HTML
+./oficina/build.sh --com-capturas   # os dois de uma vez
 ```
 
-Ou simplesmente abra `oficina/oficina-proposta.html` e use o botão **Imprimir / PDF** (o CSS de impressão já está configurado para A4).
+`capturas.sh` sobe um servidor local, usa o Playwright (já é devDependency do projeto) para esperar o
+conteúdo renderizar antes de fotografar, e confere cada imagem — se a tela sair incompleta, repete a
+captura até 3 vezes. As capturas referenciam as aulas por âncora (`#pot-inteiro`,
+`#trig-movimento-circular`), então continuam válidas enquanto essas aulas existirem.
+
+> Se você mudar o **conteúdo** das telas (não só o visual), ajuste os seletores em
+> `oficina/capturar.mjs` — o array `SHOTS` diz o que esperar em cada uma.
 
 ---
 
