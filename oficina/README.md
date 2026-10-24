@@ -5,7 +5,7 @@ baseada na plataforma *Informal25* (IFPA — Campus Bragança · Turma Informát
 
 | Arquivo | Para quê |
 |---|---|
-| `oficina-proposta.pdf` | **Artefato de submissão.** 14 páginas A4 (inclui o anexo visual com 4 capturas reais da plataforma), pronto para enviar. Gerado em 21/10/2026. |
+| `oficina-proposta.pdf` | **Artefato de submissão.** 15 páginas A4 (inclui o anexo visual com 4 capturas reais da plataforma), pronto para enviar. Gerado em 22/10/2026. |
 | `oficina-proposta.html` | Versão viva e editável. Abre offline (fontes embutidas), tem tema claro/escuro e botão de impressão → PDF. |
 | `OFICINA_PROPOSTA.md` | Versão em texto puro, para **copiar e colar** em campos de formulário (quando o sistema não aceita PDF) ou editar em outra ferramenta. |
 | `CAMPO-PREENCHER.md` | Checklist dos 27 campos que faltam, com a página de cada um. |
@@ -66,8 +66,9 @@ captura até 3 vezes. As capturas referenciam as aulas por âncora (`#pot-inteir
 03  A solução (a plataforma)      10  Sustentabilidade
 04  Metodologia e roteiro         11  Referências
 05  Conteúdo programático         12  Anexos
-06  Avaliação                     13  Declaração e assinatura
+06  Avaliação                     13  Anexo visual
+07  Equipe                        14  Declaração e assinatura
 ```
 
 Os números citados no documento (21 aulas, 105 commits, ~11.200 linhas, 0 dependências de runtime)
-foram verificados no repositório em **21/10/2026**.
+foram verificados no repositório em **22/10/2026**.

@@ -1,6 +1,6 @@
 # ✅ Checklist de preenchimento
 
-Todos os campos a preencher estão **entre colchetes**. São **27 campos** em 5 páginas do PDF.
+Todos os campos a preencher estão **entre colchetes**. São **27 campos** em 15 páginas do PDF.
 
 ---
 
