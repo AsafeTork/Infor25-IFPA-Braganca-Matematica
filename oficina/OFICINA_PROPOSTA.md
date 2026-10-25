@@ -9,39 +9,39 @@
 | Campo | Preenchimento |
 |---|---|
 | Carga horária | 4 h (2 encontros de 2 h) · adaptável para 2 h |
-| Público-alvo | Professores de Matemática do **Ensino Médio (Técnico ou Regular)** que ensinem os 4 capítulos da plataforma: Potenciação, Função Exponencial, Sequências Numéricas e Trigonometria |
-| Número de vagas | 30 participantes (2 reservadas a estudantes de graduação, em monitoria) |
-| Pré-requisitos | Noções de função, potência e trigonometria. Nenhum conhecimento de programação ou de software específico. |
+| Público-alvo | Professores de Matemática do Ensino Médio (Técnico ou Regular) que lecionam os quatro capítulos cobertos pela plataforma: Potenciação, Função Exponencial, Sequências Numéricas e Trigonometria |
+| Número de vagas | 30 participantes (2 reservadas a estudantes de graduação em Matemática, em caráter de monitoria) |
+| Pré-requisitos | Noções de função, potência e trigonometria (nível do 2.º ano do Ensino Médio). Não é necessário conhecimento de programação, planilhas nem qualquer software específico. |
 | Data e horário | `[preencher]` |
 | Local | `[preencher]` |
-| Plataforma | Presencial (laboratório com devices) ou híbrido, com acesso a um computador por participante |
+| Plataforma | Presencial, em laboratório com dispositivos, ou híbrido, com acesso a um computador por participante |
 | Contato do proponente | `[preencher e-mail]` |
 
 ---
 
 ## 0. Resumo curto — 200 palavras (para campo de resumo do formulário)
 
-> O *Informal25* é uma plataforma web de Matemática construída para o 2.º e o 3.º ano do Ensino Médio Técnico em Informática do IFPA Campus Bragança, com 21 aulas interativas distribuídas em quatro capítulos — Potenciação, Função Exponencial, Sequências Numéricas e Trigonometria. A plataforma tem duas áreas: a **Área do Aluno**, onde se estuda a teoria com notação matemática renderizada, exemplos resolvidos e um laboratório de fórmulas que transforma qualquer expressão digitada em um gráfico imediato; e a **Área do Professor**, um quadro de gráficos ao vivo com círculo unitário animado, leitura de valores exatos (π/3, √3/2), ferramentas de anotação sobre o próprio gráfico e um Modo Aula para TV e projetor.
+> O *Informal25* é uma plataforma web de Matemática desenvolvida para o 2.º e o 3.º ano do Ensino Médio Técnico em Informática do IFPA Campus Bragança, com 21 aulas interativas distribuídas em quatro capítulos — Potenciação, Função Exponencial, Sequências Numéricas e Trigonometria. A plataforma apresenta duas áreas distintas: a **Área do Aluno**, onde se estuda a teoria com notação matemática renderizada, exemplos resolvidos e um laboratório de fórmulas que converte qualquer expressão digitada em gráfico imediato; e a **Área do Professor**, um quadro de gráficos ao vivo com círculo unitário animado, leitura de valores exatos (π/3, √3/2), ferramentas de anotação sobre o próprio gráfico e um Modo Aula para TV e projetor.
 >
-> A oficina proposta é mão na massa: cada participante trabalha no *Informal25* com o próprio dispositivo, do primeiro contato até a construção de uma aula pronta para a sua turma. A plataforma é estática, sem servidor, sem login e sem licença — instala-se como aplicativo, funciona offline e todo o código-fonte é público. A oficina entrega, como produto final, um plano de aula de 1 aula construído pelos próprios participantes com o apoio da equipe.
+> A oficina proposta é prática: cada participante trabalha no *Informal25* com o próprio dispositivo, do primeiro contato até a construção de uma aula pronta para a sua turma. A plataforma é estática, sem servidor, sem login e sem licença; instala-se como aplicativo, funciona offline e todo o código-fonte é público. Como produto final, cada participante entrega um plano de aula construído com o apoio da equipe.
 
 ---
 
 ## 1. Justificativa
 
-O material didático de Matemática que chega à sala é, na maioria das vezes, estático: a figura vem pronta, o exercício vem com resposta, e o aluno precisa reconstruir mentalmente a relação entre os dois. Quando a matéria pede *comparar*, *variar um parâmetro* ou *perceber um comportamento*, a página impressa não responde — é o quadro branco, e nem sempre ele basta.
+O material didático de Matemática comumente utilizado em sala de aula é, em sua maioria, estático: a figura vem pronta, o exercício traz a resposta e o aluno precisa reconstruir mentalmente a relação entre representações. Quando o conteúdo exige comparar, variar um parâmetro ou perceber um comportamento, a página impressa não responde — cabe ao quadro branco, nem sempre suficiente para tal finalidade.
 
-A Base Nacional Comum Curricular organiza parte das habilidades de Matemática em torno da **representação**: ler números e dados em formatos diferentes, do gráfico à tabela, da tabela ao símbolo. Representar bem não é um enfeite do conteúdo; é parte dele.
+A Base Nacional Comum Curricular (BNCC) organiza parte das habilidades de Matemática em torno da **representação**: ler números e dados em diferentes formatos, do gráfico à tabela e da tabela ao símbolo. Representar bem não é um acessório do conteúdo; é parte essencial dele.
 
-Três limitações recorrentes na prática da disciplina:
+Três limitações recorrentes na prática da disciplina impedem essa representação adequada:
 
-1. **O recurso visual é fixo.** A ilustração do livro não muda. Para ver o que acontece quando a base da exponencial passa de 2 para 3, ou quando o ângulo do círculo unitário passa de 45° para 135°, é preciso redesenhar tudo à mão.
-2. **A precisão fica a cargo do traço.** Um gráfico desenhado no caderno carrega erros de escala, de quadrante e de intercepto — justamente os erros que a disciplina quer identificar.
-3. **A infraestrutura é frágil.** Computador com internet, licença e conta em plataforma educacional não são garantidos. Um celular e uma rede instável são a realidade de grande parte das escolas.
+1. **O recurso visual é fixo.** A ilustração do livro não muda. Para verificar o que ocorre quando a base da exponencial passa de 2 para 3, ou quando o ângulo do círculo unitário avança de 45° para 135°, é necessário redesenhar tudo à mão.
+2. **A precisão depende do traço.** Um gráfico desenhado no caderno carrega erros de escala, de quadrante e de intercepto — exatamente os elementos que a disciplina se propõe a identificar.
+3. **A infraestrutura é frágil.** Computador com internet, licença e conta em plataforma educacional não são garantidos. Um celular e uma rede instável constituem a realidade de grande parte das escolas.
 
-O *Informal25* foi construído para responder exatamente a essas três limitações: é um recurso **manipulável**, **matematicamente exato** e **leve de distribuir** (aplicativo web instalável, funciona offline, sem servidor e sem login). Esta oficina existe para formar professores que possam adotar esse tipo de recurso — e, mais do que isso, para que consigam **construir o seu próprio**, porque o código-fonte é aberto e a arquitetura é simples o suficiente para ser estendida.
+O *Informal25* foi construído para responder a essas três limitações: é um recurso **manipulável**, **matematicamente exato** e **leve de distribuir** (aplicativo web instalável, funciona offline, sem servidor e sem login). Esta oficina existe para formar professores capazes de adotar esse tipo de recurso e, mais do que isso, para que possam construir o seu próprio, pois o código-fonte é aberto e a arquitetura é simples o suficiente para ser estendida.
 
-A proposta se apoia em uma experiência real: a plataforma já é utilizada no IFPA Campus Bragança com a turma Informática 25, e nasce do trabalho direto em sala de aula, não de um exercício de laboratório.
+A proposta se apoia em uma experiência real: a plataforma já é utilizada no IFPA Campus Bragança com a turma Informática 25 e nasce do trabalho direto em sala de aula, não de um exercício de laboratório.
 
 ---
 
@@ -49,16 +49,16 @@ A proposta se apoia em uma experiência real: a plataforma já é utilizada no I
 
 **Objetivo geral**
 
-Formar professores de Matemática no uso de recursos interativos de visualização e raciocínio matemático, por meio de uma plataforma específica (o *Informal25*), capacitando-os a planejar e conduzir uma aula mediada por gráfico dinâmico.
+Formar professores de Matemática no uso de recursos interativos de visualização e raciocínio matemático, por meio da plataforma *Informal25*, capacitando-os a planejar e conduzir uma aula mediada por gráfico dinâmico.
 
 **Objetivos específicos**
 
-1. Compreender a arquitetura funcional de uma ferramenta de visualização matemática (área de estudo × quadro de projeção), distinguindo o que é do aluno e o que é do professor.
-2. Operar a Área do Aluno: teoria interativa, exemplos resolvidos, laboratório de fórmulas com parser próprio e círculo unitário animado.
-3. Operar a Área do Professor: múltiplos gráficos com cores distintas, círculo unitário sobreposto ao plano cartesiano, leitura de valores exatos, eixo em π, ferramentas de anotação com camadas e undo/redo.
-4. Usar o **Modo Aula**, modo de apresentação para TV e projetor: tela cheia, alto contraste, escala ampliada, atalhos de teclado e download do quadro em PNG.
-5. Produzir, em duplas, **um plano de aula de 1 aula** (objetivo, sequência de momentos, material do aluno, material do professor, avaliação), usando o *Informal25* como instrumento.
-6. Reconhecer as condições de contorno da ferramenta: o que ela resolve, o que ela não resolve, e como avaliar a tecnologia pelo que acrescenta ao raciocínio — e não pela sua estética.
+1. Compreender a arquitetura funcional de uma ferramenta de visualização matemática, distinguindo o que pertence à área de estudo e o que pertence ao quadro de projeção.
+2. Operar a **Área do Aluno**: teoria interativa, exemplos resolvidos, laboratório de fórmulas com parser próprio e círculo unitário animado.
+3. Operar a **Área do Professor**: múltiplos gráficos com cores distintas, círculo unitário sobreposto ao plano cartesiano, leitura de valores exatos, eixo em π, ferramentas de anotação com camadas e undo/redo.
+4. Utilizar o **Modo Aula**, modo de apresentação para TV e projetor: tela cheia, alto contraste, escala ampliada, atalhos de teclado e download do quadro em PNG.
+5. Produzir, em duplas, **um plano de aula de 1 aula** (objetivo, sequência de momentos, material do aluno, material do professor e avaliação), usando o *Informal25* como instrumento.
+6. Reconhecer as condições de contorno da ferramenta: o que ela resolve, o que não se propõe a resolver e como avaliar a tecnologia pelo que acrescenta ao raciocínio, e não pela sua estética.
 
 ---
 
@@ -66,7 +66,7 @@ Formar professores de Matemática no uso de recursos interativos de visualizaç�
 
 ### 3.1 O que é
 
-Aplicação web estática de Matemática, construída do zero para o 2.º e o 3.º ano do Ensino Médio Técnico em Informática do IFPA Campus Bragança, com base no conteúdo do livro didático da disciplina e inspirada em ferramentas como Desmos, GeoGebra, Brilliant e Khan Academy. O foco declarado do projeto é **raciocínio, interpretação e comportamento matemático** — não a entrega de respostas prontas.
+Aplicação web estática de Matemática, construída do zero para o 2.º e o 3.º ano do Ensino Médio Técnico em Informática do IFPA Campus Bragança, com base no conteúdo do livro didático da disciplina e inspirada em ferramentas como Desmos, GeoGebra, Brilliant e Khan Academy. O foco declarado do projeto é o raciocínio, a interpretação e o comportamento matemático — não a entrega de respostas prontas.
 
 > *As funcionalidades descritas correspondem à versão em uso na data desta proposta. O material é aberto e evolui com a prática em sala — a demonstração ao vivo sempre mostra o estado atual.*
 
@@ -92,14 +92,14 @@ Aplicação web estática de Matemática, construída do zero para o 2.º e o 3.
 
 - **Gráfico interativo** com zoom, deslocamento (pan) e múltiplas fórmulas em cores distintas.
 - **Círculo unitário** sobreposto ao plano cartesiano, com *snap* nos ângulos notáveis (π/6, π/4, π/3) e suporte a voltas completas (> 360°).
-- **Presets prontos** por tema: Exponção, Sequências, Trigonometria e Álgebra — incluindo comparações como 2<sup>x</sup> vs ½<sup>x</sup>, "PA vs PG", "sin + cos".
+- **Presets prontos** por tema: Exponencial, Sequências, Trigonometria e Álgebra — incluindo comparações como 2<sup>x</sup> vs ½<sup>x</sup>, “PA vs PG”, “sin + cos”.
 - **Leitura de valores exatos** — o cursor exibe *x* = π/3 em vez de *x* = 1.047, e *y* = √3/2 em vez de *y* = 0.866.
 - **Eixo em π**, alternável, para leitura de gráficos periódicos.
 - **Ferramentas de anotação** sobre o próprio gráfico: marcador, linha vertical, linha horizontal, área sombreada, triângulo, seta, régua e texto — cada uma com cor própria, em camadas, com undo/redo (`Ctrl+Z` / `Ctrl+Shift+Z`) e remoção por clique duplo.
 - **Download do quadro em PNG** de alta resolução, para virar material do aluno.
 - **Modo Aula**: tela cheia, tema escuro forçado, escala ampliada para leitura a 3–10 m, barras de interface ocultas e atalhos (`F`, `Esc`, `Espaço`).
 
-### 3.3 Por que é relevante para uma oficina
+### 3.3 Relevância para uma oficina
 
 | Característica | Consequência pedagógica |
 |---|---|
@@ -122,16 +122,16 @@ Aplicação web estática de Matemática, construída do zero para o 2.º e o 3.
 | Custo para o usuário | 0 |
 | Testes automatizados | Smoke test (Playwright) sobre as 3 páginas |
 
-*Indicadores verificados no repositório em 22/10/2026.*
+*Indicadores verificados no repositório em 24/10/2026.*
 
 ### 3.5 Limites declarados com honestidade
 
 - Sem servidor: não há login, não há banco de dados, não há painel de turma nem estatísticas de uso.
 - O progresso do aluno é local ao navegador (por dispositivo), não sincronizado.
-- Sem correção automática de exercícios nem banco de questões — o foco é a visualização, não o sistema de resposta.
-- Sem painel de acompanhamento da turma: a plataforma não substitui nem disputa espaço com a plataforma de atribuição digital da escola.
+- Não há correção automática de exercícios nem banco de questões — o foco é a visualização, não o sistema de resposta.
+- Não há painel de acompanhamento da turma: a plataforma não substitui nem disputa espaço com a plataforma de atribuição digital da escola.
 
-Estes limites são discutidos explicitamente na oficina: uma ferramenta honesta sobre o que *não* faz ensina mais do que uma ferramenta que promete tudo.
+Estes limites são discutidos explicitamente na oficina: uma ferramenta honesta sobre o que não faz ensina mais do que uma ferramenta que promete tudo.
 
 ---
 
@@ -139,23 +139,23 @@ Estes limites são discutidos explicitamente na oficina: uma ferramenta honesta 
 
 A oficina é **prática, não expositiva**. Três princípios conduzem cada momento:
 
-1. **Aprender fazendo**, com o dispositivo na mão desde o minuto 10. Nenhum bloco de mais de 20 minutos sem o participante estar manipulando algo.
+1. **Aprender fazendo**, com o dispositivo na mão desde o minuto 10. Nenhum bloco de mais de 20 minutos sem que o participante esteja manipulando algo.
 2. **Refletir sobre o artefacto.** Cada momento termina com a pergunta “o que isso faz com o raciocínio do aluno?” — não com “isso é bonito”.
 3. **Produzir algo.** Não se sai da oficina com anotações; sai-se com um plano de aula pronto, na máquina de quem vai usá-lo.
 
-**Dinâmicas:** demonstração conduzida (projeto no projetor, com o quadro do professor como ferramenta central); laboratório individual com roteiro de 6 tarefas; duplas de produção; roda de compartilhamento final; questionário de avaliação antes e depois.
+**Dinâmicas utilizadas:** demonstração conduzida (projeção no projetor, com o quadro do professor como ferramenta central); laboratório individual com roteiro de 6 tarefas; produção em duplas; roda de compartilhamento final; questionário de avaliação antes e depois.
 
 ### Público-alvo e critérios de inscrição
 
-**Quem é o público-alvo.** Professores de Matemática do **Ensino Médio (Técnico ou Regular)** que ensinem — ou planejem ensinar — os quatro capítulos cobertos pela plataforma: **Potenciação, Função Exponencial, Sequências Numéricas e Trigonometria**. A oficina não é um curso de matemática: é uma formação sobre o uso de um material que cobre exatamente esses capítulos — por isso o interesse de quem leciona fora desse recorte é menor.
+**Quem é o público-alvo.** Professores de Matemática do Ensino Médio (Técnico ou Regular) que ensinem — ou planejem ensinar — os quatro capítulos cobertos pela plataforma: Potenciação, Função Exponencial, Sequências Numéricas e Trigonometria. A oficina não é um curso de matemática: é uma formação sobre o uso de um material que cobre exatamente esses capítulos, de modo que o interesse de quem leciona fora desse recorte é menor.
 
-**Pré-requisitos.** Noções de função, potência e trigonometria (nível de 2.º ano do Ensino Médio). Não é necessário conhecimento de programação, de planilha nem de qualquer software específico: todo o ferramental é operado por mouse e teclado.
+**Pré-requisitos.** Noções de função, potência e trigonometria (nível do 2.º ano do Ensino Médio). Não é necessário conhecimento de programação, de planilha nem de qualquer software específico: todo o ferramental é operado por mouse e teclado.
 
 **Critérios de seleção** — se o número de inscritos exceder as vagas:
 
 1. Prioridade para professores da **rede IFPA** e de escolas com **curso técnico**, por serem o público de origem da plataforma.
 2. Em seguida, professores que já lecionam **qualquer um dos 4 capítulos** cobertos.
-3. Reservadas **2 vagas para estudantes de graduação em Matemática**, em caráter de monitoria — a exemplo, para quem pretende lecionar no Ensino Médio.
+3. Reservadas **2 vagas para estudantes de graduação em Matemática**, em caráter de monitoria, para quem pretende lecionar no Ensino Médio.
 4. Em caso de empate, assegura-se a ordem de inscrição.
 
 **Vagas:** 30 participantes · **Formadores:** mínimo 2 (proporção de 1 formador para cada 15 participantes durante os módulos hands-on).
@@ -177,7 +177,7 @@ A oficina é **prática, não expositiva**. Três princípios conduzem cada mome
 
 ### Adaptação para o contexto do IFPA
 
-Versão de 2 h para a própria escola, com as turmas da Informática 25 como público — os participantes são os próprios alunos. A oficina ganha o formato de **aula-experiência**, em que o aluno opera o quadro e a construção do plano de aula passa a ser o produto da disciplina.
+Versão de 2 h para a própria escola, com turmas da Informática 25 como público — os participantes são os próprios alunos. A oficina ganha o formato de **aula-experiência**, em que o aluno opera o quadro e a construção do plano de aula passa a ser o produto da disciplina.
 
 ---
 
@@ -229,15 +229,15 @@ Versão de 2 h para a própria escola, com as turmas da Informática 25 como pú
 
 1. 100 % dos participantes conclui o roteiro do laboratório.
 2. 100 % das duplas entrega um plano de aula.
-3. Aumento de, no mínimo, **1 ponto** na média dos itens pré/pós sobre "consigo interpretar e descrever o comportamento de uma função a partir de seu gráfico".
+3. Aumento de, no mínimo, **1 ponto** na média dos itens pré/pós sobre “consigo interpretar e descrever o comportamento de uma função a partir de seu gráfico”.
 4. Ao menos 60 % dos respondentes declaram intenção de uso da ferramenta na sua turma no semestre seguinte.
 5. Nenhum participante relata barreira técnica de instalação como obstáculo à continuidade.
 
 **Acompanhamento pós-oficina**
 
-- Grupo de mensagens para troca de materiais e dúvidas (criado no fim da oficina).
+- Grupo de mensagens para troca de materiais e dúvidas, criado no fim da oficina.
 - Repositório público como espaço de issues e de compartilhamento de planos de aula.
-- Check-in em 45 dias: convite para apresentar o que efetivamente foi usado em sala.
+- Check-in em 45 dias: convite para apresentar o que foi efetivamente usado em sala.
 
 ---
 
@@ -287,7 +287,7 @@ Versão de 2 h para a própria escola, com as turmas da Informática 25 como pú
 - Adoção da ferramenta por um grupo de professores, com material compartilhado no repositório.
 - Início de um banco colaborativo de planos de aula, mantido pela comunidade.
 
-**Longo**
+**Longo prazo**
 
 - A plataforma como referência de material didático do Campus Bragança e, por ser de código aberto e sem custos, replicável em qualquer rede pública.
 - Possibilidade de tratar a plataforma como estudo de caso de desenvolvimento de material didático com assistência de IA — prática já adotada no projeto (o código do *Informal25* foi escrito com assistência de IA, sob curadoria do professor).
@@ -346,9 +346,9 @@ TORK, Asafe. *Informal25 — Plataforma web de Matemática para o Ensino Médio 
 
 Quatro telas reais da plataforma, capturadas do ambiente em uso. As duas primeiras são da **Área do Aluno**; as duas últimas, da **Área do Professor**.
 
-> *Capturas da versão em uso na data desta proposta (22/10/2026). São reproduzíveis a qualquer momento pelo repositório — ver `oficina/capturas.sh`.*
+> *Capturas da versão em uso na data desta proposta (24/10/2026). São reproduzíveis a qualquer momento pelo repositório — ver `oficina/capturas.sh`.*
 
-**Área do Aluno · Capítulo 1 — Expoente inteiro.** Teoria com notação matemática renderizada, exemplos resolvidos e questões “para pensar”; ao pé o *laboratório de fórmulas*: o aluno digita `y = 2^x` e o gráfico responde na hora. O percurso das 21 aulas e o progresso de leitura ficam sempre à mão.
+**Área do Aluno · Capítulo 1 — Expoente inteiro.** Teoria com notação matemática renderizada, exemplos resolvidos e questões “para pensar”; ao pé, o *laboratório de fórmulas*: o aluno digita `y = 2^x` e o gráfico responde na hora. O percurso das 21 aulas e o progresso de leitura ficam sempre à mão.
 
 ![Área do Aluno — aula de expoente inteiro com laboratório de fórmulas](anexos/01-aluno-lab.png)
 

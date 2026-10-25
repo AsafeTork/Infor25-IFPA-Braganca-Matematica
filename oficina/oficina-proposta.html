@@ -538,7 +538,7 @@ figure figcaption b{color:var(--ink-soft); font-weight:700}
     <div class="lede">
       <span class="lede-label">Para o campo de resumo do formulário</span>
       <p>O <strong>Informal25</strong> é uma plataforma web de Matemática construída para o 2.º e o 3.º ano do Ensino Médio Técnico em Informática do IFPA Campus Bragança, com 21 aulas interativas distribuídas em quatro capítulos — Potenciação, Função Exponencial, Sequências Numéricas e Trigonometria. A plataforma tem duas áreas: a <strong>Área do Aluno</strong>, onde se estuda a teoria com notação matemática renderizada, exemplos resolvidos e um laboratório de fórmulas que transforma qualquer expressão digitada em um gráfico imediato; e a <strong>Área do Professor</strong>, um quadro de gráficos ao vivo com círculo unitário animado, leitura de valores exatos (π/3, √3/2), ferramentas de anotação sobre o próprio gráfico e um Modo Aula para TV e projetor.</p>
-      <p>A oficina proposta é mão na massa: cada participante trabalha no Informal25 com o próprio dispositivo, do primeiro contato até a construção de uma aula pronta para a sua turma. A plataforma é estática, sem servidor, sem login e sem licença — instala-se como aplicativo, funciona offline e todo o código-fonte é público. A oficina entrega, como produto final, um plano de aula de 1 aula construído pelos próprios participantes com o apoio da equipe.</p>
+      <p>A oficina proposta é eminentemente prática: cada participante trabalha no Informal25 com o próprio dispositivo, do primeiro contato até a construção de uma aula pronta para a sua turma. A plataforma é estática, sem servidor, sem login e sem licença — instala-se como aplicativo, funciona offline e todo o código-fonte é público. A oficina entrega, como produto final, um plano de aula de uma única aula, construído pelos próprios participantes com o apoio da equipe.</p>
     </div>
   </section>
 
@@ -546,29 +546,27 @@ figure figcaption b{color:var(--ink-soft); font-weight:700}
   <section id="s1">
     <div class="sec-head"><span class="sec-num">01</span><h2>Justificativa</h2></div>
 
-    <p>O material didático de Matemática que chega à sala é, na maioria das vezes, estático: a figura vem pronta, o exercício vem com resposta, e o aluno precisa reconstruir mentalmente a relação entre os dois. Quando a matéria pede <em>comparar</em>, <em>variar um parâmetro</em> ou <em>perceber um comportamento</em>, a página impressa não responde — é o quadro branco, e nem sempre ele basta.</p>
+    <p>O material didático de Matemática disponível em sala de aula é, em regra, estático: a figura vem pronta, o exercício vem resolvido, e a relação entre ambos cabe ao aluno reconstruir mentalmente. Quando a habilidade exigida é comparar, variar um parâmetro ou reconhecer um comportamento, a página impressa não oferece resposta — e o quadro branco, sozinho, tampouco basta.</p>
 
-    <p>A Base Nacional Comum Curricular organiza parte das habilidades de Matemática em torno da <strong>representação</strong>: ler números e dados em formatos diferentes, do gráfico à tabela, da tabela ao símbolo. Representar bem não é enfeite do conteúdo; é parte dele.</p>
+    <p>Essa lacuna tem amparo normativo. A Base Nacional Comum Curricular organiza parte das habilidades de Matemática em torno da <strong>representação</strong> — ler números e dados em diferentes formatos, do gráfico à tabela, da tabela ao símbolo —, de modo que representar bem não é acessório do conteúdo, mas parte constitutiva dele.</p>
 
-    <p>Três limitações recorrentes na prática da disciplina:</p>
-
-    <h3>O que trava hoje</h3>
+    <p>Três limitações recorrentes concretizam esse diagnóstico:</p>
     <div class="tw">
       <table>
-        <thead><tr><th>Limitação</th><th>Consequência em sala</th></tr></thead>
+        <thead><tr><th>Limitação</th><th>Consequência para o ensino</th></tr></thead>
         <tbody>
-          <tr><td><strong>O recurso visual é fixo</strong></td><td>A ilustração do livro não muda. Para ver o que acontece quando a base da exponencial passa de 2 para 3, ou quando o ângulo do círculo unitário passa de 45° para 135°, é preciso redesenhar tudo à mão.</td></tr>
-          <tr><td><strong>A precisão fica a cargo do traço</strong></td><td>Um gráfico desenhado no caderno carrega erros de escala, de quadrante e de intercepto — justamente os erros que a disciplina quer identificar.</td></tr>
-          <tr><td><strong>A infraestrutura é frágil</strong></td><td>Computador com internet, licença e conta em plataforma educacional não são garantidos. Um celular e uma rede instável são a realidade de grande parte das escolas.</td></tr>
+          <tr><td><strong>O recurso visual é fixo</strong></td><td>A ilustração do livro não muda: observar o efeito de elevar a base da exponencial de 2 para 3, ou o ângulo do círculo unitário de 45° para 135°, exige redesenhar a figura à mão.</td></tr>
+          <tr><td><strong>A precisão fica a cargo do traço</strong></td><td>O gráfico traçado no caderno introduz erros de escala, de quadrante e de intercepto — precisamente os erros que o ensino da disciplina busca identificar e corrigir.</td></tr>
+          <tr><td><strong>A infraestrutura é frágil</strong></td><td>Computador com internet, licença e conta em plataforma educacional não são garantia. O celular e a rede instável são a realidade de grande parte das escolas.</td></tr>
         </tbody>
       </table>
     </div>
 
-    <p>O Informal25 foi construído para responder exatamente a essas três limitações: é um recurso <strong>manipulável</strong>, <strong>matematicamente exato</strong> e <strong>leve de distribuir</strong> (aplicativo web instalável, funciona offline, sem servidor e sem login).</p>
+    <p>O Informal25 foi concebido para responder, ponto a ponto, a essas três limitações: é um recurso <strong>manipulável</strong>, <strong>matematicamente exato</strong> e <strong>leve de distribuir</strong> — aplicativo web instalável, funcionamento offline, sem servidor e sem login.</p>
 
-    <p>Esta oficina existe para formar professores que possam adotar esse tipo de recurso — e, mais do que isso, para que consigam <strong>construir o seu próprio</strong>, porque o código-fonte é aberto e a arquitetura é simples o suficiente para ser estendida.</p>
+    <p>Se a ferramenta existe, falta quem a saiba empregar em sala e, sobretudo, quem a possa adaptar. Esta oficina destina-se a formar professores capazes de usar esse tipo de recurso e, mais do que isso, de <strong>construir o próprio</strong>, uma vez que o código-fonte é aberto e a arquitetura, simples o bastante para ser estendida.</p>
 
-    <p>A proposta se apoia em uma experiência real: a plataforma já é utilizada no IFPA Campus Bragança com a turma Informática 25, e nasce do trabalho direto em sala de aula — não de um exercício de laboratório.</p>
+    <p>A proposta não parte de um exercício de laboratório: apoia-se em experiência real. A plataforma já é utilizada no IFPA Campus Bragança com a turma Informática 25, e o material nasce do trabalho direto em sala de aula.</p>
   </section>
 
   <!-- ═══ 02 · OBJETIVOS ═══ -->
@@ -584,7 +582,7 @@ figure figcaption b{color:var(--ink-soft); font-weight:700}
       <li>Operar a <strong>Área do Aluno</strong>: teoria interativa, exemplos resolvidos, laboratório de fórmulas com parser próprio e círculo unitário animado.</li>
       <li>Operar a <strong>Área do Professor</strong>: múltiplos gráficos com cores distintas, círculo unitário sobreposto ao plano cartesiano, leitura de valores exatos, eixo em π, ferramentas de anotação com camadas e undo/redo.</li>
       <li>Usar o <strong>Modo Aula</strong>, modo de apresentação para TV e projetor: tela cheia, alto contraste, escala ampliada, atalhos de teclado e download do quadro em PNG.</li>
-      <li>Produzir, em duplas, <strong>um plano de aula de 1 aula</strong> (objetivo, sequência de momentos, material do aluno, material do professor, avaliação), usando o Informal25 como instrumento.</li>
+      <li>Produzir, em duplas, <strong>um plano de uma única aula</strong> (objetivo, sequência de momentos, material do aluno, material do professor, avaliação), usando o Informal25 como instrumento.</li>
       <li>Reconhecer as condições de contorno da ferramenta: o que ela resolve, o que ela não resolve, e como avaliar a tecnologia pelo que acrescenta ao raciocínio — não pela sua estética.</li>
     </ol>
   </section>
@@ -630,11 +628,11 @@ y = x^(3/2)    y = cos(2*x)      y = 1800*(1.03)^x</div>
       <table>
         <thead><tr><th>Característica</th><th>Consequência pedagógica</th></tr></thead>
         <tbody>
-          <tr><td><strong>Zero servidor, zero login, zero licença</strong></td><td>O professor não depende de contrato de plataforma nem de cadastro em serviço educacional.</td></tr>
+          <tr><td><strong>Sem servidor, sem login, sem licença</strong></td><td>O professor não depende de contrato de plataforma nem de cadastro em serviço educacional.</td></tr>
           <tr><td><strong>Service worker + PWA instalável</strong></td><td>Funciona <strong>offline</strong>: o celular do aluno vira o laboratório, inclusive na rede da escola que cai.</td></tr>
           <tr><td><strong>Renderização matemática self-hosted (KaTeX)</strong></td><td>Sem dependência de CDN: nada quebra no dia da aula por falta de internet.</td></tr>
-          <tr><td><strong>Gráficos e parser próprios (Canvas 2D)</strong></td><td>Comportamento previsível e auditável; nada de terceiros parar de funcionar.</td></tr>
-          <tr><td><strong>Código-fonte público e documentado</strong></td><td>O professor pode <strong>adaptar</strong> a ferramenta à sua realidade — e a oficina ensina a fazer isso.</td></tr>
+          <tr><td><strong>Gráficos e parser próprios (Canvas 2D)</strong></td><td>Comportamento previsível e auditável; sem risco de indisponibilidade de serviços de terceiros.</td></tr>
+          <tr><td><strong>Código-fonte público e documentado</strong></td><td>O professor pode <strong>adaptar</strong> a ferramenta à sua realidade — e a oficina prepara para fazê-lo.</td></tr>
         </tbody>
       </table>
     </div>
@@ -647,7 +645,7 @@ y = x^(3/2)    y = cos(2*x)      y = 1800*(1.03)^x</div>
           <tr><td>Aulas interativas</td><td><strong>21</strong> (4 capítulos)</td></tr>
           <tr><td>Capítulos</td><td>Potenciação · Função Exponencial · Sequências Numéricas · Trigonometria</td></tr>
           <tr><td>Áreas da plataforma</td><td>2 — aluno e professor</td></tr>
-          <tr><td>Commits no repositório</td><td><strong>105</strong></td></tr>
+          <tr><td>Commits no repositório</td><td><strong>110</strong></td></tr>
           <tr><td>Linhas de código (JS + CSS)</td><td>~11.200</td></tr>
           <tr><td>Dependências de runtime</td><td><strong>0</strong></td></tr>
           <tr><td>Custo para o usuário</td><td><strong>0</strong></td></tr>
@@ -655,16 +653,16 @@ y = x^(3/2)    y = cos(2*x)      y = 1800*(1.03)^x</div>
         </tbody>
       </table>
     </div>
-    <p><small>Indicadores verificados no repositório em 22/10/2026.</small></p>
+    <p><small>Indicadores verificados no repositório em 24/10/2026.</small></p>
 
     <h3>Limites declarados com honestidade</h3>
     <ul>
       <li>Sem servidor: não há login, não há banco de dados, não há painel de turma nem estatísticas de uso.</li>
       <li>O progresso do aluno é local ao navegador (por dispositivo), não sincronizado.</li>
       <li>Sem correção automática de exercícios nem banco de questões — o foco é a visualização, não o sistema de resposta.</li>
-      <li>Sem painel de acompanhamento da turma: a plataforma não substitui nem disputa espaço com a plataforma de atribuição digital da escola.</li>
+      <li>Sem painel de acompanhamento da turma: não substitui nem concorre com o sistema de atribuições digitais da escola.</li>
     </ul>
-    <p>Estes limites são discutidos explicitamente na oficina: uma ferramenta honesta sobre o que <em>não</em> faz ensina mais do que uma ferramenta que promete tudo.</p>
+    <p>Estes limites são discutidos explicitamente na oficina: uma ferramenta que declara seus limites ensina mais do que outra que promete tudo.</p>
   </section>
 
   <!-- ═══ 04 · METODOLOGIA ═══ -->
@@ -673,12 +671,12 @@ y = x^(3/2)    y = cos(2*x)      y = 1800*(1.03)^x</div>
 
     <p>A oficina é <strong>prática, não expositiva</strong>. Três princípios conduzem cada momento:</p>
     <ol>
-      <li><strong>Aprender fazendo</strong>, com o dispositivo na mão desde o minuto 10. Nenhum bloco de mais de 20 minutos sem o participante estar manipulando algo.</li>
-      <li><strong>Refletir sobre o artefacto</strong>. Cada momento termina com a pergunta “o que isso faz com o raciocínio do aluno?” — não com “isso é bonito”.</li>
-      <li><strong>Produzir algo</strong>. Não se sai da oficina com anotações; sai-se com um plano de aula pronto, na máquina de quem vai usá-lo.</li>
+      <li><strong>Aprender fazendo</strong>, com o dispositivo na mão desde o minuto 10. Nenhum bloco excede 20 minutos sem que o participante esteja operando a ferramenta.</li>
+      <li><strong>Refletir sobre o artefato</strong>. Cada momento termina com a pergunta “o que isso faz com o raciocínio do aluno?” — não com juízos de aparência.</li>
+      <li><strong>Produzir algo</strong>. Não se sai da oficina com anotações; sai-se com um plano de aula pronto, no dispositivo de quem vai utilizá-lo.</li>
     </ol>
 
-    <p><strong>Dinâmicas:</strong> demonstração conduzida (projeto no projetor, com o quadro do professor como ferramenta central); laboratório individual com roteiro de 6 tarefas; duplas de produção; roda de compartilhamento final; questionário de avaliação antes e depois.</p>
+    <p><strong>Dinâmicas:</strong> demonstração conduzida (projeção no telão, tendo o quadro do professor como ferramenta central); laboratório individual com roteiro de 6 tarefas; duplas de produção; roda final de socialização; questionário de avaliação antes e depois.</p>
 
     <h3>Público-alvo e critérios de inscrição</h3>
     <p><strong>Quem é o público-alvo.</strong> Professores de Matemática do <strong>Ensino Médio (Técnico ou Regular)</strong> que ensinem — ou planejem ensinar — os quatro capítulos cobertos pela plataforma: <strong>Potenciação, Função Exponencial, Sequências Numéricas e Trigonometria</strong>. A oficina não é um curso de matemática: é uma formação sobre o uso de um material que cobre exatamente esses capítulos — por isso o interesse de quem leciona fora desse recorte é menor.</p>
@@ -687,23 +685,23 @@ y = x^(3/2)    y = cos(2*x)      y = 1800*(1.03)^x</div>
     <ol>
       <li>Prioridade para professores da <strong>rede IFPA</strong> e de escolas com <strong>curso técnico</strong>, por serem o público de origem da plataforma.</li>
       <li>Em seguida, professores que já lecionam <strong>qualquer um dos 4 capítulos</strong> cobertos.</li>
-      <li>Reservadas <strong>2 vagas para estudantes de graduação em Matemática</strong>, em caráter de monitoria — a exemplo, para quem pretende lecionar no Ensino Médio.</li>
+      <li>Reservadas <strong>2 vagas para estudantes de graduação em Matemática</strong>, em caráter de monitoria, voltada a quem pretende lecionar no Ensino Médio.</li>
       <li>Em caso de empate, assegura-se a ordem de inscrição.</li>
     </ol>
-    <p><strong>Vagas:</strong> 30 participantes · <strong>Formadores:</strong> mínimo 2 (proporção de 1 formador para cada 15 participantes durante os módulos hands-on).</p>
+    <p><strong>Vagas:</strong> 30 participantes · <strong>Formadores:</strong> mínimo 2 (proporção de 1 formador para cada 15 participantes durante os módulos práticos).</p>
 
     <h3>Roteiro — 4 h</h3>
     <div class="tw">
       <table>
         <thead><tr><th>#</th><th>Momento</th><th>Min</th><th>O que acontece</th></tr></thead>
         <tbody>
-          <tr><td class="num">0</td><td>Abertura e diagnóstico</td><td class="num">20</td><td>Apresentação do problema (material estático × raciocínio dinâmico), questionário pré, contrato da oficina.</td></tr>
+          <tr><td class="num">0</td><td>Abertura e diagnóstico</td><td class="num">20</td><td>Apresentação do problema (material estático × raciocínio dinâmico), questionário inicial, acordo de funcionamento da oficina.</td></tr>
           <tr><td class="num">1</td><td><strong>Bloco 1 — Fundamentos</strong></td><td class="num">45</td><td>Por que visualizar. Conceitos de gráfico, parâmetro e comportamento. Demonstração ao vivo: o mesmo conteúdo, do papel para o quadro.</td></tr>
           <tr><td class="num">—</td><td>Intervalo</td><td class="num">15</td><td>—</td></tr>
-          <tr><td class="num">2</td><td><strong>Bloco 2 — Área do Aluno</strong></td><td class="num">45</td><td>Tour pela plataforma: teoria, exemplos resolvidos, laboratório de fórmulas, círculo unitário animado, marcação de progresso.</td></tr>
-          <tr><td class="num">3</td><td><strong>Bloco 3 — Área do Professor</strong></td><td class="num">45</td><td>Quadro ao vivo: presets, múltiplos gráficos, círculo unitário sobreposto, leitura de valores exatos, eixo em π, ferramentas de anotação, export em PNG, Modo Aula.</td></tr>
-          <tr><td class="num">4</td><td><strong>Bloco 4 — Oficina aberta</strong></td><td class="num">45</td><td>Produção em duplas: cada dupla constrói o plano de uma aula de 1 aula usando um conteúdo do próprio planejamento.</td></tr>
-          <tr><td class="num">5</td><td>Encerramento e continuidade</td><td class="num">25</td><td>Roda de apresentação dos planos (3 min por dupla), questionário pós, comunidade de uso.</td></tr>
+          <tr><td class="num">2</td><td><strong>Bloco 2 — Área do Aluno</strong></td><td class="num">45</td><td>Visita guiada pela plataforma: teoria, exemplos resolvidos, laboratório de fórmulas, círculo unitário animado, marcação de progresso.</td></tr>
+          <tr><td class="num">3</td><td><strong>Bloco 3 — Área do Professor</strong></td><td class="num">45</td><td>Quadro ao vivo: presets, múltiplos gráficos, círculo unitário sobreposto, leitura de valores exatos, eixo em π, ferramentas de anotação, exportação em PNG, Modo Aula.</td></tr>
+          <tr><td class="num">4</td><td><strong>Bloco 4 — Oficina aberta</strong></td><td class="num">45</td><td>Produção em duplas: cada dupla constrói o plano de uma única aula, usando um conteúdo do próprio planejamento.</td></tr>
+          <tr><td class="num">5</td><td>Encerramento e continuidade</td><td class="num">25</td><td>Roda de apresentação dos planos (3 min por dupla), questionário final, comunidade de uso.</td></tr>
           <tr><td></td><td><strong>Total</strong></td><td class="num">240</td><td></td></tr>
         </tbody>
       </table>
@@ -781,8 +779,8 @@ y = x^(3/2)    y = cos(2*x)      y = 1800*(1.03)^x</div>
     <h3>Acompanhamento pós-oficina</h3>
     <ul>
       <li>Grupo de mensagens para troca de materiais e dúvidas, criado no fim da oficina.</li>
-      <li>Repositório público como espaço de issues e de compartilhamento de planos de aula.</li>
-      <li>Check-in em 45 dias: convite para apresentar o que foi efetivamente usado em sala.</li>
+      <li>Repositório público como espaço de dúvidas técnicas e de compartilhamento de planos de aula.</li>
+      <li>Encontro de acompanhamento em 45 dias: convite para apresentar o que foi efetivamente usado em sala.</li>
     </ul>
   </section>
 
@@ -826,7 +824,7 @@ y = x^(3/2)    y = cos(2*x)      y = 1800*(1.03)^x</div>
         </tbody>
       </table>
     </div>
-    <p><small>Preencher conforme a equipe confirmada. A coordenação se responsabiliza por manter no máximo 1 formador para cada 15 participantes durante os módulos hands-on — com 30 vagas, são necessários 2 formadores.</small></p>
+    <p><small>Preencher conforme a equipe confirmada. A coordenação se responsabiliza por manter no máximo 1 formador para cada 15 participantes durante os módulos práticos — com 30 vagas, são necessários 2 formadores.</small></p>
   </section>
 
   <!-- ═══ 08 · RECURSOS ═══ -->
@@ -848,7 +846,7 @@ y = x^(3/2)    y = cos(2*x)      y = 1800*(1.03)^x</div>
       <li>Nenhum software adicional, nenhuma conta, nenhuma licença.</li>
     </ul>
 
-    <p><strong>Custo estimado aos participantes:</strong> nenhum.</p>
+    <p><strong>Custo para os participantes:</strong> inexistente.</p>
   </section>
 
   <!-- ═══ 09 · RESULTADOS ═══ -->
@@ -891,11 +889,11 @@ y = x^(3/2)    y = cos(2*x)      y = 1800*(1.03)^x</div>
   <section id="s10">
     <div class="sec-head"><span class="sec-num">10</span><h2>Sustentabilidade e continuidade</h2></div>
     <ul>
-      <li><strong>Código-fonte público</strong> no repositório da plataforma, com licença livre e histórico completo de commits — ninguém fica dependente de fornecedor ou de ordem de serviço.</li>
+      <li><strong>Código-fonte público</strong> no repositório da plataforma, com licença livre e histórico completo de commits — não há dependência de fornecedor nem de contrato de serviço.</li>
       <li><strong>Documentação viva</strong>: o repositório contém a especificação técnica, o guia de expansão de conteúdo e as instruções de publicação. A criação de um novo capítulo é uma tarefa de uma tarde, documentada passo a passo.</li>
       <li><strong>Hospedagem sem custo</strong>: publicação estática em GitHub Pages ou qualquer servidor de arquivos; sem servidor de aplicação, sem banco de dados, sem assinatura.</li>
-      <li><strong>Manutenção distribuída</strong>: modelo de comunidade — quem precisar de um capítulo novo, o constrói; o material volta para o conjunto.</li>
-      <li><strong>Fim do apoio técnico</strong>: a oficina inclui explicitamente a formação para <strong>publicar uma versão própria</strong> da ferramenta, para que o professor não fique refém da plataforma original.</li>
+      <li><strong>Manutenção distribuída</strong>: modelo de comunidade — quem necessita de um capítulo novo constrói-o, e o material retorna ao acervo comum.</li>
+      <li><strong>Fim do apoio técnico</strong>: a oficina inclui explicitamente a formação para <strong>publicar uma versão própria</strong> da ferramenta, para que o professor não fique dependente da plataforma original.</li>
     </ul>
   </section>
 
@@ -906,10 +904,10 @@ y = x^(3/2)    y = cos(2*x)      y = 1800*(1.03)^x</div>
       <li>BRASIL. Ministério da Educação. <em>Base Nacional Comum Curricular: Ensino Médio</em>. Brasília: MEC, 2018.</li>
       <li>BRASIL. Ministério da Educação. <em>Base Nacional Comum Curricular: Ensino Fundamental</em>. Brasília: MEC, 2018.</li>
       <li>IFPA — Instituto Federal do Estado do Pará, Campus Bragança. <em>Documento didático da disciplina de Matemática — Ensino Médio Técnico em Informática</em>. <span class="fill">[indicar o título exato e o ano da edição]</span></li>
-      <li>Khan Academy. <em>Mathematics</em>. Disponível em: <a href="https://www.khanacademy.org" target="_blank" rel="noopener">khanacademy.org</a>. Acesso em: 21 out. 2026.</li>
-      <li>Desmos Studio. <em>Graphing Calculator</em>. Disponível em: <a href="https://www.desmos.com/calculator" target="_blank" rel="noopener">desmos.com/calculator</a>. Acesso em: 21 out. 2026.</li>
-      <li>GeoGebra. <em>GeoGebra Classroom</em>. Disponível em: <a href="https://www.geogebra.org/classroom" target="_blank" rel="noopener">geogebra.org/classroom</a>. Acesso em: 21 out. 2026.</li>
-      <li>Brilliant. <em>Interactive learning platform</em>. Disponível em: <a href="https://brilliant.org" target="_blank" rel="noopener">brilliant.org</a>. Acesso em: 21 out. 2026.</li>
+      <li>Khan Academy. <em>Mathematics</em>. Disponível em: <a href="https://www.khanacademy.org" target="_blank" rel="noopener">khanacademy.org</a>. Acesso em: 24 out. 2026.</li>
+      <li>Desmos Studio. <em>Graphing Calculator</em>. Disponível em: <a href="https://www.desmos.com/calculator" target="_blank" rel="noopener">desmos.com/calculator</a>. Acesso em: 24 out. 2026.</li>
+      <li>GeoGebra. <em>GeoGebra Classroom</em>. Disponível em: <a href="https://www.geogebra.org/classroom" target="_blank" rel="noopener">geogebra.org/classroom</a>. Acesso em: 24 out. 2026.</li>
+      <li>Brilliant. <em>Interactive learning platform</em>. Disponível em: <a href="https://brilliant.org" target="_blank" rel="noopener">brilliant.org</a>. Acesso em: 24 out. 2026.</li>
       <li>TORK, Asafe. <em>Informal25 — Plataforma web de Matemática para o Ensino Médio Técnico</em>. IFPA Campus Bragança. Código-fonte: <a href="https://github.com/AsafeTork/Infor25-IFPA-Braganca-Matematica" target="_blank" rel="noopener">github.com/AsafeTork/Infor25-IFPA-Braganca-Matematica</a></li>
     </ul>
   </section>
@@ -930,7 +928,7 @@ y = x^(3/2)    y = cos(2*x)      y = 1800*(1.03)^x</div>
   <section id="s13v">
     <div class="sec-head"><span class="sec-num">13</span><h2>Anexo visual — a plataforma em uso</h2></div>
     <p>Quatro telas reais da plataforma, capturadas do ambiente em uso. As duas primeiras são da <strong>Área do Aluno</strong>; as duas últimas, da <strong>Área do Professor</strong>.</p>
-    <p><small>Capturas da versão em uso na data desta proposta (22/10/2026). São reproduzíveis a qualquer momento pelo repositório — ver <code>oficina/capturas.sh</code>.</small></p>
+    <p><small>Capturas da versão em uso na data desta proposta (24/10/2026). São reproduzíveis a qualquer momento pelo repositório — ver <code>oficina/capturas.sh</code>.</small></p>
 
     <figure>
       <img src="anexos/01-aluno-lab.png" alt="Área do Aluno: aula de expoente inteiro com notação matemática e laboratório de fórmulas ao pé, com o gráfico de y = 2^x respondendo em tempo real">
@@ -973,7 +971,7 @@ y = x^(3/2)    y = cos(2*x)      y = 1800*(1.03)^x</div>
   <span class="sep">·</span>
   <span>IFPA Campus Bragança · Turma Informática 25</span>
   <span class="sep">·</span>
-  <span>Proposta de inscrição para oficina · 22/10/2026</span>
+  <span>Proposta de inscrição para oficina · 24/10/2026</span>
 </footer>
 
 <script>
