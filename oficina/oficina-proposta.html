@@ -156,6 +156,7 @@ body{
   font-feature-settings:"kern" 1;
   text-rendering:optimizeLegibility;
   -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
 }
 @media (prefers-reduced-motion:no-preference){
   body{transition:background .25s var(--ease, ease), color .25s ease}
@@ -166,10 +167,11 @@ body{
   position:sticky; top:0; z-index:20;
   display:flex; align-items:center; gap:var(--s3);
   padding:var(--s2) var(--s4);
-  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  background:color-mix(in srgb, var(--bg) 92%, transparent);
   backdrop-filter:saturate(1.4) blur(10px);
   border-bottom:1px solid var(--rule);
   font-family:var(--font-display);
+  height:44px;
 }
 .tb-brand{display:flex; align-items:center; gap:var(--s2); font-weight:700; font-size:.82rem; letter-spacing:-.01em; white-space:nowrap}
 .tb-brand svg{width:26px;height:26px;display:block;flex:0 0 auto}
@@ -196,7 +198,8 @@ body{
 .doc{
   max-width:52rem;
   margin:0 auto;
-  padding:var(--s9) var(--s5) var(--s10);
+  padding:calc(var(--s9) + 3.5rem) var(--s5) var(--s10);
+  overflow-x:hidden;
 }
 
 /* ── cabeçalho / capa ───────────────────────────────────────── */
