@@ -491,9 +491,13 @@ body { overflow-x: hidden; }
   border-bottom: none;
   padding: calc(.5rem * var(--info-scale,1)) 0;
 }
-.tab-panel[data-tab="formulas"] #prof-presets {
+.tab-panel[data-tab="formulas"] #prof-presets,
+.tab-panel[data-tab="ferramentas"] #prof-graph-presets {
   padding: calc(.5rem * var(--info-scale,1));
 }
+.graph-presets-details { margin:.5rem 0; border-top:1px solid var(--border); padding-top:.45rem; }
+.graph-presets-details > summary { cursor:pointer; list-style:none; }
+.graph-presets-details > summary::-webkit-details-marker { display:none; }
 /* .prof-panel unificado acima (flex column + overflow hidden; scroll em .prof-tabs-scroll) */
 
 
@@ -546,8 +550,6 @@ body { overflow-x: hidden; }
 }
 .frow-inp:focus { border-color:var(--accent); }
 .frow-inp:focus-visible { outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent); }
-.formula-help { margin:.45rem 0 0; color:var(--text-mut); font-size:calc(.74rem * var(--info-scale,1)); line-height:1.45; }
-.formula-help code { color:var(--accent); font-family:var(--font-mono); overflow-wrap:anywhere; }
 .frow-error { margin:-.12rem 0 .3rem 2.2rem; color:#ef6a68; font-size:calc(.72rem * var(--info-scale,1)); line-height:1.35; }
 .prof-context { display:none; }
 .tools-tip { margin:.3rem 0 .5rem; max-width:44ch; color:var(--text-mut); font-size:calc(.76rem * var(--info-scale,1)); line-height:1.45; }

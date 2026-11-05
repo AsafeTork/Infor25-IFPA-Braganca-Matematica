@@ -55,18 +55,23 @@ window.addEventListener("resize", () => { if (downloadMenu.classList.contains("o
 
 /* ── Presets ── */
 const presetsEl = document.getElementById("prof-presets");
+const graphPresetsEl = document.getElementById("prof-graph-presets");
+const mainPresetGroups = PRESET_GROUPS.filter(g => g.title !== "Novos gráficos");
+const graphPresetGroups = PRESET_GROUPS.filter(g => g.title === "Novos gráficos");
 const allPresets = PRESET_GROUPS.flatMap(g=>g.items.map(p=>({...p,group:g.title})));
-presetsEl.innerHTML = PRESET_GROUPS.map(g=>`
+const renderPresetGroups = groups => groups.map(g=>`
   <div class="preset-group">
     <div class="preset-group-title">${g.title}</div>
     <div class="preset-btns">
       ${g.items.map(p=>`<button class="preset-btn" data-g="${g.title}" data-label="${p.label}">${g.title==="Exponencial" ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 17 H20"/><path d="M4 15.5 C8 15.5 9.5 5 13 5 C16.5 5 17.5 15.5 20 15.5"/></svg>' : g.title==="Sequências" ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 17 H20"/><path d="M6 13 H9 V10 H12 V7 H15 V4 H18"/></svg>' : g.title==="Trigonometria" ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 17 H20"/><path d="M4 12 C6.5 7.5 8.5 16.5 11 12 C13.5 7.5 15.5 16.5 18 12"/><circle cx="18" cy="12" r="0.9" fill="currentColor" stroke="none"/></svg>' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 17 H20"/><path d="M12 4 V17"/><path d="M6 15.5 Q9.5 4 12 4 Q14.5 4 18 15.5"/></svg>'} ${p.label}</button>`).join("")}
     </div>
   </div>`).join("");
+presetsEl.innerHTML = renderPresetGroups(mainPresetGroups);
+graphPresetsEl.innerHTML = renderPresetGroups(graphPresetGroups);
 
-presetsEl.querySelectorAll(".preset-btn").forEach(btn=>{
+document.querySelectorAll(".preset-btn").forEach(btn=>{
   btn.addEventListener("click", ()=>{
-    presetsEl.querySelectorAll(".preset-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".preset-btn").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
     const p = allPresets.find(x=>x.group===btn.dataset.g&&x.label===btn.dataset.label);
     if (!p) return;
@@ -166,6 +171,8 @@ export function setActiveTab(name){
   if (name === "ferramentas") {
     const det = document.getElementById("tools-section");
     if (det && det.tagName === "DETAILS" && !det.open) det.open = true;
+    const graphs = document.getElementById("graph-presets-section");
+    if (graphs && !graphs.open) graphs.open = true;
   }
 }
 document.querySelectorAll(".panel-tab").forEach(btn=>{

@@ -96,7 +96,6 @@
         <div class="prof-section" id="sec-formulas">
       <div class="prof-section-title">Fórmulas</div>
       <div id="formulas-rows"></div>
-      <p class="formula-help"><code>y=sin(x)</code> · <code>x²+y²=4</code> · <code>f₁(z)=((1+i)/2)z</code></p>
       <button class="ctrl-btn" id="btn-add" style="width:100%;margin-top:.4rem;text-align:center" aria-label="Adicionar fórmula" title="Adicionar fórmula"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4.5" y="3" width="13" height="16" rx="1.5"/><path d="M7.5 8.2 H14.5"/><path d="M7.5 12 H14.5"/><path d="M7.5 15.7 H11.5"/><circle cx="17" cy="17" r="3.2"/><path d="M17 15 V19"/><path d="M15 17 H19"/></svg></button>
     </div>
         <div id="prof-presets"></div>
@@ -258,6 +257,10 @@
           </div>
         </div>
       </details>
+        <details class="graph-presets-details" id="graph-presets-section" open>
+          <summary class="preset-group-title">Gráficos prontos</summary>
+          <div id="prof-graph-presets"></div>
+        </details>
         <div class="layers-panel" id="layers-panel" style="margin-top:calc(.6rem * var(--info-scale,1));border-top:1px solid var(--border);padding-top:calc(.5rem * var(--info-scale,1))">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:calc(.3rem * var(--info-scale,1));gap:calc(.3rem * var(--info-scale,1))">
           <span style="font-family:var(--font-mono);font-size:calc(.6rem * var(--info-scale,1));font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mut)">Camadas</span>

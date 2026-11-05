@@ -24,4 +24,9 @@ export const PRESET_GROUPS = [
     { label:"Parábola",    fns:["y=x^2","y=x^2-4"],               pi:false, uc:false },
     { label:"Raízes",      fns:["y=sqrt(x)","y=x^(1/3)"],         pi:false, uc:false, view:{xmin:-3,xmax:8,ymin:-3,ymax:4} },
   ]},
+  { title:"Novos gráficos", items:[
+    { label:"Círculo implícito", fns:["x² + y² = 4"], pi:false, uc:false },
+    { label:"Mapa complexo f₁", fns:["f₁(z)=((1+i)/2)z"], pi:false, uc:false },
+    { label:"Curva C de Lévy", fns:["f₁(z)=((1+i)/2)z; f₂(z)=((1-i)/2)z+1"], pi:false, uc:false },
+  ]},
 ];
