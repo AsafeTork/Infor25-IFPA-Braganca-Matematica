@@ -2,6 +2,7 @@
    core/mathEngine.js
    Parser + avaliador de expressões matemáticas.
    Aceita: y = 2^x · y = π^x · y = (1/2)^x · y = A·sin(Bx+C)+D · y = x^(3/2)
+            implícitas x²+y²=4 · mapas complexos afins f₁(z)=az+b (também em LaTeX)
    Suporta: + - * / ^ · , parênteses, multiplicação implícita (2x, 3sin x),
             constantes π e e, funções (sin, cos, tan, sqrt, log, ln, exp, abs...),
             e parâmetros nomeados (A, B, C, D, k, a, b...).
@@ -199,6 +200,79 @@ function powReal(base, exp) {
   return NaN; // irracional com base negativa → NaN
 }
 
+// Normaliza a escrita usual de mapas afins complexos para a ferramenta IFS.
+function cleanLatexInput(source) {
+  let text = source.trim().replace(/\\boxed\s*\{([\s\S]*)\}\s*$/, "$1")
+    .replace(/\\left|\\right/g, "").replace(/\\(?:cdot|times)/g, "*")
+    .replace(/_\s*\{(\d+)\}/g, "$1").replace(/[₀₁₂₃₄₅₆₇₈₉]/g, digit => String("₀₁₂₃₄₅₆₇₈₉".indexOf(digit)));
+  for (let i = 0; i < 8 && /\\frac\s*\{/.test(text); i++)
+    text = text.replace(/\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g, "(($1)/($2))");
+  return text;
+}
+
+function parseComplexAffine(source) {
+  const text = cleanLatexInput(source).replace(/−/g, "-").replace(/×/g, "*");
+  const tokens = text.match(/(?:\d+(?:\.\d*)?|\.\d+)|[A-Za-z]|[()+\-*/]/g) || [];
+  if (tokens.join("") !== text.replace(/\s+/g, "")) throw new Error("Use uma expressão afim em z com números e i.");
+  let pos = 0;
+  const zero = () => ({ re: 0, im: 0 });
+  const c = (re, im = 0) => ({ re, im });
+  const add = (x,y) => c(x.re+y.re, x.im+y.im);
+  const neg = x => c(-x.re,-x.im);
+  const mul = (x,y) => c(x.re*y.re-x.im*y.im, x.re*y.im+x.im*y.re);
+  const div = (x,y) => { const d=y.re*y.re+y.im*y.im; if (!d) throw new Error("Divisão por zero no mapa complexo."); return c((x.re*y.re+x.im*y.im)/d,(x.im*y.re-x.re*y.im)/d); };
+  const affine = (a=zero(), b=zero()) => ({ a, b });
+  const plus = (x,y) => affine(add(x.a,y.a),add(x.b,y.b));
+  const scale = (x,k) => affine(mul(x.a,k),mul(x.b,k));
+  const multiply = (x,y) => {
+    if ((x.a.re || x.a.im) && (y.a.re || y.a.im)) throw new Error("O mapa deve ser afim: use a forma az+b.");
+    return affine(add(mul(x.a,y.b),mul(y.a,x.b)),mul(x.b,y.b));
+  };
+  const peek = () => tokens[pos];
+  const take = () => tokens[pos++];
+  const starts = token => token && (/[\d.]/.test(token[0]) || /[A-Za-z(]/.test(token));
+  function expression() {
+    let value = term();
+    while (peek()==="+" || peek()==="-") { const op=take(); const other=term(); value=plus(value,op==="-"?scale(other,c(-1)):other); }
+    return value;
+  }
+  function term() {
+    let value = factor();
+    while (peek()==="*" || peek()==="/" || starts(peek())) {
+      const op = peek()==="*" || peek()==="/" ? take() : "*";
+      const other=factor();
+      if (op==="*") value=multiply(value,other);
+      else { if (other.a.re || other.a.im) throw new Error("O denominador precisa ser constante."); value=scale(value,div(c(1),other.b)); }
+    }
+    return value;
+  }
+  function factor() {
+    if (peek()==="+" || peek()==="-") { const sign=take(); const v=factor(); return sign==="-"?scale(v,c(-1)):v; }
+    if (peek()==="(") { take(); const v=expression(); if(take()!==")") throw new Error("Falta fechar parênteses."); return v; }
+    const token=take();
+    if (token===undefined) throw new Error("Expressão complexa incompleta.");
+    if (/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(token)) return affine(zero(),c(Number(token)));
+    if (token.toLowerCase()==="i") return affine(zero(),c(0,1));
+    if (token.toLowerCase()==="z") return affine(c(1),zero());
+    throw new Error(`Símbolo não reconhecido no mapa: ${token}`);
+  }
+  const result=expression();
+  if(pos!==tokens.length) throw new Error("Confira a expressão do mapa complexo.");
+  return { ar: result.a.re, ai: result.a.im, br: result.b.re, bi: result.b.im };
+}
+
+function compileComplexMaps(input) {
+  const cleaned = cleanLatexInput(input).replace(/\\(?:begin|end)\{(?:aligned|array)\}/g, "").trim();
+  if (!/f\s*[_\{]?\d+\}?\s*\(\s*z\s*\)\s*=/i.test(cleaned)) return null;
+  const definitions = cleaned.split(/[;\n]+/).map(line => line.trim()).filter(Boolean);
+  const transforms = definitions.map(line => {
+    const match = line.match(/^f\s*[_\{]?\d+\}?\s*\(\s*z\s*\)\s*=\s*(.+)$/i);
+    if (!match) throw new Error("Escreva cada transformação como f₁(z)=...; separe as funções por linha.");
+    return parseComplexAffine(match[1]);
+  });
+  return { error: null, isIFS: true, ifsName: "complex", transforms, params: [] };
+}
+
 /* -------------------- Evaluator -------------------- */
 function evalNode(node, scope) {
   switch (node.type) {
@@ -277,7 +351,8 @@ export function compileImplicit(expr) {
 }
 
 /**
- * Compila "y = <expr>" ou "<expr>" em uma função f(x, params?).
+ * Compila "y = <expr>" ou "<expr>" em uma função f(x, params?). Também aceita
+ * mapas complexos afins f₁(z)=az+b como sistemas iterados de funções.
  * Se detectar função implícita F(x,y)=0 (contém "=" e não é y= simples), delega para compileImplicit.
  * Retorna { fn, rhs, params:[...], error, isImplicit }
  * Spec: Detecte se expr contém `=` e não é `y=` simples: se `expr.includes("=")` e `!expr.trim().toLowerCase().startsWith("y=")` e `expr.split("=").length===2`, trate como `left = right` => `F(x,y)= left - right`.
@@ -285,8 +360,10 @@ export function compileImplicit(expr) {
  */
 export function compile(input) {
   try {
-    let trimmed = input.trim();
+    let trimmed = cleanLatexInput(input);
     if (!trimmed) return { error: "Digite uma expressão." };
+    const complexMaps = compileComplexMaps(trimmed);
+    if (complexMaps) return complexMaps;
     // Sistemas iterados de funções: DSL compacta para atratores conhecidos.
     const ifsMatch = trimmed.match(/^\s*IFS\s*:\s*([\w-]+)\s*$/i);
     if (ifsMatch) {

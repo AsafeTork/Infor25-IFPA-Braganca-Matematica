@@ -8,48 +8,6 @@ import { setActiveTab } from "./panel.js";
 export let formulas = [];
 export let piActive = false;
 export let circleActive = false;
-let curveAnimationEnabled = true;
-let curveAnimationRaf = null;
-let curveAnimationLast = 0;
-let curveAnimationElapsed = 0;
-const curveSpeedInput = document.getElementById("curve-speed");
-const curveSpeedValue = document.getElementById("curve-speed-value");
-const curveAnimationToggle = document.getElementById("curve-animation-toggle");
-
-curveSpeedInput?.addEventListener("input", () => {
-  if (curveSpeedValue) curveSpeedValue.value = `${Number(curveSpeedInput.value).toFixed(2).replace(/0+$/, "").replace(/\.$/, "")}×`;
-});
-curveAnimationToggle?.addEventListener("click", () => {
-  curveAnimationEnabled = !curveAnimationEnabled;
-  curveAnimationToggle.textContent = curveAnimationEnabled ? "Pausar animação" : "Retomar animação";
-  curveAnimationToggle.setAttribute("aria-pressed", String(curveAnimationEnabled));
-  curveAnimationLast = 0;
-  if (curveAnimationEnabled) scheduleCurveAnimation();
-});
-
-function scheduleCurveAnimation() {
-  if (curveAnimationRaf !== null || !curveAnimationEnabled) return;
-  const tick = now => {
-    curveAnimationRaf = null;
-    if (!curveAnimationEnabled) return;
-    if (curveAnimationLast) curveAnimationElapsed += (now - curveAnimationLast) * Number(curveSpeedInput?.value || 1);
-    curveAnimationLast = now;
-    if (curveAnimationElapsed >= 900) {
-      curveAnimationElapsed = 0;
-      let changed = false;
-      formulas.forEach(formula => {
-        if (formula.hidden || !formula.ifs || formula.ifs.depth >= formula.ifs.maxDepth) return;
-        formula.ifs.depth++;
-        changed = true;
-      });
-      if (changed) updatePlot();
-    }
-    if (formulas.some(formula => formula.ifs && formula.ifs.depth < formula.ifs.maxDepth))
-      curveAnimationRaf = requestAnimationFrame(tick);
-  };
-  curveAnimationRaf = requestAnimationFrame(tick);
-}
-
 const PALETTE = [
   "#ffa500","#ffd23f","#60a5fa","#34d399","#a78bfa","#fb923c","#f472b6","#38bdf8",
   "#e11d48","#16a34a","#7c3aed","#0ea5e9","#d97706","#059669","#dc2626","#6366f1",
@@ -104,18 +62,21 @@ export function addFormula(expr="") {
   row.className = "frow";
   row.innerHTML = `
     <span class="frow-dot" style="background:${color}" title="Mudar cor"></span>
-    <input class="frow-inp" name="f${idx}" autocomplete="off" placeholder="y=..." value="${expr}" spellcheck="false">
+    <input class="frow-inp" name="f${idx}" autocomplete="off" placeholder="Equação…" value="${expr}" spellcheck="false">
     <button class="frow-eye" aria-label="Ocultar fórmula" title="Ocultar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.9 12 C2.9 12 6.6 6.9 12 6.9 C17.4 6.9 21.1 12 21.1 12 C21.1 12 17.4 17.1 12 17.1 C6.6 17.1 2.9 12 2.9 12 Z"/><circle cx="12" cy="12" r="2.4"/></svg></button>
     <button class="frow-del" aria-label="Remover fórmula" title="Remover fórmula"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5.2 7.2 H18.8"/><path d="M9.2 7.2 V4.9 H14.8 V7.2"/><path d="M7 7.2 L7.6 18.6 C7.6 19.5 8.2 20.2 9.1 20.2 H14.9 C15.8 20.2 16.4 19.5 16.4 18.6 L17 7.2"/><path d="M10.2 11.2 V15.8"/><path d="M13.8 11.2 V15.8"/></svg></button>`;
+  const error = document.createElement("div");
+  error.className = "frow-error";
+  error.setAttribute("role", "status");
   const inp = row.querySelector("input");
   const dot = row.querySelector(".frow-dot");
   const eye = row.querySelector(".frow-eye");
   const del = row.querySelector(".frow-del");
-  inp.addEventListener("input", () => { formula.ifs = null; updatePlot(); });
+  inp.addEventListener("input", () => { formula.ifs = null; error.textContent = ""; updatePlot(); });
   del.addEventListener("click", () => {
-    row.remove(); formulas = formulas.filter(f => f.inp !== inp); updatePlot();
+    row.remove(); error.remove(); formulas = formulas.filter(f => f.inp !== inp); updatePlot();
   });
-  const formula = { inp, color, dot, eye, hidden:false };
+  const formula = { inp, color, dot, eye, error, hidden:false };
   const _eyeOpen = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.9 12 C2.9 12 6.6 6.9 12 6.9 C17.4 6.9 21.1 12 21.1 12 C21.1 12 17.4 17.1 12 17.1 C6.6 17.1 2.9 12 2.9 12 Z"/><circle cx="12" cy="12" r="2.4"/></svg>';
   const _eyeClosed = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.9 12 C2.9 12 6.6 6.9 12 6.9 C17.4 6.9 21.1 12 21.1 12 C21.1 12 17.4 17.1 12 17.1 C6.6 17.1 2.9 12 2.9 12 Z"/><circle cx="12" cy="12" r="2.4"/><path d="M3.4 3.4 L20.6 20.6"/></svg>';
   eye.addEventListener("click", () => { formula.hidden = !formula.hidden; eye.innerHTML = formula.hidden ? _eyeClosed : _eyeOpen; eye.style.opacity = formula.hidden ? ".45" : "1"; eye.title = formula.hidden ? "Mostrar" : "Ocultar"; eye.setAttribute("aria-label", formula.hidden ? "Mostrar fórmula" : "Ocultar fórmula"); updatePlot(); });
@@ -124,6 +85,7 @@ export function addFormula(expr="") {
     openPalette(dot, formula);
   });
   document.getElementById("formulas-rows").appendChild(row);
+  document.getElementById("formulas-rows").appendChild(error);
   formulas.push(formula);
   updatePlot();
 }
@@ -165,11 +127,14 @@ export function updatePlot() {
   const curves = formulas.filter(f=>!f.hidden).map(({inp,color}) => {
     const expr = inp.value.trim(); if (!expr) return null;
     try {
-      const c=compile(expr);
-      if(!c||c.error) return null;
       const formula = formulas.find(f => f.inp === inp);
+      const c=compile(expr);
+      if(!c||c.error) { if (formula?.error) formula.error.textContent = c?.error || "Expressão inválida."; return null; }
+      if (formula?.error) formula.error.textContent = "";
       if (c.isIFS) {
-        formula.ifs ||= { depth: 0, maxDepth: 15, name: c.ifsName };
+        const maxDepth = c.transforms.length < 2 ? 1 : Math.max(1, Math.min(15, Math.floor(Math.log(65536) / Math.log(c.transforms.length))));
+        const viewApplied = formula.ifs?.viewApplied || false;
+        formula.ifs = { depth: maxDepth, maxDepth, name: c.ifsName, viewApplied };
         if (!formula.ifs.viewApplied) {
           plot.setView({ xmin: -0.1, xmax: 1.1, ymin: -0.1, ymax: 0.7 });
           formula.ifs.viewApplied = true;
@@ -184,7 +149,6 @@ export function updatePlot() {
     } catch { return null; }
   }).filter(Boolean);
   plot.setCurves(curves);
-  if (curves.some(curve => curve.isIFS && curve.depth < 15)) scheduleCurveAnimation();
   // sync para SVG (apenas visíveis)
   if (plot.setLabels) plot.setLabels(formulas.filter(f=>!f.hidden && f.inp.value.trim()).map(f=>({ text: f.inp.value.trim(), color: f.color })));
   invalidateContourCache();

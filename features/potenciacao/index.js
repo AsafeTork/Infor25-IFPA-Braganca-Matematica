@@ -35,16 +35,29 @@ const propriedades = {
           Para $n=1$, $a^{1}=a$.`) +
         `<p>Considerando reais positivos $a,b$ e naturais $m,n$, valem cinco propriedades:</p>` +
         def("As cinco propriedades", `
-          $$1)\\;a^{m}\\cdot a^{n}=a^{m+n}\\qquad 2)\\;(a^{m})^{n}=a^{m\\cdot n}\\qquad 3)\\;\\dfrac{a^{m}}{a^{n}}=a^{m-n}$$
-          $$4)\\;(a\\cdot b)^{n}=a^{n}\\cdot b^{n}\\qquad\\quad 5)\\;\\left(\\dfrac{a}{b}\\right)^{n}=\\dfrac{a^{n}}{b^{n}},\\ b\\ne0$$`) +
+          <ol class="power-rules">
+            <li>Produto de potências de mesma base: $$a^{m}\\cdot a^{n}=a^{m+n}$$</li>
+            <li>Potência de potência: $$(a^{m})^{n}=a^{m\\cdot n}$$</li>
+            <li>Quociente de potências de mesma base: $$\\dfrac{a^{m}}{a^{n}}=a^{m-n}\\quad(a\\ne0)$$</li>
+            <li>Potência de um produto: $$(a\\cdot b)^{n}=a^{n}\\cdot b^{n}$$</li>
+            <li>Potência de um quociente: $$\\left(\\dfrac{a}{b}\\right)^{n}=\\dfrac{a^{n}}{b^{n}}\\quad(b\\ne0)$$</li>
+          </ol>`) +
         think(`<ol>
           <li>Por que, na 1ª propriedade, basta <em>repetir a base e somar os expoentes</em>? Conte os fatores dos dois lados.</li>
           <li>Supondo a 1ª propriedade válida para $m=0$ e $a\\ne0$, qual deve ser o valor de $a^{0}$? <b>(resp.: $1$)</b></li>
           <li>Observe a sequência $3^{6},3^{5},3^{4},\\dots$ Da esquerda para a direita os valores ficam divididos por quanto?</li>
         </ol>`) +
-        solved(`Usando $12\\cdot 8 = 2^{2}\\cdot 3\\cdot 2^{3}$… simplifique $128\\cdot 8$:
+        solved(`Usando $128=2^7$ e $8=2^3$, simplifique o produto:
           $$128\\cdot 8 = 2^{7}\\cdot 2^{3} = 2^{7+3} = 2^{10} = 1024.$$
-          E a divisão $\\dfrac{256}{32} = \\dfrac{2^{8}}{2^{5}} = 2^{8-5} = 2^{3} = 8.$`));
+          Na divisão, $\\dfrac{256}{32} = \\dfrac{2^{8}}{2^{5}} = 2^{8-5} = 2^{3} = 8.$`) +
+        `<div class="lesson-quick-check" data-answer="c">
+          <h3>Confira se entendeu</h3><p>Quanto vale $2^{3}\\cdot2^{4}$?</p>
+          <div class="quick-check-options">
+            <button type="button" data-choice="a">$2^{6}=64$</button>
+            <button type="button" data-choice="b">$2^{12}=4096$</button>
+            <button type="button" data-choice="c">$2^{7}=128$</button>
+          </div><p class="quick-check-feedback" aria-live="polite"></p>
+        </div>`);
     autoRender(c);
   },
 };

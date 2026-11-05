@@ -233,7 +233,9 @@ function enhanceLessonExperience(lesson) {
   const practice = lessonEl.querySelector(".lesson-interaction-stage, .lab");
   const normalizeText = element => {
     const clone = element.cloneNode(true);
-    clone.querySelectorAll(".katex-html").forEach(el => el.remove());
+    // Não copie nem o HTML visual do KaTeX nem a annotation TeX acessível;
+    // o resumo exibe as fórmulas separadamente em forma renderizada.
+    clone.querySelectorAll(".katex, .katex-display, annotation").forEach(el => el.remove());
     return clone.textContent.replace(/\s+/g, " ").trim();
   };
   const unique = values => values.filter((value, index, all) => value && all.indexOf(value) === index);
@@ -253,7 +255,7 @@ function enhanceLessonExperience(lesson) {
     .map(normalizeText));
   const formulaMap = new Map();
   lessonEl.querySelectorAll('.katex-display annotation[encoding="application/x-tex"]').forEach(annotation => {
-    if (annotation.closest(".lab, .challenge-box")) return;
+    if (annotation.closest(".lab, .challenge-box, .lesson-quick-check")) return;
     const source = annotation.textContent.trim();
     const rendered = annotation.closest(".katex-display");
     if (source && rendered && !formulaMap.has(source)) formulaMap.set(source, rendered.outerHTML);
@@ -312,8 +314,28 @@ function enhanceLessonExperience(lesson) {
   status.id = `lesson-gate-${lesson.id}`;
   nextBtn.setAttribute("aria-describedby", status.id);
 
+  const quickCheck = lessonEl.querySelector(".lesson-quick-check");
   const challenge = lessonEl.querySelector(".lab-challenge");
-  if (challenge) {
+  if (quickCheck) {
+    status.textContent = "Responda à questão de revisão para liberar a próxima lição.";
+    quickCheck.addEventListener("click", event => {
+      const button = event.target.closest("button[data-choice]");
+      if (!button || quickCheck.dataset.complete === "true") return;
+      const feedback = quickCheck.querySelector(".quick-check-feedback");
+      if (button.dataset.choice === quickCheck.dataset.answer) {
+        quickCheck.dataset.complete = "true";
+        quickCheck.querySelectorAll("button").forEach(option => { option.disabled = true; });
+        feedback.textContent = "Correto: multiplicamos as potências somando os expoentes.";
+        quickCheck.classList.add("is-correct");
+        lessonEl.dispatchEvent(new CustomEvent("lessonchallengecomplete", { bubbles: true }));
+      } else {
+        feedback.textContent = "Ainda não. Como as bases são iguais, some os expoentes.";
+        quickCheck.classList.add("has-error");
+        setTimeout(() => quickCheck.classList.remove("has-error"), 500);
+      }
+    }, { signal });
+    lessonEl.addEventListener("lessonchallengecomplete", () => unlock("Resposta correta. A próxima lição está liberada."), { signal, once: true });
+  } else if (challenge) {
     status.textContent = "Conclua um desafio do laboratório para liberar a próxima lição.";
     lessonEl.addEventListener("lessonchallengecomplete", () => unlock(), { signal, once: true });
   } else if (practice) {

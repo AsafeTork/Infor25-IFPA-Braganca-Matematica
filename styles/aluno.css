@@ -259,6 +259,35 @@
 }
 .lesson-summary-status.ready { color: var(--success, #22c55e) !important; }
 
+/* Texto de estudo: tamanho confortável no zoom padrão e fórmulas com respiro. */
+.al-lesson-body p { font-size: calc(1.12rem * var(--zoom-scale,1)); line-height: 1.72; }
+.al-lesson-body ul, .al-lesson-body ol { font-size: calc(1.1rem * var(--zoom-scale,1)); line-height: 1.65; }
+.al-lesson-body .lesson-h2 { font-size: calc(1.38rem * var(--zoom-scale,1)); }
+.al-lesson-body .def > div:last-child,
+.al-lesson-body .box > div,
+.al-lesson-body .box > p { font-size: calc(1.1rem * var(--zoom-scale,1)); line-height: 1.72; }
+.lesson-summary-group h3 { font-size: calc(1.12rem * var(--zoom-scale,1)); }
+.lesson-summary-group li { line-height: 1.65; font-size: calc(1.06rem * var(--zoom-scale,1)); }
+.lesson-summary-formulas .katex-display { margin: .55rem 0; padding: .35rem .5rem; background: color-mix(in srgb, var(--surface-2) 55%, transparent); border-radius: 6px; }
+.power-rules { padding-left: 1.6rem !important; }
+.power-rules li { padding: .4rem .55rem; margin: .35rem 0 !important; border-radius: 7px; background: color-mix(in srgb, var(--surface) 68%, transparent); }
+.power-rules .katex-display { margin: .2rem 0; }
+.lesson-quick-check { margin: 1.25rem 0; padding: 1rem 1.15rem; border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 10px; background: color-mix(in srgb, var(--accent-soft) 55%, var(--surface)); }
+.lesson-quick-check h3 { margin: 0 0 .4rem; font: 750 1.08rem var(--font-display); color: var(--text); }
+.lesson-quick-check p { margin: .35rem 0; }
+.quick-check-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: .55rem; margin-top: .75rem; }
+.quick-check-options button { min-height: 48px; padding: .55rem .75rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); font: 600 1rem var(--font-body); cursor: pointer; }
+.quick-check-options button:hover, .quick-check-options button:focus-visible { border-color: var(--accent); background: var(--accent-soft); }
+.quick-check-options button:disabled { cursor: default; opacity: .72; }
+.lesson-quick-check.is-correct { border-left-color: var(--success, #22c55e); }
+.lesson-quick-check.has-error .quick-check-feedback { color: var(--danger, #dc2626); }
+.quick-check-feedback { min-height: 1.5em; font-weight: 650; }
+@media (max-width: 500px) {
+  .al-lesson-body p { font-size: calc(1.08rem * var(--zoom-scale,1)); }
+  .lesson-summary { padding: .9rem; }
+  .lesson-summary-group { padding: .8rem; }
+}
+
 @media (max-width: 900px) {
   .lesson-interaction-stage { grid-template-columns: minmax(210px, 40fr) minmax(0, 60fr); gap: 1rem; }
 }
