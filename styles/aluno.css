@@ -85,7 +85,7 @@
 }
 .al-progress-label {
   display: flex; justify-content: space-between; align-items: baseline;
-  font-family: var(--font-mono); font-size: .6rem; color: var(--text-mut);
+  font-family: var(--font-mono); font-size: calc(.6rem * var(--zoom-scale,1)); color: var(--text-mut);
   letter-spacing: .08em; text-transform: uppercase;
   margin-bottom: .35rem;
 }
@@ -110,13 +110,13 @@
 }
 .al-ch-btn:hover { background: var(--surface-2); }
 .al-ch-num {
-  font-family: var(--font-mono); font-size: .65rem; color: var(--accent);
+  font-family: var(--font-mono); font-size: calc(.65rem * var(--zoom-scale,1)); color: var(--accent);
   background: var(--accent-soft); padding: .1rem .3rem; border-radius: 4px;
   flex-shrink: 0; letter-spacing: .04em;
 }
-.al-ch-title { font-family: var(--font-display); font-size: .82rem; font-weight: 700; flex: 1; }
+.al-ch-title { font-family: var(--font-display); font-size: calc(.82rem * var(--zoom-scale,1)); font-weight: 700; flex: 1; }
 .al-ch-progress {
-  font-family: var(--font-mono); font-size: .6rem; color: var(--text-mut);
+  font-family: var(--font-mono); font-size: calc(.6rem * var(--zoom-scale,1)); color: var(--text-mut);
   flex-shrink: 0; letter-spacing: .03em;
 }
 .al-ch-arrow {
@@ -138,7 +138,7 @@
   align-items: center; justify-content: space-between; gap: .5rem;
   padding: .38rem .75rem .38rem 1.5rem;
   border: none; background: none;
-  font-family: var(--font-display); font-size: .8rem; color: var(--text-soft);
+  font-family: var(--font-display); font-size: calc(.8rem * var(--zoom-scale,1)); color: var(--text-soft);
   cursor: pointer; border-left: 2px solid transparent;
   transition: all .15s;
 }
@@ -149,7 +149,7 @@
 }
 .al-lesson-btn.done::after {
   content: "✓"; color: var(--accent);
-  font-size: .68rem; line-height: 1; flex-shrink: 0;
+  font-size: calc(.68rem * var(--zoom-scale,1)); line-height: 1; flex-shrink: 0;
   opacity: .75;
 }
 
@@ -165,7 +165,7 @@
 
 .al-lesson-head { margin-bottom: 1rem; }
 .al-crumb {
-  font-family: var(--font-mono); font-size: .68rem;
+  font-family: var(--font-mono); font-size: calc(.68rem * var(--zoom-scale,1));
   color: var(--text-mut); letter-spacing: .1em; text-transform: uppercase;
   margin-bottom: .25rem;
 }
@@ -270,7 +270,7 @@
 .lesson-summary-group li { line-height: 1.65; font-size: calc(1.06rem * var(--zoom-scale,1)); }
 .lesson-summary-formulas .katex-display { margin: .55rem 0; padding: .35rem .5rem; background: color-mix(in srgb, var(--surface-2) 55%, transparent); border-radius: 6px; }
 .power-rules { padding-left: 1.6rem !important; }
-.power-rules li { padding: .4rem .55rem; margin: .35rem 0 !important; border-radius: 7px; background: color-mix(in srgb, var(--surface) 68%, transparent); }
+.power-rules li { padding: .55rem .7rem; margin: .4rem 0 !important; border-left: 3px solid color-mix(in srgb, var(--accent) 72%, var(--border)); border-radius: 7px; background: color-mix(in srgb, var(--accent) 8%, var(--surface)); color: var(--text); }
 .power-rules .katex-display { margin: .2rem 0; }
 .lesson-quick-check { margin: 1.25rem 0; padding: 1rem 1.15rem; border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 10px; background: color-mix(in srgb, var(--accent-soft) 55%, var(--surface)); }
 .lesson-quick-check h3 { margin: 0 0 .4rem; font: 750 1.08rem var(--font-display); color: var(--text); }
@@ -324,7 +324,7 @@
 
 /* Better heading alignment */
 .al-lesson-h2 { margin-top: 1.5rem; margin-bottom: 0.5rem; }
-.section-eyebrow { font-size: 0.7rem; letter-spacing: 0.12em; margin-bottom: 0.25rem; text-transform: uppercase; color: var(--text-mut); }
+.section-eyebrow { font-size: calc(0.7rem * var(--zoom-scale,1)); letter-spacing: 0.12em; margin-bottom: 0.25rem; text-transform: uppercase; color: var(--text-mut); }
 
 /* Improved code display */
 .lab-base-tex { font-size: calc(.98rem * var(--zoom-scale,1)); line-height: 1.7; }

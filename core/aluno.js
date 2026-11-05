@@ -304,20 +304,9 @@ function enhanceLessonExperience(lesson) {
     status.classList.add("ready");
   };
 
-  if (isLast || alreadyDone) {
-    unlock(isLast ? "Você chegou à última lição deste percurso." : "Esta lição já foi concluída anteriormente.");
-    return;
-  }
-
-  nextBtn.disabled = true;
-  nextBtn.classList.add("is-locked");
-  status.id = `lesson-gate-${lesson.id}`;
-  nextBtn.setAttribute("aria-describedby", status.id);
-
+  // A revisão continua interativa mesmo quando a aula já consta como concluída.
   const quickCheck = lessonEl.querySelector(".lesson-quick-check");
-  const challenge = lessonEl.querySelector(".lab-challenge");
   if (quickCheck) {
-    status.textContent = "Responda à questão de revisão para liberar a próxima lição.";
     quickCheck.addEventListener("click", event => {
       const button = event.target.closest("button[data-choice]");
       if (!button || quickCheck.dataset.complete === "true") return;
@@ -334,6 +323,21 @@ function enhanceLessonExperience(lesson) {
         setTimeout(() => quickCheck.classList.remove("has-error"), 500);
       }
     }, { signal });
+  }
+
+  if (isLast || alreadyDone) {
+    unlock(isLast ? "Você chegou à última lição deste percurso." : "Esta lição já foi concluída anteriormente.");
+    return;
+  }
+
+  nextBtn.disabled = true;
+  nextBtn.classList.add("is-locked");
+  status.id = `lesson-gate-${lesson.id}`;
+  nextBtn.setAttribute("aria-describedby", status.id);
+
+  const challenge = lessonEl.querySelector(".lab-challenge");
+  if (quickCheck) {
+    status.textContent = "Responda à questão de revisão para liberar a próxima lição.";
     lessonEl.addEventListener("lessonchallengecomplete", () => unlock("Resposta correta. A próxima lição está liberada."), { signal, once: true });
   } else if (challenge) {
     status.textContent = "Conclua um desafio do laboratório para liberar a próxima lição.";

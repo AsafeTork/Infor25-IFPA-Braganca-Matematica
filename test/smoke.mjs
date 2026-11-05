@@ -98,6 +98,25 @@ async function main() {
     check("aluno: katex renderizado", await page.locator("#lesson .katex").count() > 0);
     check("aluno: keypad flutuante montado", await page.locator(".sf-wrap, .sf-close-all, [class*=sf-]").count() > 0);
 
+    if (await page.locator("#zoom-in").isVisible()) {
+      const beforeZoom = await page.locator(".al-lesson-btn").first().evaluate(el => parseFloat(getComputedStyle(el).fontSize));
+      await page.click("#zoom-in");
+      const afterZoom = await page.locator(".al-lesson-btn").first().evaluate(el => parseFloat(getComputedStyle(el).fontSize));
+      check("aluno: porcentagem de zoom aumenta texto da navegação", afterZoom > beforeZoom, `${beforeZoom}px → ${afterZoom}px`);
+      await page.click("#zoom-out");
+    }
+
+    // Resposta da questão segue clicável mesmo se o progresso já marcou a aula como feita.
+    await page.evaluate(() => localStorage.setItem("info25:progress", JSON.stringify(["pot-propriedades"])));
+    await page.reload({ waitUntil: "load" });
+    await page.waitForSelector(".lesson-quick-check button[data-choice='c']", { timeout: 10000 });
+    await page.locator(".lesson-quick-check button[data-choice='c']").click();
+    check("aluno: desafio de revisão responde em aula concluída",
+      await page.locator(".quick-check-feedback").textContent().then(text => text.includes("Correto")));
+    await page.evaluate(() => localStorage.removeItem("info25:progress"));
+    await page.reload({ waitUntil: "load" });
+    await page.waitForSelector(".al-lesson-btn", { timeout: 10000 });
+
     // navegação: clica na 3ª aula → hash + conteúdo mudam
     const before = await page.evaluate(() => location.hash);
     await page.locator(".al-lesson-btn").nth(2).click();
