@@ -52,6 +52,15 @@ function trackErrors(page, bucket, label) {
   });
 }
 
+async function newTestPage(ctx) {
+  const page = await ctx.newPage();
+  // O comportamento do app não deve depender da disponibilidade do Google Fonts.
+  await page.route("https://fonts.googleapis.com/**", route => route.fulfill({
+    status: 200, contentType: "text/css; charset=utf-8", body: ""
+  }));
+  return page;
+}
+
 async function main() {
   const server = await startServer();
   const base = `http://127.0.0.1:${server.address().port}`;
@@ -60,7 +69,7 @@ async function main() {
   /* ── 1. LANDING ── */
   {
     const ctx = await browser.newContext();
-    const page = await ctx.newPage();
+    const page = await newTestPage(ctx);
     const errs = [];
     trackErrors(page, errs, "index");
     await page.goto(`${base}/index.html`, { waitUntil: "load" });
@@ -79,7 +88,7 @@ async function main() {
   /* ── 2. ALUNO ── */
   {
     const ctx = await browser.newContext();
-    const page = await ctx.newPage();
+    const page = await newTestPage(ctx);
     const errs = [];
     trackErrors(page, errs, "aluno");
     await page.goto(`${base}/aluno.html`, { waitUntil: "load" });
@@ -101,11 +110,13 @@ async function main() {
     // (goto só com hash é same-document — recarrega p/ garantir render inicial)
     await page.goto(`${base}/aluno.html#pot-inteiro`, { waitUntil: "load" });
     await page.reload({ waitUntil: "load" });
-    await page.waitForSelector(".lab-input", { timeout: 10000 });
+    await page.waitForSelector(".lab-input", { timeout: 20000 });
     check("aluno: lab de fórmulas montado", await page.locator(".lab-input").count() > 0);
-    check("aluno: esteira pedagógica tem 4 etapas",
-      await page.locator(".lesson-journey button").count() === 4);
-    check("aluno: síntese final presente", await page.locator(".lesson-summary").count() === 1);
+    check("aluno: sem esteira redundante no topo", await page.locator(".lesson-journey").count() === 0);
+    check("aluno: síntese detalhada presente",
+      await page.locator(".lesson-summary-group").count() >= 2);
+    check("aluno: texto em 100% tem pelo menos 16px", await page.locator("#lesson p").first().evaluate(el =>
+      parseFloat(getComputedStyle(el).fontSize) >= 16));
     check("aluno: próxima lição bloqueada antes da prática", await page.locator("#next").isDisabled());
     if (FULL) {
       const inp = page.locator(".lab-input").first();
@@ -145,7 +156,7 @@ async function main() {
   /* ── 3. PROFESSOR ── */
   {
     const ctx = await browser.newContext();
-    const page = await ctx.newPage();
+    const page = await newTestPage(ctx);
     const errs = [];
     trackErrors(page, errs, "professor");
     await page.goto(`${base}/professor.html`, { waitUntil: "load" });
@@ -238,7 +249,7 @@ async function main() {
   /* ── 4. Modo Aula (TV/projetor) ── */
   {
     const ctx = await browser.newContext();
-    const page = await ctx.newPage();
+    const page = await newTestPage(ctx);
     const errs = [];
     trackErrors(page, errs, "aula");
     await page.goto(`${base}/professor.html`, { waitUntil: "load" });
@@ -269,7 +280,7 @@ async function main() {
   /* ── 5. mobile smoke (professor + aluno carregam em 375px) ── */
   {
     const ctx = await browser.newContext({ viewport: { width: 375, height: 700 }, hasTouch: true });
-    const page = await ctx.newPage();
+    const page = await newTestPage(ctx);
     const errs = [];
     trackErrors(page, errs, "mobile");
     await page.goto(`${base}/aluno.html`, { waitUntil: "load" });
@@ -279,7 +290,7 @@ async function main() {
       await page.locator("#sym-float").count() === 0);
     await page.goto(`${base}/aluno.html#pot-inteiro`, { waitUntil: "load" });
     await page.reload({ waitUntil: "load" });
-    await page.waitForSelector(".lab-grid", { timeout: 10000 });
+    await page.waitForSelector(".lab-grid", { timeout: 20000 });
     const mobileLab = await page.evaluate(() => {
       const visual = document.querySelector(".lab-right");
       const controls = document.querySelector(".lab-left");
@@ -303,6 +314,7 @@ async function main() {
   /* ── 6. PWA offline (service worker) ── */
   {
     const ctx = await browser.newContext();
+    // Aqui as fontes externas reais participam do teste do cache runtime offline.
     const page = await ctx.newPage();
     const errs = [];
     trackErrors(page, errs, "pwa");

@@ -200,11 +200,9 @@ const crumbEl = document.getElementById("crumb");
 const titleEl = document.getElementById("title");
 const lessonEl = document.getElementById("lesson");
 let lessonExperienceAbort = null;
-let lessonJourneyObserver = null;
 
 function enhanceLessonExperience(lesson) {
   lessonExperienceAbort?.abort();
-  lessonJourneyObserver?.disconnect();
   const controller = new AbortController();
   const { signal } = controller;
   lessonExperienceAbort = controller;
@@ -232,60 +230,66 @@ function enhanceLessonExperience(lesson) {
     section.classList.add("lesson-section--interactive");
   });
 
-  const firstSection = lessonEl.querySelector(":scope > .lesson-section, :scope > .def, :scope > .box");
-  const concept = lessonEl.querySelector(".def") || lessonEl.querySelectorAll(":scope > .lesson-section")[1] || firstSection;
   const practice = lessonEl.querySelector(".lesson-interaction-stage, .lab");
-  const headings = [...lessonEl.querySelectorAll(".lesson-h2")]
-    .map(el => el.textContent.trim()).filter((text, i, all) => text && all.indexOf(text) === i).slice(0, 4);
+  const normalizeText = element => {
+    const clone = element.cloneNode(true);
+    clone.querySelectorAll(".katex-html").forEach(el => el.remove());
+    return clone.textContent.replace(/\s+/g, " ").trim();
+  };
+  const unique = values => values.filter((value, index, all) => value && all.indexOf(value) === index);
+  const escapeHTML = value => value.replace(/[&<>"']/g, char => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[char]);
+  const definitions = unique([...lessonEl.querySelectorAll(".def")].map(def => {
+    const title = def.querySelector(".def-h")?.textContent.trim() || "Definição";
+    const body = normalizeText(def.querySelector(":scope > div:last-child") || def);
+    return `${title}: ${body}`;
+  }));
+  const rules = unique([...lessonEl.querySelectorAll("li")]
+    .filter(item => !item.closest(".lab, .challenge-box, .lesson-summary"))
+    .map(normalizeText));
+  const highlighted = unique([...lessonEl.querySelectorAll("p")]
+    .filter(p => !p.closest(".lab, .challenge-box, .lesson-summary") && p.querySelector("strong, b"))
+    .map(normalizeText));
+  const formulaMap = new Map();
+  lessonEl.querySelectorAll('.katex-display annotation[encoding="application/x-tex"]').forEach(annotation => {
+    if (annotation.closest(".lab, .challenge-box")) return;
+    const source = annotation.textContent.trim();
+    const rendered = annotation.closest(".katex-display");
+    if (source && rendered && !formulaMap.has(source)) formulaMap.set(source, rendered.outerHTML);
+  });
+  const formulas = [...formulaMap.values()];
+
+  const ruleItems = unique([...rules, ...highlighted]);
+  const summaryGroups = [
+    definitions.length ? `
+      <div class="lesson-summary-group">
+        <h3>Definições centrais</h3>
+        <ul>${definitions.map(text => `<li>${escapeHTML(text)}</li>`).join("")}</ul>
+      </div>` : "",
+    ruleItems.length ? `
+      <div class="lesson-summary-group">
+        <h3>Regras e propriedades importantes</h3>
+        <ul>${ruleItems.map(text => `<li>${escapeHTML(text)}</li>`).join("")}</ul>
+      </div>` : "",
+    formulas.length ? `
+      <div class="lesson-summary-group lesson-summary-formulas">
+        <h3>Fórmulas essenciais</h3>
+        ${formulas.map(formula => `<div>${formula}</div>`).join("")}
+      </div>` : "",
+  ].filter(Boolean).join("");
 
   const summary = document.createElement("section");
   summary.className = "lesson-summary";
   summary.innerHTML = `
     <span class="section-eyebrow">Síntese da lição</span>
-    <h2 class="lesson-h2">Antes de avançar</h2>
-    <p>Confirme os pontos que você acabou de percorrer:</p>
-    <ul>
-      ${headings.length
-        ? headings.map(text => `<li>${text}</li>`).join("")
-        : `<li>Explique com suas palavras o conceito central de ${lesson.title}.</li>`}
-      ${practice ? "<li>Relacione a manipulação feita com a mudança observada no gráfico.</li>" : ""}
-    </ul>
+    <h2 class="lesson-h2">O que precisa ficar desta aula</h2>
+    <div class="lesson-summary-groups">
+      ${summaryGroups || `<div class="lesson-summary-group"><p>Explique com suas palavras o conceito central de ${escapeHTML(lesson.title)} e como aplicá-lo.</p></div>`}
+      ${practice ? `<div class="lesson-summary-group"><h3>Leitura do gráfico</h3><p>Relacione cada alteração feita nos controles com a mudança observada na visualização.</p></div>` : ""}
+    </div>
     <p class="lesson-summary-status" role="status"></p>`;
   lessonEl.appendChild(summary);
-
-  const journey = document.createElement("nav");
-  journey.className = "lesson-journey";
-  journey.setAttribute("aria-label", "Etapas da lição");
-  const stages = [
-    { label: "Contexto", target: firstSection },
-    { label: "Conceito", target: concept },
-    { label: "Prática", target: practice },
-    { label: "Síntese", target: summary },
-  ].filter(stage => stage.target);
-  journey.innerHTML = stages.map((stage, index) =>
-    `<button type="button" data-stage="${index}"><span>${index + 1}</span>${stage.label}</button>`
-  ).join("");
-  lessonEl.prepend(journey);
-
-  const journeyButtons = [...journey.querySelectorAll("button")];
-  journeyButtons.forEach((button, index) => button.addEventListener("click", () => {
-    stages[index].target.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, { signal }));
-
-  if ("IntersectionObserver" in window) {
-    lessonJourneyObserver = new IntersectionObserver(entries => {
-      const visible = entries.filter(entry => entry.isIntersecting)
-        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-      if (!visible) return;
-      const index = stages.findIndex(stage => stage.target === visible.target);
-      journeyButtons.forEach((button, i) => {
-        button.classList.toggle("active", i === index);
-        if (i === index) button.setAttribute("aria-current", "step");
-        else button.removeAttribute("aria-current");
-      });
-    }, { rootMargin: `-${parseInt(getComputedStyle(document.documentElement).getPropertyValue("--top-h")) || 52}px 0px -55%`, threshold: [0.05, 0.35] });
-    stages.forEach(stage => lessonJourneyObserver.observe(stage.target));
-  }
 
   const status = summary.querySelector(".lesson-summary-status");
   const isLast = cur >= ALL.length - 1;
@@ -314,8 +318,7 @@ function enhanceLessonExperience(lesson) {
     lessonEl.addEventListener("lessonchallengecomplete", () => unlock(), { signal, once: true });
   } else if (practice) {
     status.textContent = "Interaja com a visualização para liberar a próxima lição.";
-    const engage = event => {
-      if (event.target.closest(".lesson-journey")) return;
+    const engage = () => {
       unlock("Interação registrada. A próxima lição está liberada.");
     };
     practice.addEventListener("pointerdown", engage, { signal, once: true });

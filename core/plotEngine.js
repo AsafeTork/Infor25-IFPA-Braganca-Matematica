@@ -434,6 +434,7 @@ export class Plot {
   }
 
   _drawCurve(c) {
+    if (c.isIFS) return this._drawIFS(c);
     if (c.isImplicit) return this._drawImplicit(c);
     const ctx = this.ctx, { W } = this;
     const params = c.params || {};
@@ -455,6 +456,41 @@ export class Plot {
       prevY = py;
     }
     ctx.stroke();
+  }
+
+  _drawIFS(c) {
+    const ctx = this.ctx;
+    const depth = Math.max(0, Math.min(18, Math.floor(c.depth ?? 8)));
+    const transforms = c.transforms || [];
+    if (!transforms.length) return;
+    const points = [[0, 0], [1, 0]];
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, this.W, this.H); ctx.clip();
+    ctx.strokeStyle = c.color || css("--accent");
+    ctx.lineWidth = (c.width || 2) * this._styleMul;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    const visit = (x1, y1, x2, y2, level) => {
+      if (level >= depth) {
+        const px1 = this.X(x1), py1 = this.Y(y1), px2 = this.X(x2), py2 = this.Y(y2);
+        // Skip distant geometry before sending it to Canvas; clipping keeps visible pieces exact.
+        if ((Math.max(px1, px2) < -2 * this.W) || (Math.min(px1, px2) > 3 * this.W) ||
+            (Math.max(py1, py2) < -2 * this.H) || (Math.min(py1, py2) > 3 * this.H)) return;
+        ctx.moveTo(px1, py1); ctx.lineTo(px2, py2);
+        return;
+      }
+      for (const t of transforms) {
+        const apply = (x, y) => [
+          t.ar * x - t.ai * y + t.br,
+          t.ai * x + t.ar * y + t.bi,
+        ];
+        const [ax, ay] = apply(x1, y1), [bx, by] = apply(x2, y2);
+        visit(ax, ay, bx, by, level + 1);
+      }
+    };
+    visit(points[0][0], points[0][1], points[1][0], points[1][1], 0);
+    ctx.stroke();
+    ctx.restore();
   }
 
   _drawImplicit(c) {
@@ -730,6 +766,20 @@ export class Plot {
     svg += `<line x1="0" y1="${oy}" x2="${this.W}" y2="${oy}" stroke="${axisColor}" stroke-width="1.6"/>`;
 
     for (const curve of this.curves) {
+      if (curve.isIFS) {
+        // IFS is canvas-native and requires an affine transform trace; use sampled visible segments.
+        const depth = Math.max(0, Math.min(16, Math.floor(curve.depth ?? 8)));
+        let segments = [[[0,0],[1,0]]];
+        for (let level=0; level<depth; level++) {
+          segments = segments.flatMap(([a,b]) => (curve.transforms||[]).map(t => {
+            const apply = ([x,y]) => [t.ar*x-t.ai*y+t.br, t.ai*x+t.ar*y+t.bi];
+            return [apply(a),apply(b)];
+          }));
+        }
+        const path = segments.map(([a,b]) => `M${this.X(a[0])},${this.Y(a[1])}L${this.X(b[0])},${this.Y(b[1])}`).join("");
+        svg += `<path d="${path}" fill="none" stroke="${curve.color || css("--accent")}" stroke-width="2.6"/>`;
+        continue;
+      }
       if (curve.isImplicit) {
         // SVG para implícita F(x,y)=0 via marching squares (coração implícito, círculo)
         const cols = Math.max(120, Math.floor(this.W/3)), rows = Math.max(90, Math.floor(this.H/3));

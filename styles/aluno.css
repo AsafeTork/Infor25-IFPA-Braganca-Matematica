@@ -171,23 +171,23 @@
 }
 .al-title {
   font-family: var(--font-display); font-weight: 800;
-  font-size: calc(1.5rem * var(--zoom-scale,1)); line-height: 1.1;
+  font-size: calc(1.7rem * var(--zoom-scale,1)); line-height: 1.12;
   margin: 0; letter-spacing: -.02em;
 }
 
 /* Lesson content typography */
-.al-lesson-body { line-height: 1.75; }
+.al-lesson-body { line-height: 1.78; }
 .al-lesson-body .lesson-section { margin-bottom: 1.75rem; }
 .al-lesson-body .lesson-h2 {
-  font-size: calc(1.1rem * var(--zoom-scale,1));
+  font-size: calc(1.22rem * var(--zoom-scale,1));
   font-family: var(--font-display); font-weight: 700;
   margin: 0 0 .6rem; letter-spacing: -.01em;
 }
-.al-lesson-body p { margin: .35rem 0; color: var(--text-soft); font-size: calc(0.95rem * var(--zoom-scale,1)); }
+.al-lesson-body p { margin: .5rem 0; color: var(--text-soft); font-size: calc(1.06rem * var(--zoom-scale,1)); }
 .al-lesson-body p strong, .al-lesson-body b { color: var(--text); }
-.al-lesson-body ul, .al-lesson-body ol { padding-left: 1.3rem; margin: .3rem 0; color: var(--text-soft); font-size: calc(0.93rem * var(--zoom-scale,1)); }
-.al-lesson-body li { margin: .15rem 0; }
-.al-lesson-body .lesson-note { font-size: calc(0.75rem * var(--zoom-scale,1)); color: var(--text-mut); font-style: italic; }
+.al-lesson-body ul, .al-lesson-body ol { padding-left: 1.35rem; margin: .45rem 0; color: var(--text-soft); font-size: calc(1.02rem * var(--zoom-scale,1)); }
+.al-lesson-body li { margin: .28rem 0; }
+.al-lesson-body .lesson-note { font-size: calc(0.88rem * var(--zoom-scale,1)); color: var(--text-mut); font-style: italic; }
 .katex { font-size: calc(1.12em * var(--zoom-scale,1)); }
 .katex-display { margin: .6rem 0; overflow-x: clip; max-width: 100%; }
 
@@ -198,48 +198,6 @@
   border-top: 1px solid var(--border);
 }
 .al-lesson-nav .btn.is-locked { opacity: .5; cursor: not-allowed; }
-
-/* ── Esteira pedagógica ───────────────────────────────────── */
-.lesson-journey {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: .35rem;
-  margin: 0 0 1.35rem;
-  padding: .4rem;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--surface) 88%, transparent);
-}
-.lesson-journey button {
-  min-width: 0;
-  min-height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: .4rem;
-  padding: .45rem .55rem;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text-mut);
-  font: 700 calc(.72rem * var(--zoom-scale,1)) var(--font-display);
-  cursor: pointer;
-}
-.lesson-journey button span {
-  width: 20px;
-  height: 20px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: var(--surface-2);
-  font: 600 .62rem var(--font-mono);
-}
-.lesson-journey button.active {
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-.lesson-journey button.active span { background: var(--accent); color: #111; }
 
 /* Seção texto + visual: 38/62 em telas amplas. */
 .lesson-interaction-stage {
@@ -270,14 +228,34 @@
   background: linear-gradient(135deg, var(--accent-soft), var(--surface));
   scroll-margin-top: calc(var(--top-h) + 1rem);
 }
-.lesson-summary ul { columns: 2; column-gap: 2rem; }
-.lesson-summary li { break-inside: avoid; margin-bottom: .35rem; }
+.lesson-summary-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: .8rem;
+}
+.lesson-summary-group {
+  min-width: 0;
+  padding: .9rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+}
+.lesson-summary-group h3 {
+  margin: 0 0 .55rem;
+  color: var(--text);
+  font: 750 calc(1rem * var(--zoom-scale,1)) var(--font-display);
+}
+.lesson-summary-group ul { columns: 1; margin: 0; }
+.lesson-summary-group li { break-inside: avoid; margin-bottom: .5rem; }
+.lesson-summary-formulas { grid-column: 1 / -1; }
+.lesson-summary-formulas > div { overflow-x: auto; padding: .15rem 0; }
 .lesson-summary-status {
   margin-top: .8rem !important;
   padding-top: .7rem;
   border-top: 1px solid var(--border);
   color: var(--text-mut) !important;
-  font: 600 calc(.78rem * var(--zoom-scale,1)) var(--font-mono);
+  font: 600 calc(.9rem * var(--zoom-scale,1)) var(--font-mono);
 }
 .lesson-summary-status.ready { color: var(--success, #22c55e) !important; }
 
@@ -286,14 +264,6 @@
 }
 
 @media (max-width: 700px) {
-  .lesson-journey {
-    display: flex;
-    overflow-x: auto;
-    scrollbar-width: none;
-    margin-inline: -.15rem;
-  }
-  .lesson-journey::-webkit-scrollbar { display: none; }
-  .lesson-journey button { flex: 1 0 auto; min-height: 44px; }
   .lesson-interaction-stage {
     grid-template-columns: 1fr;
     grid-template-areas: "visual" "copy";
@@ -304,7 +274,8 @@
     position: relative;
     top: auto;
   }
-  .lesson-summary ul { columns: 1; }
+  .lesson-summary-groups { grid-template-columns: 1fr; }
+  .lesson-summary-formulas { grid-column: auto; }
 }
 
 /* ── Improved responsive design for medium screens ── */
@@ -316,8 +287,8 @@
 
 @media (max-width: 500px) {
   .al-main { padding: 1rem 0.75rem 2rem; }
-  .al-title { font-size: calc(1.35rem * var(--zoom-scale,1)); }
-  .al-lesson-body { line-height: 1.65; }
+  .al-title { font-size: calc(1.5rem * var(--zoom-scale,1)); }
+  .al-lesson-body { line-height: 1.72; }
   .box { border-radius: 5px; padding: 0.5rem 0.7rem; }
   .def { border-radius: 5px; padding: 0.5rem 0.7rem; }
 }
@@ -327,7 +298,7 @@
 .section-eyebrow { font-size: 0.7rem; letter-spacing: 0.12em; margin-bottom: 0.25rem; text-transform: uppercase; color: var(--text-mut); }
 
 /* Improved code display */
-.lab-base-tex { font-size: 0.85rem; line-height: 1.6; }
+.lab-base-tex { font-size: calc(.98rem * var(--zoom-scale,1)); line-height: 1.7; }
 .katex-display { overflow-x: clip; padding: 0.25rem 0; max-width: 100%; }
 
 /* Lab elements better spacing */

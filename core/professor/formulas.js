@@ -8,6 +8,47 @@ import { setActiveTab } from "./panel.js";
 export let formulas = [];
 export let piActive = false;
 export let circleActive = false;
+let curveAnimationEnabled = true;
+let curveAnimationRaf = null;
+let curveAnimationLast = 0;
+let curveAnimationElapsed = 0;
+const curveSpeedInput = document.getElementById("curve-speed");
+const curveSpeedValue = document.getElementById("curve-speed-value");
+const curveAnimationToggle = document.getElementById("curve-animation-toggle");
+
+curveSpeedInput?.addEventListener("input", () => {
+  if (curveSpeedValue) curveSpeedValue.value = `${Number(curveSpeedInput.value).toFixed(2).replace(/0+$/, "").replace(/\.$/, "")}×`;
+});
+curveAnimationToggle?.addEventListener("click", () => {
+  curveAnimationEnabled = !curveAnimationEnabled;
+  curveAnimationToggle.textContent = curveAnimationEnabled ? "Pausar animação" : "Retomar animação";
+  curveAnimationToggle.setAttribute("aria-pressed", String(curveAnimationEnabled));
+  curveAnimationLast = 0;
+  if (curveAnimationEnabled) scheduleCurveAnimation();
+});
+
+function scheduleCurveAnimation() {
+  if (curveAnimationRaf !== null || !curveAnimationEnabled) return;
+  const tick = now => {
+    curveAnimationRaf = null;
+    if (!curveAnimationEnabled) return;
+    if (curveAnimationLast) curveAnimationElapsed += (now - curveAnimationLast) * Number(curveSpeedInput?.value || 1);
+    curveAnimationLast = now;
+    if (curveAnimationElapsed >= 900) {
+      curveAnimationElapsed = 0;
+      let changed = false;
+      formulas.forEach(formula => {
+        if (formula.hidden || !formula.ifs || formula.ifs.depth >= formula.ifs.maxDepth) return;
+        formula.ifs.depth++;
+        changed = true;
+      });
+      if (changed) updatePlot();
+    }
+    if (formulas.some(formula => formula.ifs && formula.ifs.depth < formula.ifs.maxDepth))
+      curveAnimationRaf = requestAnimationFrame(tick);
+  };
+  curveAnimationRaf = requestAnimationFrame(tick);
+}
 
 const PALETTE = [
   "#ffa500","#ffd23f","#60a5fa","#34d399","#a78bfa","#fb923c","#f472b6","#38bdf8",
@@ -70,7 +111,7 @@ export function addFormula(expr="") {
   const dot = row.querySelector(".frow-dot");
   const eye = row.querySelector(".frow-eye");
   const del = row.querySelector(".frow-del");
-  inp.addEventListener("input", updatePlot);
+  inp.addEventListener("input", () => { formula.ifs = null; updatePlot(); });
   del.addEventListener("click", () => {
     row.remove(); formulas = formulas.filter(f => f.inp !== inp); updatePlot();
   });
@@ -126,6 +167,16 @@ export function updatePlot() {
     try {
       const c=compile(expr);
       if(!c||c.error) return null;
+      const formula = formulas.find(f => f.inp === inp);
+      if (c.isIFS) {
+        formula.ifs ||= { depth: 0, maxDepth: 15, name: c.ifsName };
+        if (!formula.ifs.viewApplied) {
+          plot.setView({ xmin: -0.1, xmax: 1.1, ymin: -0.1, ymax: 0.7 });
+          formula.ifs.viewApplied = true;
+        }
+        return { isIFS: true, transforms: c.transforms, depth: formula.ifs.depth, color };
+      }
+      if (formula) formula.ifs = null;
       // Suporte a funções implícitas F(x,y)=0  —  ex: coração (x² + y² - 1)³ - x²y³ = 0 , círculo x² + y² = 4
       // coração é implícito (não é y=f(x)), por isso precisa de _drawImplicit via marching squares
       if(c.isImplicit) return {fn:c.fn, color, isImplicit:true, params:c.params};
@@ -133,6 +184,7 @@ export function updatePlot() {
     } catch { return null; }
   }).filter(Boolean);
   plot.setCurves(curves);
+  if (curves.some(curve => curve.isIFS && curve.depth < 15)) scheduleCurveAnimation();
   // sync para SVG (apenas visíveis)
   if (plot.setLabels) plot.setLabels(formulas.filter(f=>!f.hidden && f.inp.value.trim()).map(f=>({ text: f.inp.value.trim(), color: f.color })));
   invalidateContourCache();

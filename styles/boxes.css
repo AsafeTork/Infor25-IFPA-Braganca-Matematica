@@ -15,7 +15,7 @@
 .def .def-h {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: calc(1.04rem * var(--zoom-scale,1));
   color: var(--accent);
   margin: 0 0 0.6rem 0;
   text-transform: uppercase;
@@ -23,8 +23,8 @@
 }
 
 .def > div:last-child {
-  font-size: 0.93rem;
-  line-height: 1.6;
+  font-size: calc(1.02rem * var(--zoom-scale,1));
+  line-height: 1.7;
   color: var(--text-soft);
   margin: 0;
 }
@@ -70,7 +70,7 @@
   content: attr(data-label);
   display: block;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: calc(0.78rem * var(--zoom-scale,1));
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -88,8 +88,8 @@
 /* ── Conteúdo dentro da caixa ── */
 .box > div,
 .box > p {
-  font-size: 0.93rem;
-  line-height: 1.6;
+  font-size: calc(1.02rem * var(--zoom-scale,1));
+  line-height: 1.7;
   color: var(--text-soft);
   margin: 0;
 }
@@ -97,7 +97,7 @@
 .box ul, .box ol {
   margin: 0.6rem 0;
   padding-left: 1.5rem;
-  font-size: 0.93rem;
+  font-size: calc(1rem * var(--zoom-scale,1));
 }
 
 .box li {

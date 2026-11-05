@@ -287,6 +287,23 @@ export function compile(input) {
   try {
     let trimmed = input.trim();
     if (!trimmed) return { error: "Digite uma expressão." };
+    // Sistemas iterados de funções: DSL compacta para atratores conhecidos.
+    const ifsMatch = trimmed.match(/^\s*IFS\s*:\s*([\w-]+)\s*$/i);
+    if (ifsMatch) {
+      const name = ifsMatch[1].toLowerCase();
+      if (name === "levy" || name === "levy-c" || name === "curva-c-de-levy") {
+        return {
+          error: null, isIFS: true, ifsName: "levy",
+          // Complex affine maps z -> az+b, acting on the unit segment [0,1].
+          transforms: [
+            { ar: 0.5, ai: 0.5, br: 0, bi: 0 },
+            { ar: 0.5, ai: -0.5, br: 1, bi: 0 },
+          ],
+          params: [],
+        };
+      }
+      return { error: `Sistema iterado desconhecido: ${ifsMatch[1]}. Tente IFS: Levy.` };
+    }
     // Detecta implícita: contém "=" e não é y= simples e tem exatamente 2 partes (left = right)
     // Ex.: (x^2 + y^2 - 1)^3 - x^2*y^3 = 0  (coração implícito) , x² + y² = 4 (círculo)
     if (trimmed.includes("=") && trimmed.split("=").length === 2) {

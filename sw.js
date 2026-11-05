@@ -1,5 +1,5 @@
 /* sw.js — service worker do PWA: precache (stale-while-revalidate) + runtime p/ fontes externas */
-const VERSION = "v3";
+const VERSION = "v4";
 const PRECACHE = `precache-${VERSION}`;
 const RUNTIME = `runtime-${VERSION}`;
 

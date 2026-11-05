@@ -546,6 +546,18 @@ body { overflow-x: hidden; }
 }
 .frow-inp:focus { border-color:var(--accent); }
 .frow-inp:focus-visible { outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent); }
+.curve-animation {
+  display:grid; grid-template-columns:1fr auto; align-items:center; gap:.35rem .6rem;
+  margin:.4rem 0 .65rem; padding:.55rem .65rem; border:1px solid var(--border);
+  border-radius:8px; background:var(--surface-2); color:var(--text-mut);
+  font-size:calc(.68rem * var(--info-scale,1));
+}
+.curve-animation label { display:flex; justify-content:space-between; gap:.4rem; color:var(--text-soft); }
+.curve-animation output { color:var(--accent); font-family:var(--font-mono); }
+.curve-animation input { grid-column:1; width:100%; accent-color:var(--accent); }
+.curve-animation button { grid-column:2; grid-row:2; padding:.3rem .5rem; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text); cursor:pointer; }
+.curve-animation small { grid-column:1 / -1; line-height:1.45; }
+.curve-animation code { color:var(--accent); font-family:var(--font-mono); }
 
 /* ── Eye / delete toggles — 44×44 touch ready · escala isométrica via --info-scale ── */
 .frow-eye, .frow-del, .layers-eye, [data-layer-eye], [data-layer-del] {
