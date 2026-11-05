@@ -512,7 +512,7 @@ export const trigonometriaLessons = [
     <p><strong>Valores notáveis:</strong></p>
     <table class="vtab mono" style="margin:.3rem 0">
       <thead><tr><th>θ</th><th>0°</th><th>30°</th><th>45°</th><th>60°</th><th>90°</th></tr></thead>
-      <tbody><tr><th>tan θ</th><td>0</td><td>√3/3</td><td>1</td><td>√3</td><td>∄</td></tr></tbody>
+      <tbody><tr><th>tan θ</th><td>0</td><td>√3/3</td><td>1</td><td>√3</td><td>não definida</td></tr></tbody>
     </table>
     <p>tan(45°) = 1 porque sin(45°) = cos(45°). tan(90°) não existe porque cos(90°) = 0.</p>
   </div>

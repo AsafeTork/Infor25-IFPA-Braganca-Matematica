@@ -891,7 +891,7 @@ export class Plot {
 
 // Formata um valor numérico como expressão exata — SEM RECURSÃO
 export function formatExactValue(val, tolerance = 0.01) {
-  if (!isFinite(val)) return "∄";
+  if (!isFinite(val)) return "não definido";
   if (Math.abs(val) < tolerance) return "0";
 
   // Múltiplos de π — n é o coeficiente REAL (ex: 1/6 para π/6)

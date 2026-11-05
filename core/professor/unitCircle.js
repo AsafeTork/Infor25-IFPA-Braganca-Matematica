@@ -4,6 +4,7 @@ import { compile } from "../mathEngine.js";
 import { OverlayType } from "../overlays.js";
 import { formulas, setView, updatePlot } from "./formulas.js";
 import { drawOverlays, toolColor, triShowValues } from "./tools.js";
+import { UNDEFINED_VALUE } from "../trigData.js";
 
 /* ──────────── CÍRCULO UNITÁRIO ──────────── */
 const NOTABLE = [
@@ -11,7 +12,7 @@ const NOTABLE = [
   {a:Math.PI/6,   l:"π/6",   s:"1/2",  c:"√3/2", t:"√3/3"},
   {a:Math.PI/4,   l:"π/4",   s:"√2/2", c:"√2/2", t:"1"   },
   {a:Math.PI/3,   l:"π/3",   s:"√3/2", c:"1/2",  t:"√3"  },
-  {a:Math.PI/2,   l:"π/2",   s:"1",    c:"0",    t:"∄"   },
+  {a:Math.PI/2,   l:"π/2",   s:"1",    c:"0",    t:UNDEFINED_VALUE},
   {a:2*Math.PI/3, l:"2π/3",  s:"√3/2", c:"-1/2", t:"-√3" },
   {a:3*Math.PI/4, l:"3π/4",  s:"√2/2", c:"-√2/2",t:"-1"  },
   {a:5*Math.PI/6, l:"5π/6",  s:"1/2",  c:"-√3/2",t:"-√3/3"},
@@ -19,7 +20,7 @@ const NOTABLE = [
   {a:7*Math.PI/6, l:"7π/6",  s:"-1/2", c:"-√3/2",t:"√3/3"},
   {a:5*Math.PI/4, l:"5π/4",  s:"-√2/2",c:"-√2/2",t:"1"  },
   {a:4*Math.PI/3, l:"4π/3",  s:"-√3/2",c:"-1/2", t:"√3" },
-  {a:3*Math.PI/2, l:"3π/2",  s:"-1",   c:"0",    t:"∄"  },
+  {a:3*Math.PI/2, l:"3π/2",  s:"-1",   c:"0",    t:UNDEFINED_VALUE},
   {a:5*Math.PI/3, l:"5π/3",  s:"-√3/2",c:"1/2",  t:"-√3"},
   {a:7*Math.PI/4, l:"7π/4",  s:"-√2/2",c:"√2/2", t:"-1" },
   {a:11*Math.PI/6,l:"11π/6", s:"-1/2", c:"√3/2", t:"-√3/3"},
@@ -29,7 +30,7 @@ const NOTABLE_NEG = [
   {a:-Math.PI/6,   l:"-π/6",   s:"-1/2",  c:"√3/2",  t:"-√3/3"},
   {a:-Math.PI/4,   l:"-π/4",   s:"-√2/2", c:"√2/2",  t:"-1"   },
   {a:-Math.PI/3,   l:"-π/3",   s:"-√3/2", c:"1/2",   t:"-√3"  },
-  {a:-Math.PI/2,   l:"-π/2",   s:"-1",    c:"0",     t:"∄"    },
+  {a:-Math.PI/2,   l:"-π/2",   s:"-1",    c:"0",     t:UNDEFINED_VALUE},
   {a:-2*Math.PI/3, l:"-2π/3",  s:"-√3/2", c:"-1/2",  t:"√3"   },
   {a:-3*Math.PI/4, l:"-3π/4",  s:"-√2/2", c:"-√2/2", t:"1"    },
   {a:-5*Math.PI/6, l:"-5π/6",  s:"-1/2",  c:"-√3/2", t:"√3/3" },
@@ -37,7 +38,7 @@ const NOTABLE_NEG = [
   {a:-7*Math.PI/6, l:"-7π/6",  s:"1/2",   c:"-√3/2", t:"-√3/3"},
   {a:-5*Math.PI/4, l:"-5π/4",  s:"√2/2",  c:"-√2/2", t:"-1"   },
   {a:-4*Math.PI/3, l:"-4π/3",  s:"√3/2",  c:"-1/2",  t:"-√3"  },
-  {a:-3*Math.PI/2, l:"-3π/2",  s:"1",     c:"0",     t:"∄"    },
+  {a:-3*Math.PI/2, l:"-3π/2",  s:"1",     c:"0",     t:UNDEFINED_VALUE},
   {a:-5*Math.PI/3, l:"-5π/3",  s:"√3/2",  c:"1/2",   t:"√3"   },
   {a:-7*Math.PI/4, l:"-7π/4",  s:"√2/2",  c:"√2/2",  t:"1"    },
   {a:-11*Math.PI/6,l:"-11π/6", s:"1/2",   c:"√3/2",  t:"√3/3" },
@@ -408,7 +409,7 @@ export function ucUpdateInfo() {
   const degVal  = sign * partial2 * 180 / Math.PI;
   document.getElementById("uc-cos").textContent = n ? `${n.c}  (${co.toFixed(3)})` : co.toFixed(4);
   document.getElementById("uc-sin").textContent = n ? `${n.s}  (${si.toFixed(3)})` : si.toFixed(4);
-  document.getElementById("uc-tan").textContent = n ? n.t : (Math.abs(co)<.01?"∄":tn.toFixed(4));
+  document.getElementById("uc-tan").textContent = n ? n.t : (Math.abs(co)<.01?UNDEFINED_VALUE:tn.toFixed(4));
   const angBase = n ? n.l : `${degVal.toFixed(1)}°`;
   document.getElementById("uc-ang").textContent = k > 0 ? `${angBase} + 2·${k}π` : angBase;
   document.getElementById("uc-snap").textContent = k > 0

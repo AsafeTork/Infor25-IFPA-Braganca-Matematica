@@ -21,7 +21,7 @@
    ============================================================ */
 
 import { Plot } from "./plotEngine.js";
-import { NOTABLE, NOTABLE_NEG, trySnap } from "./trigData.js";
+import { NOTABLE, NOTABLE_NEG, UNDEFINED_VALUE, trySnap } from "./trigData.js";
 
 /* ── Helpers globais ────────────────────────────────────── */
 const css = (v) =>
@@ -355,8 +355,8 @@ export function mountTrigCircle(root, opts = {}) {
       </div>
       <div class="uc-row">
         <span class="uc-k" style="color:#4ade80">tan</span>
-        <span class="uc-exact">${n ? n.tan : (Math.abs(co) < 0.01 ? "∄" : fmt(tn))}</span>
-        ${n && n.tan !== "∄" ? `<span class="uc-dec">${fmt(tn, 3)}</span>` : ""}
+        <span class="uc-exact">${n ? n.tan : (Math.abs(co) < 0.01 ? UNDEFINED_VALUE : fmt(tn))}</span>
+        ${n && n.tan !== UNDEFINED_VALUE ? `<span class="uc-dec">${fmt(tn, 3)}</span>` : ""}
       </div>
       <div class="uc-row">
         <span class="uc-k">θ</span>
@@ -1302,7 +1302,7 @@ export function mountTangentVis(root, opts = {}) {
     const tN = ((theta % TWO_PI) + TWO_PI) % TWO_PI;
     const co = Math.cos(theta), si = Math.sin(theta);
     const tanVal = si / co;
-    readoutEl.textContent = `θ = ${(tN * 180 / PI).toFixed(1)}° (${tN.toFixed(3)} rad) — tan θ = ${Math.abs(co) < 0.01 ? "∞" : fmt(tanVal, 3)}`;
+    readoutEl.textContent = `θ = ${(tN * 180 / PI).toFixed(1)}° (${tN.toFixed(3)} rad) — tan θ = ${Math.abs(co) < 0.01 ? UNDEFINED_VALUE : fmt(tanVal, 3)}`;
   }
 
   /* ── Resize & Theme ── */

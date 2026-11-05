@@ -199,6 +199,142 @@ const nextBtn = document.getElementById("next");
 const crumbEl = document.getElementById("crumb");
 const titleEl = document.getElementById("title");
 const lessonEl = document.getElementById("lesson");
+let lessonExperienceAbort = null;
+let lessonJourneyObserver = null;
+
+function enhanceLessonExperience(lesson) {
+  lessonExperienceAbort?.abort();
+  lessonJourneyObserver?.disconnect();
+  const controller = new AbortController();
+  const { signal } = controller;
+  lessonExperienceAbort = controller;
+
+  /* Integra instrução e visual sem exigir que cada feature replique o layout. */
+  lessonEl.querySelectorAll(":scope > .lesson-section").forEach(section => {
+    if (section.querySelector(".lab-slot") || section.querySelector(".lesson-interaction-stage")) return;
+    const visualHost = [...section.children].find(child =>
+      child.matches('[id^="vis-"], .trig-circle-root, canvas.lab-canvas') ||
+      child.querySelector?.(".ctg-container, .tpe-container, .tv-container, .pv-container")
+    );
+    if (!visualHost) return;
+
+    const stage = document.createElement("div");
+    stage.className = "lesson-interaction-stage";
+    const copy = document.createElement("div");
+    copy.className = "lesson-interaction-copy";
+    const visual = document.createElement("div");
+    visual.className = "lesson-interaction-visual";
+    [...section.children].forEach(child => {
+      (child === visualHost ? visual : copy).appendChild(child);
+    });
+    stage.append(copy, visual);
+    section.appendChild(stage);
+    section.classList.add("lesson-section--interactive");
+  });
+
+  const firstSection = lessonEl.querySelector(":scope > .lesson-section, :scope > .def, :scope > .box");
+  const concept = lessonEl.querySelector(".def") || lessonEl.querySelectorAll(":scope > .lesson-section")[1] || firstSection;
+  const practice = lessonEl.querySelector(".lesson-interaction-stage, .lab");
+  const headings = [...lessonEl.querySelectorAll(".lesson-h2")]
+    .map(el => el.textContent.trim()).filter((text, i, all) => text && all.indexOf(text) === i).slice(0, 4);
+
+  const summary = document.createElement("section");
+  summary.className = "lesson-summary";
+  summary.innerHTML = `
+    <span class="section-eyebrow">Síntese da lição</span>
+    <h2 class="lesson-h2">Antes de avançar</h2>
+    <p>Confirme os pontos que você acabou de percorrer:</p>
+    <ul>
+      ${headings.length
+        ? headings.map(text => `<li>${text}</li>`).join("")
+        : `<li>Explique com suas palavras o conceito central de ${lesson.title}.</li>`}
+      ${practice ? "<li>Relacione a manipulação feita com a mudança observada no gráfico.</li>" : ""}
+    </ul>
+    <p class="lesson-summary-status" role="status"></p>`;
+  lessonEl.appendChild(summary);
+
+  const journey = document.createElement("nav");
+  journey.className = "lesson-journey";
+  journey.setAttribute("aria-label", "Etapas da lição");
+  const stages = [
+    { label: "Contexto", target: firstSection },
+    { label: "Conceito", target: concept },
+    { label: "Prática", target: practice },
+    { label: "Síntese", target: summary },
+  ].filter(stage => stage.target);
+  journey.innerHTML = stages.map((stage, index) =>
+    `<button type="button" data-stage="${index}"><span>${index + 1}</span>${stage.label}</button>`
+  ).join("");
+  lessonEl.prepend(journey);
+
+  const journeyButtons = [...journey.querySelectorAll("button")];
+  journeyButtons.forEach((button, index) => button.addEventListener("click", () => {
+    stages[index].target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, { signal }));
+
+  if ("IntersectionObserver" in window) {
+    lessonJourneyObserver = new IntersectionObserver(entries => {
+      const visible = entries.filter(entry => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (!visible) return;
+      const index = stages.findIndex(stage => stage.target === visible.target);
+      journeyButtons.forEach((button, i) => {
+        button.classList.toggle("active", i === index);
+        if (i === index) button.setAttribute("aria-current", "step");
+        else button.removeAttribute("aria-current");
+      });
+    }, { rootMargin: `-${parseInt(getComputedStyle(document.documentElement).getPropertyValue("--top-h")) || 52}px 0px -55%`, threshold: [0.05, 0.35] });
+    stages.forEach(stage => lessonJourneyObserver.observe(stage.target));
+  }
+
+  const status = summary.querySelector(".lesson-summary-status");
+  const isLast = cur >= ALL.length - 1;
+  const alreadyDone = doneSet.has(lesson.id);
+  const unlock = (message) => {
+    if (!isLast) nextBtn.disabled = false;
+    nextBtn.classList.remove("is-locked");
+    nextBtn.removeAttribute("aria-describedby");
+    status.textContent = message || "Etapa concluída. A próxima lição está liberada.";
+    status.classList.add("ready");
+  };
+
+  if (isLast || alreadyDone) {
+    unlock(isLast ? "Você chegou à última lição deste percurso." : "Esta lição já foi concluída anteriormente.");
+    return;
+  }
+
+  nextBtn.disabled = true;
+  nextBtn.classList.add("is-locked");
+  status.id = `lesson-gate-${lesson.id}`;
+  nextBtn.setAttribute("aria-describedby", status.id);
+
+  const challenge = lessonEl.querySelector(".lab-challenge");
+  if (challenge) {
+    status.textContent = "Conclua um desafio do laboratório para liberar a próxima lição.";
+    lessonEl.addEventListener("lessonchallengecomplete", () => unlock(), { signal, once: true });
+  } else if (practice) {
+    status.textContent = "Interaja com a visualização para liberar a próxima lição.";
+    const engage = event => {
+      if (event.target.closest(".lesson-journey")) return;
+      unlock("Interação registrada. A próxima lição está liberada.");
+    };
+    practice.addEventListener("pointerdown", engage, { signal, once: true });
+    practice.addEventListener("input", engage, { signal, once: true });
+    practice.addEventListener("change", engage, { signal, once: true });
+  } else if ("IntersectionObserver" in window) {
+    status.textContent = "Leia até esta síntese para liberar a próxima lição.";
+    const summaryObserver = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) {
+        unlock("Leitura concluída. A próxima lição está liberada.");
+        summaryObserver.disconnect();
+      }
+    }, { threshold: 0.65 });
+    summaryObserver.observe(summary);
+    signal.addEventListener("abort", () => summaryObserver.disconnect(), { once: true });
+  } else {
+    unlock();
+  }
+}
 
 /* ── Student OverlayManager (read-only) ── */
 const overlayMgr = new OverlayManager();
@@ -284,6 +420,7 @@ function go(id) {
         if (window._cleanupLesson) try{ window._cleanupLesson(); }catch(e){ console.warn("[aluno] cleanupLesson", e); }
         window._cleanupLesson = l.cleanupLesson || null;
         l.render(lessonEl);
+        enhanceLessonExperience(l);
         syncTrigOverlays();
         _readyToTrack = true;
         checkBottom();

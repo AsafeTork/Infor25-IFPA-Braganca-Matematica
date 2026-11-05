@@ -67,6 +67,24 @@ export function mountLab(root, cfg = {}) {
         </div>` : ""}
 
         <div class="lab-hint mono">arraste p/ mover · scroll p/ zoom · use o teclado de símbolos acima</div>
+
+        <!-- Desafio integrado aos controles para manter o gráfico visível -->
+        ${desafios.length ? `
+        <div class="lab-challenge challenge-box card" id="ch-${id}" style="border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface))">
+          <div class="ch-head">
+            <span class="ch-badge" aria-hidden="true">◆</span>
+            <span class="ch-title">Desafio de aplicação — observe antes de responder</span>
+            <span class="ch-counter"><span id="chn-${id}">1</span>/${desafios.length}</span>
+          </div>
+          <p class="ch-order" id="cho-${id}"></p>
+          <div class="ch-actions">
+            <button class="btn primary sm" id="chk-${id}">Verificar</button>
+            <button class="btn ghost sm" id="hint-${id}" hidden>Dica</button>
+            <button class="btn ghost sm" id="next-${id}" hidden>Próximo desafio →</button>
+          </div>
+          <div class="ch-feedback" id="chf-${id}"></div>
+          <div class="ch-hint" id="chh-${id}" hidden></div>
+        </div>` : ""}
       </div>
 
       <div class="lab-right">
@@ -74,24 +92,6 @@ export function mountLab(root, cfg = {}) {
         <div class="lab-readout mono" id="rd-${id}">—</div>
       </div>
     </div>
-
-    <!-- Desafio opcional -->
-    ${desafios.length ? `
-    <div class="lab-challenge challenge-box card" id="ch-${id}" style="border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface))">
-      <div class="ch-head">
-        <span class="ch-badge" aria-hidden="true">◆</span>
-        <span class="ch-title">Desafio opcional — tente sem olhar a dica</span>
-        <span class="ch-counter"><span id="chn-${id}">1</span>/${desafios.length}</span>
-      </div>
-      <p class="ch-order" id="cho-${id}"></p>
-      <div class="ch-actions">
-        <button class="btn primary sm" id="chk-${id}">Verificar</button>
-        <button class="btn ghost sm" id="hint-${id}">Dica</button>
-        <button class="btn ghost sm" id="next-${id}" hidden>Próximo desafio →</button>
-      </div>
-      <div class="ch-feedback" id="chf-${id}"></div>
-      <div class="ch-hint" id="chh-${id}" hidden></div>
-    </div>` : ""}
 
     <div class="lab-analysis card" id="an-${id}">
       <div class="section-eyebrow">Leitura matemática</div>
@@ -120,7 +120,7 @@ export function mountLab(root, cfg = {}) {
 
   function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
   function fmt(v) {
-    if (!Number.isFinite(v)) return "∄";
+    if (!Number.isFinite(v)) return "não definido";
     if (Math.abs(v) >= 1e5 || (Math.abs(v) < 1e-3 && v !== 0)) return v.toExponential(2);
     return (Math.round(v * 1000) / 1000).toString();
   }
@@ -188,6 +188,7 @@ export function mountLab(root, cfg = {}) {
   /* ---------------- Desafios ---------------- */
   if (desafios.length) {
     let di = 0;
+    let wrongAttempts = 0;
     const chn  = root.querySelector(`#chn-${id}`);
     const cho  = root.querySelector(`#cho-${id}`);
     const chf  = root.querySelector(`#chf-${id}`);
@@ -201,10 +202,18 @@ export function mountLab(root, cfg = {}) {
       cho.textContent = desafios[di].ordem;
       chf.textContent = ""; chf.className = "ch-feedback";
       chh.hidden = true; chh.textContent = desafios[di].dica || "";
+      btnH.hidden = true;
       btnN.hidden = true;
+      wrongAttempts = 0;
     }
     btnK.addEventListener("click", () => {
-      if (!lastF) { chf.className = "ch-feedback wrong"; chf.textContent = "Escreva uma fórmula válida primeiro."; return; }
+      if (!lastF) {
+        wrongAttempts++;
+        chf.className = "ch-feedback wrong";
+        chf.textContent = "Escreva uma fórmula válida primeiro.";
+        if (wrongAttempts >= 2 && desafios[di].dica) btnH.hidden = false;
+        return;
+      }
       let ok = false;
       try { ok = !!desafios[di].checa(lastF, base0); } catch { ok = false; }
       if (ok) {
@@ -212,9 +221,17 @@ export function mountLab(root, cfg = {}) {
         chf.textContent = "✓ Acertou! Você fez o gráfico se comportar como pedido.";
         if (di < desafios.length - 1) btnN.hidden = false;
         else chf.textContent = "✓ Acertou — e era o último desafio. Mandou bem!";
+        root.dispatchEvent(new CustomEvent("lessonchallengecomplete", {
+          bubbles: true,
+          detail: { challenge: di + 1, total: desafios.length, complete: di === desafios.length - 1 }
+        }));
       } else {
+        wrongAttempts++;
         chf.className = "ch-feedback wrong";
-        chf.textContent = "✗ Ainda não. Observe o gráfico e ajuste a fórmula. (toque em Dica se precisar)";
+        chf.textContent = wrongAttempts < 2
+          ? "✗ Ainda não. Observe o gráfico e ajuste a fórmula mais uma vez."
+          : "✗ Ainda não. A dica foi liberada ao lado do botão de verificar.";
+        if (wrongAttempts >= 2 && desafios[di].dica) btnH.hidden = false;
       }
     });
     btnH.addEventListener("click", () => { chh.hidden = !chh.hidden; });

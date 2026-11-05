@@ -121,17 +121,17 @@ export function mountFloatingKeypad() {
   function render() {
     bar.innerHTML = CATS.map(cat => `
       <div class="sf-cat ${openCat[cat.id] ? 'open' : ''}" data-cat="${cat.id}">
-        <button class="sf-icon-btn" title="${cat.title}" data-cat="${cat.id}">
+        <button type="button" class="sf-icon-btn" title="${cat.title}" aria-label="${cat.title}" data-cat="${cat.id}">
           ${cat.icon}
         </button>
         <div class="sf-keys ${openCat[cat.id] ? 'open' : ''}">
           ${cat.keys.map((k, ki) =>
-            `<button class="sf-key" data-cat="${cat.id}" data-ki="${ki}">${k.l}</button>`
+            `<button type="button" class="sf-key" data-cat="${cat.id}" data-ki="${ki}">${k.l}</button>`
           ).join("")}
         </div>
       </div>
     `).join("") + `
-      <button class="sf-close-all" title="Fechar todos">×</button>
+      <button type="button" class="sf-close-all" title="Fechar símbolos" aria-label="Fechar teclado de símbolos">×</button>
     `;
 
     // Category toggle
@@ -171,8 +171,7 @@ export function mountFloatingKeypad() {
     // Close all
     const closeAll = bar.querySelector(".sf-close-all");
     if (closeAll) closeAll.addEventListener("click", () => {
-      Object.keys(openCat).forEach(k => openCat[k] = false);
-      render();
+      bar.remove();
     });
   }
 

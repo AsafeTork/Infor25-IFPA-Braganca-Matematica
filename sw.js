@@ -1,5 +1,5 @@
 /* sw.js — service worker do PWA: precache (stale-while-revalidate) + runtime p/ fontes externas */
-const VERSION = "v2";
+const VERSION = "v3";
 const PRECACHE = `precache-${VERSION}`;
 const RUNTIME = `runtime-${VERSION}`;
 
@@ -20,6 +20,7 @@ const PRECACHE_URLS = [
   "./core/plotEngine.js",
   "./core/professor/board.js",
   "./core/professor/formulas.js",
+  "./core/professor/modoAula.js",
   "./core/professor/panel.js",
   "./core/professor/plot.js",
   "./core/professor/presets.js",
@@ -39,6 +40,7 @@ const PRECACHE_URLS = [
   "./styles/base.css",
   "./styles/boxes.css",
   "./styles/explorer.css",
+  "./styles/modo-aula.css",
   "./styles/professor.css",
   "./styles/tokens.css",
   "./styles/trigVisuals.css",

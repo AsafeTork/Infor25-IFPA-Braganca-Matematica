@@ -198,6 +198,7 @@ body::before {
   .sym-float { bottom: .6rem; right: .6rem; gap: .2rem; }
   .sf-icon-btn { width: 34px; height: 34px; border-radius: 9px; }
   .sf-keys { max-width: min(220px, 85vw); }
+  .sf-icon-btn, .sf-close-all { min-width: 44px; min-height: 44px; }
 }
 
 /* FIX keypad flutuante acima da bottom-bar (56px) no celular — evita sobreposição tarefa */

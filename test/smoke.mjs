@@ -11,6 +11,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const FULL = process.argv.includes("--full");
+const BROWSER_EXECUTABLE = process.env.PLAYWRIGHT_EXECUTABLE_PATH;
 
 const MIME = {
   ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
@@ -54,7 +55,7 @@ function trackErrors(page, bucket, label) {
 async function main() {
   const server = await startServer();
   const base = `http://127.0.0.1:${server.address().port}`;
-  const browser = await chromium.launch();
+  const browser = await chromium.launch(BROWSER_EXECUTABLE ? { executablePath: BROWSER_EXECUTABLE } : {});
 
   /* ── 1. LANDING ── */
   {
@@ -102,12 +103,26 @@ async function main() {
     await page.reload({ waitUntil: "load" });
     await page.waitForSelector(".lab-input", { timeout: 10000 });
     check("aluno: lab de fórmulas montado", await page.locator(".lab-input").count() > 0);
+    check("aluno: esteira pedagógica tem 4 etapas",
+      await page.locator(".lesson-journey button").count() === 4);
+    check("aluno: síntese final presente", await page.locator(".lesson-summary").count() === 1);
+    check("aluno: próxima lição bloqueada antes da prática", await page.locator("#next").isDisabled());
     if (FULL) {
       const inp = page.locator(".lab-input").first();
       await inp.fill("2^x");
       await page.waitForTimeout(250);
       check("aluno: lab renderiza fórmula digitada",
         await page.locator(".lab-render .katex, .lab-render .katex-mathml").count() > 0);
+      const verify = page.locator(".lab-challenge .btn.primary").first();
+      const hint = page.locator(".lab-challenge .btn.ghost").first();
+      check("aluno: dica começa oculta", await hint.isHidden());
+      await verify.click();
+      check("aluno: dica segue oculta após 1 erro", await hint.isHidden());
+      await verify.click();
+      check("aluno: dica aparece após 2 erros", await hint.isVisible());
+      await inp.fill("y = (1/2)^x");
+      await verify.click();
+      check("aluno: acerto libera próxima lição", !(await page.locator("#next").isDisabled()));
     }
     // progresso: marcar aula ao ver o fim do conteúdo + persistir após reload
     const lessonId = await page.evaluate(() => location.hash.slice(1));
@@ -163,6 +178,10 @@ async function main() {
     await page.waitForTimeout(200);
     check("professor: círculo liga (uc-info.show)", await ucOn());
     check("professor: ângulo exibido", (await page.locator("#uc-ang").innerText()).trim().length > 0);
+    await page.click("#tab-neg");
+    await page.getByRole("button", { name: "-π/2", exact: true }).click();
+    check("professor: tangente em -π/2 aparece como não definida",
+      (await page.locator("#uc-tan").innerText()).trim() === "não definida");
     await page.click("#btn-circle");
     await page.waitForTimeout(150);
     check("professor: círculo desliga", !(await ucOn()));
@@ -255,6 +274,26 @@ async function main() {
     trackErrors(page, errs, "mobile");
     await page.goto(`${base}/aluno.html`, { waitUntil: "load" });
     await page.waitForSelector(".al-lesson-btn", { timeout: 10000 });
+    await page.locator(".sf-close-all").tap();
+    check("mobile: teclado de símbolos fecha completamente ao tocar em fechar",
+      await page.locator("#sym-float").count() === 0);
+    await page.goto(`${base}/aluno.html#pot-inteiro`, { waitUntil: "load" });
+    await page.reload({ waitUntil: "load" });
+    await page.waitForSelector(".lab-grid", { timeout: 10000 });
+    const mobileLab = await page.evaluate(() => {
+      const visual = document.querySelector(".lab-right");
+      const controls = document.querySelector(".lab-left");
+      const vr = visual.getBoundingClientRect();
+      const cr = controls.getBoundingClientRect();
+      return {
+        visualFirst: vr.top < cr.top,
+        sticky: getComputedStyle(visual).position === "sticky",
+        noOverflow: document.documentElement.scrollWidth <= window.innerWidth,
+      };
+    });
+    check("mobile: gráfico vem antes dos controles", mobileLab.visualFirst);
+    check("mobile: gráfico permanece sticky durante a prática", mobileLab.sticky);
+    check("mobile: aluno sem rolagem horizontal", mobileLab.noOverflow);
     await page.goto(`${base}/professor.html`, { waitUntil: "load" });
     await page.waitForSelector("#plot-canvas", { timeout: 10000 });
     check("mobile: professor carrega sem erro", errs.length === 0, errs.join(" | "));
